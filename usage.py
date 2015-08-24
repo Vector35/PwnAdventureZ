@@ -40,7 +40,7 @@ for line in f:
 rom_size = code_size + data_size
 
 print "ROM:       %5d of %5d bytes  %3d%%  %5d bytes code, %5d bytes data" % (rom_size, 0x7ffa, int((rom_size * 100.0) / 0x7ffa), code_size, data_size)
-print "RAM:       %5d of %5d bytes  %3d%%" % (ram_size, 0x600, int((ram_size * 100.0) / 0x600))
+print "RAM:       %5d of %5d bytes  %3d%%" % (ram_size, 0x500, int((ram_size * 100.0) / 0x500))
 print "Zero page: %5d of %5d bytes  %3d%%" % (zero_size, 0x100, int((zero_size * 100.0) / 0x600))
 print "CHR 0:     %5d of %5d chars  %3d%%" % (chr0_size / 16, 0x100, int((chr0_size * 100.0) / 0x1000))
 print "CHR 1:     %5d of %5d chars  %3d%%" % (chr1_size / 16, 0x100, int((chr1_size * 100.0) / 0x1000))

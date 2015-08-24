@@ -11,14 +11,14 @@ PROC start
 	inx ; X = 0
 
 	; Disable interrupts until we are ready
-	stx $2000 ; Disable NMI
-	stx $2001 ; Disable rendering
-	stx $4010 ; Disable IRQ
+	stx PPUCTRL  ; Disable NMI
+	stx PPUMASK  ; Disable rendering
+	stx DMC_FREQ ; Disable IRQ
 
 	; Need to wait for PPU init, wait for the first vblank interval
-	bit $2002 ; Clear initial vblank flag
+	bit PPUSTATUS ; Clear initial vblank flag
 wait1:
-	bit $2002
+	bit PPUSTATUS
 	bpl wait1
 
 	; One vblank interval has passed, but we need to wait another before actually starting to render.  Clear
@@ -40,7 +40,7 @@ clearmem:
 
 	; Initialize APU
 	lda #$f
-	sta $4015
+	sta SND_CHN
 
 	ldy #$0
 apuinit:
@@ -52,11 +52,18 @@ apuinit:
 
 	; Wait for PPU to be fully ready
 wait2:
-	bit $2002
+	bit PPUSTATUS
 	bpl wait2
 
+	; Enable vblank interrupts
+	lda PPUSTATUS
+	lda #PPUCTRL_ENABLE_NMI
+	sta ppu_settings
+	sta PPUCTRL
+
 	; Start the game
-	jmp main
+	jsr main
+	jmp start
 
 apu_init_regs:
 	.byte $30, $08, $00, $00
@@ -69,7 +76,55 @@ apu_init_regs:
 
 
 PROC nmi
+	pha
+	txa
+	pha
+	tya
+	pha
+
+	; Update vblank count so that waiters will wake up
+	ldx vblank_count
+	inx
+	stx vblank_count
+
+	; Clear vblank flag
+	lda PPUSTATUS
+
+	; Don't do anything with sprites when rendering is off
+	lda rendering_enabled
+	beq no_rendering
+
+	; Copy updated sprites to the PPU using DMA
+	lda #0
+	sta OAMADDR
+	lda #>sprites
+	sta OAMDMA
+
+no_rendering:
+	pla
+	tay
+	pla
+	tax
+	pla
 	rti
+.endproc
+
+
+PROC wait_for_vblank
+	lda vblank_count
+loop:
+	cmp vblank_count
+	beq loop
+	rts
+.endproc
+
+
+PROC wait_for_frame_count
+loop:
+	jsr wait_for_vblank
+	dex
+	bne loop
+	rts
 .endproc
 
 
@@ -78,7 +133,43 @@ PROC irq
 .endproc
 
 
+.zeropage
+VAR ptr
+	.word 0
+VAR temp
+	.word 0
+VAR arg0
+	.byte 0
+VAR arg1
+	.byte 0
+VAR arg2
+	.byte 0
+VAR arg3
+	.byte 0
+VAR arg4
+	.byte 0
+
+VAR rendering_enabled
+	.byte 0
+VAR ppu_settings
+	.byte 0
+
+
+.bss
+VAR vblank_count
+	.byte 0
+
+
+.segment "SPRITE"
+; Define RAM buffer for sprites that will be updated using DMA during vblank
+VAR sprites
+	.repeat 256
+	.byte 0
+	.endrepeat
+
+
 .segment "STACK"
+VAR scratch
 
 .segment "HEADER"
 	.byte "NES", $1a
@@ -96,5 +187,10 @@ PROC irq
 	.word start
 	.word irq
 
+
 .segment "CHR0"
+.incbin "ui.chr"
+.incbin "z.chr"
+
 .segment "CHR1"
+.incbin "vector35.chr"
