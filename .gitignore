@@ -1,4 +1,5 @@
 *.nes
 *.map
+PwnAdventureZ_*.bin
 *.o
 *.sublime-workspace

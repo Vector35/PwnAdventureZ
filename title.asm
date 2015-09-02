@@ -1,12 +1,19 @@
 .include "defines.inc"
 
+.define TILE_UI     $00
+.define TILE_VECTOR $01
+.define TILE_Z      $01
+
 .code
 
 PROC title
 	; Get the developer logo screen ready
 	jsr clear_screen
 
-	; Use 8x8 sprites on second CHR page
+	; Copy tiles into video memory
+	LOAD_ALL_TILES $100 + TILE_VECTOR, vector35_tiles
+
+	; Use 8x8 sprites on first CHR page
 	lda #PPUCTRL_ENABLE_NMI | PPUCTRL_SPRITE_PATTERN | PPUCTRL_NAMETABLE_2400
 	sta ppu_settings
 
@@ -24,15 +31,25 @@ vectorloop:
 	jsr fade_in
 
 	; Show developer logo for 3 seconds then fade out
-	ldx #180
-	jsr wait_for_frame_count
+	ldy #180
+vectorwait:
+	jsr wait_for_vblank
+	jsr update_controller
+	lda controller
+	and #JOY_START
+	bne vectordone
+	dey
+	bne vectorwait
+vectordone:
+
 	jsr fade_out
 
 	; Start drawing title screen
 	jsr clear_screen
 
-	lda #PPUCTRL_ENABLE_NMI | PPUCTRL_SPRITE_SIZE | PPUCTRL_NAMETABLE_2400
-	sta ppu_settings
+	; Copy tiles into video memory
+	LOAD_ALL_TILES $000 + TILE_UI, ui_tiles
+	LOAD_ALL_TILES $100 + TILE_Z, z_tiles
 
 	; Draw UI box around logo
 	lda #6
@@ -63,23 +80,15 @@ pwn_logo_loop:
 	cpy #12
 	bne pwn_logo_loop
 
-	; Draw Z logo
+	; Copy Z logo sprite data to OAM
 	LOAD_PTR z_logo
-	ldy #8
-
-z_logo_loop:
-	tya
-	pha
-
-	ldx #18
-	lda #5
-	jsr write_tiles
-
-	pla
-	tay
+	ldy #0
+zloop:
+	lda (ptr), y
+	sta sprites, y
 	iny
-	cpy #14
-	bne z_logo_loop
+	cpy #28 * 4
+	bne zloop
 
 	; Set palette for logo
 	lda #4
@@ -91,16 +100,6 @@ z_logo_loop:
 	sta arg3
 	lda #1
 	sta arg4
-	jsr set_box_palette
-
-	lda #9
-	sta arg0
-	lda #4
-	sta arg1
-	lda #11
-	sta arg2
-	lda #6
-	sta arg3
 	jsr set_box_palette
 
 	lda #2
@@ -125,6 +124,7 @@ z_logo_loop:
 	ldx #8
 	ldy #13
 	jsr write_string
+	LOAD_PTR retro_str
 	ldx #4
 	ldy #17
 	jsr write_string
@@ -205,14 +205,14 @@ VAR vector35_logo
 	.byte 131, TILE_VECTOR + $c, 2, 148
 
 VAR vector35_palette
-	.byte $0f, $3d, $2a, $3a
-	.byte $0f, $3d, $2a, $3a
-	.byte $0f, $3d, $2a, $3a
-	.byte $0f, $3d, $2a, $3a
-	.byte $0f, $3d, $2a, $3a
-	.byte $0f, $3d, $2a, $30
-	.byte $0f, $30, $3a, $3a
-	.byte $0f, $3d, $2a, $3a
+	.byte $0f, $10, $2a, $3a
+	.byte $0f, $10, $2a, $3a
+	.byte $0f, $10, $2a, $3a
+	.byte $0f, $10, $2a, $3a
+	.byte $0f, $10, $2a, $3a
+	.byte $0f, $10, $2a, $30
+	.byte $0f, $30, $3a, $2a
+	.byte $0f, $10, $2a, $3a
 
 VAR pwn_logo
 	.byte $02, $01, $04, $0c, $20, $0c, $0e, $10, $0c
@@ -220,12 +220,34 @@ VAR pwn_logo
 	.byte $03, $01, $05, $06, $08, $0a, $2b, $12, $14
 	.byte $0d, $20, $20, $07, $09, $0b, $0d, $13, $15
 VAR z_logo
-	.byte TILE_Z + $00, TILE_Z + $01, TILE_Z + $01, TILE_Z + $01, TILE_Z + $02
-	.byte TILE_Z + $03, TILE_Z + $04, TILE_Z + $05, TILE_Z + $06, TILE_Z + $07
-	.byte $00,          TILE_Z + $08, TILE_Z + $09, TILE_Z + $0a, TILE_Z + $0b
-	.byte TILE_Z + $08, TILE_Z + $09, TILE_Z + $0a, TILE_Z + $0b, $00
-	.byte TILE_Z + $0c, TILE_Z + $0d, TILE_Z + $0e, TILE_Z + $0f, TILE_Z + $10
-	.byte TILE_Z + $11, TILE_Z + $12, TILE_Z + $12, TILE_Z + $12, TILE_Z + $13
+	.byte 63, TILE_Z + $00, 0, 152
+	.byte 63, TILE_Z + $01, 0, 160
+	.byte 63, TILE_Z + $01, 0, 168
+	.byte 63, TILE_Z + $01, 0, 176
+	.byte 63, TILE_Z + $02, 0, 184
+	.byte 71, TILE_Z + $03, 0, 152
+	.byte 71, TILE_Z + $04, 0, 160
+	.byte 71, TILE_Z + $05, 0, 168
+	.byte 71, TILE_Z + $06, 0, 176
+	.byte 71, TILE_Z + $07, 0, 184
+	.byte 79, TILE_Z + $08, 0, 160
+	.byte 79, TILE_Z + $09, 0, 168
+	.byte 79, TILE_Z + $0a, 0, 176
+	.byte 79, TILE_Z + $0b, 0, 184
+	.byte 87, TILE_Z + $08, 0, 152
+	.byte 87, TILE_Z + $09, 0, 160
+	.byte 87, TILE_Z + $0a, 0, 168
+	.byte 87, TILE_Z + $0b, 0, 176
+	.byte 95, TILE_Z + $0c, 0, 152
+	.byte 95, TILE_Z + $0d, 0, 160
+	.byte 95, TILE_Z + $0e, 0, 168
+	.byte 95, TILE_Z + $0f, 0, 176
+	.byte 95, TILE_Z + $10, 0, 184
+	.byte 103, TILE_Z + $11, 0, 152
+	.byte 103, TILE_Z + $12, 0, 160
+	.byte 103, TILE_Z + $12, 0, 168
+	.byte 103, TILE_Z + $12, 0, 176
+	.byte 103, TILE_Z + $13, 0, 184
 
 VAR adventure_str
 	.byte "ADVENTURE", 0
@@ -245,17 +267,22 @@ VAR flashing_text_palette_anim
 	.word alt_str_palettes + 4
 	.word alt_str_palettes
 
-title_palette:
+VAR title_palette
 	.byte $0f, $21, $31, $37
 	.byte $0f, $16, $26, $36
 	.byte $0f, $31, $31, $31
 normal_str_palette:
 	.byte $0f, $30, $30, $30
-	.byte $0f, $27, $37, $30
-	.byte $0f, $27, $37, $30
-	.byte $0f, $27, $37, $30
-	.byte $0f, $27, $37, $30
+	.byte $0f, $16, $26, $36
+	.byte $0f, $16, $26, $36
+	.byte $0f, $16, $26, $36
+	.byte $0f, $16, $26, $36
 alt_str_palettes:
 	.byte $0f, $10, $10, $10
 	.byte $0f, $00, $00, $00
 	.byte $0f, $0f, $0f, $0f
+
+
+TILES ui_tiles, 1, "ui.chr", 92
+TILES vector35_tiles, 1, "vector35.chr", 14
+TILES z_tiles, 1, "z.chr", 20

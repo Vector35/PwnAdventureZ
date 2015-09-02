@@ -1,6 +1,6 @@
 .include "defines.inc"
 
-.code
+.segment "FIXED"
 
 PROC disable_rendering
 	; Wait for vblank to ensure it is safe to use the PPU
@@ -37,19 +37,7 @@ PROC enable_rendering
 .endproc
 
 
-PROC clear_screen
-; Should be called with rendering disabled
-
-	; Clear sprites
-	lda #$ff
-	ldx #0
-clearsprites:
-	sta sprites, x
-	inx
-	bne clearsprites
-
-	; Wait for a vblank and set the palettes to all black to avoid artifacts
-	; while getting the screen ready
+PROC ensure_black_screen
 	jsr wait_for_vblank
 	ldx #$3f
 	stx PPUADDR
@@ -61,6 +49,43 @@ paletteloop:
 	inx
 	cpx #$20
 	bne paletteloop
+	rts
+.endproc
+
+
+PROC clear_tiles
+; Should be called with rendering disabled
+	jsr ensure_black_screen
+
+	ldx #0
+	stx PPUADDR
+	ldy #0
+	sty PPUADDR
+	tya
+clearloop:
+	sta PPUDATA
+	iny
+	bne clearloop
+	inx
+	cpx #$20
+	bne clearloop
+
+	rts
+.endproc
+
+
+PROC clear_screen
+; Should be called with rendering disabled
+
+	; Clear sprites
+	lda #$ff
+	ldx #0
+clearsprites:
+	sta sprites, x
+	inx
+	bne clearsprites
+
+	jsr ensure_black_screen
 
 	ldx #$20
 	stx PPUADDR
@@ -391,6 +416,7 @@ loadloop:
 	iny
 	cpy #4
 	bne loadloop
+	jsr add_y_to_ptr
 	rts
 .endproc
 
@@ -523,3 +549,50 @@ PROC prepare_for_rendering
 	sta PPUSCROLL
 	rts
 .endproc
+
+
+PROC copy_tiles
+	tax
+
+	; Switch to bank that contains the tiles.  Must write to a memory location that
+	; contains the same value being written due to bus conflicts.
+	tya
+	sta bankswitch, y
+
+	; Set PPU target address
+	lda PPUSTATUS
+	lda temp + 1
+	sta PPUADDR
+	lda temp
+	sta PPUADDR
+
+	; Copy the tiles into video memory
+copyloop:
+	ldy #0
+tileloop:
+	lda (ptr), y
+	sta PPUDATA
+	iny
+	cpy #16
+	bne tileloop
+	lda ptr
+	clc
+	adc #16
+	sta ptr
+	lda ptr + 1
+	adc #0
+	sta ptr + 1
+	dex
+	bne copyloop
+
+	; Switch back to game code bank
+	lda #0
+	sta bankswitch
+
+	rts
+.endproc
+
+
+.data
+VAR bankswitch
+	.byte 0, 1, 2, 3, 4, 5, 6, 7

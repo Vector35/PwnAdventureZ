@@ -1,6 +1,6 @@
 .include "defines.inc"
 
-.code
+.segment "FIXED"
 
 PROC start
 	; Initialize CPU state
@@ -61,6 +61,9 @@ wait2:
 	sta ppu_settings
 	sta PPUCTRL
 
+	; Ensure CHR-RAM is cleared
+	jsr clear_tiles
+
 	; Start the game
 	jsr main
 	jmp start
@@ -87,9 +90,6 @@ PROC nmi
 	inx
 	stx vblank_count
 
-	; Clear vblank flag
-	lda PPUSTATUS
-
 	; Don't do anything with sprites when rendering is off
 	lda rendering_enabled
 	beq no_rendering
@@ -111,6 +111,7 @@ no_rendering:
 
 
 PROC wait_for_vblank
+	lda PPUSTATUS
 	lda vblank_count
 loop:
 	cmp vblank_count
@@ -169,13 +170,17 @@ VAR sprites
 
 
 .segment "STACK"
-VAR scratch
+VAR scratch ; 32 bytes of temporary space
+	.repeat $20
+	.byte 0
+	.endrepeat
+
 
 .segment "HEADER"
 	.byte "NES", $1a
-	.byte 2 ; 32kb program ROM
-	.byte 1 ; 8kb character ROM
-	.byte 1 ; Mapper 0, horizontal
+	.byte 8 ; 128kb program ROM
+	.byte 0 ; CHR-RAM
+	.byte $20 ; Mapper 2 (UNROM)
 	.byte 0
 	.byte 0
 	.byte 0 ; NTSC
@@ -188,9 +193,9 @@ VAR scratch
 	.word irq
 
 
-.segment "CHR0"
-.incbin "ui.chr"
-.incbin "z.chr"
-
 .segment "CHR1"
-.incbin "vector35.chr"
+.segment "CHR2"
+.segment "CHR3"
+.segment "CHR4"
+.segment "CHR5"
+.segment "CHR6"

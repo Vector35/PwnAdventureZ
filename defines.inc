@@ -18,6 +18,35 @@ name:
 .endmacro
 
 
+; Macro for defining and loading tiles
+.macro TILES var, seg, file, count
+.segment .concat("CHR", .string(seg))
+VAR var
+.incbin file
+.data
+VAR .ident(.concat(.string(var), "_bank"))
+	.byte seg
+VAR .ident(.concat(.string(var), "_count"))
+	.byte count
+.endmacro
+
+.macro LOAD_TILES addr, var, count
+	LOAD_PTR var
+	lda .ident(.concat(.string(var), "_bank"))
+	tay
+	lda #<(addr) * $10
+	sta temp
+	lda #>(addr) * $10
+	sta temp + 1
+	lda count
+	jsr copy_tiles
+.endmacro
+
+.macro LOAD_ALL_TILES addr, var
+LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
+.endmacro
+
+
 ; NES hardware defines
 .define PPUCTRL    $2000
 .define PPUMASK    $2001
@@ -89,12 +118,21 @@ name:
 .define PPUCTRL_SETTINGS PPUCTRL_ENABLE_NMI | PPUCTRL_SPRITE_SIZE | PPUCTRL_SPRITE_PATTERN | PPUCTRL_NAMETABLE_2400
 
 
-; Background tile indexes
-.define TILE_UI $00
-.define TILE_Z  $5c
-
-; Sprite tile indexes
-.define TILE_VECTOR $01
+; Map screen types
+.define MAP_CAVE_START      0
+.define MAP_BOUNDARY        1
+.define MAP_CAVE_INTERIOR   2
+.define MAP_FOREST          3
+.define MAP_HOUSE           4
+.define MAP_SHOP            5
+.define MAP_PARK            6
+.define MAP_LAKE            7
+.define MAP_BOSS            8
+.define MAP_BASE_HORDE      9
+.define MAP_BASE_INTERIOR  10
+.define MAP_BASE_WALL      11
+.define MAP_FLAG           12
+.define MAP_TYPE_COUNT     13
 
 
 ; Globally accessible zero page variables
