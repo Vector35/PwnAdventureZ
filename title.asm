@@ -36,7 +36,6 @@ vectorloop:
 vectorwait:
 	jsr wait_for_vblank
 	jsr update_controller
-	lda controller
 	and #JOY_START
 	bne vectordone
 	dey
@@ -147,7 +146,6 @@ menuloop:
 	pha
 
 	jsr update_controller
-	lda controller
 	and #JOY_START
 	bne start
 

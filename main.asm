@@ -95,6 +95,9 @@ end:
 
 
 PROC update_controller
+	tya
+	pha
+
 	; Start controller read
 	lda #1
 	sta JOY1
@@ -117,6 +120,10 @@ loop:
 	sta controller
 
 	jsr update_entropy
+
+	pla
+	tay
+	lda controller
 	rts
 .endproc
 
