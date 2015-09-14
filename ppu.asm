@@ -545,7 +545,7 @@ PROC prepare_for_rendering
 	; Set scrolling so that (0,0) is top left of renderable part of screen
 	lda #256 - 8
 	sta PPUSCROLL
-	lda #0
+	lda #240 - 8
 	sta PPUSCROLL
 	rts
 .endproc

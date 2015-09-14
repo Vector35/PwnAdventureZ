@@ -15,7 +15,7 @@ PROC title
 	LOAD_ALL_TILES $100 + TILE_VECTOR, vector35_tiles
 
 	; Use 8x8 sprites on first CHR page
-	lda #PPUCTRL_ENABLE_NMI | PPUCTRL_SPRITE_PATTERN | PPUCTRL_NAMETABLE_2400
+	lda #PPUCTRL_ENABLE_NMI | PPUCTRL_SPRITE_PATTERN | PPUCTRL_NAMETABLE_2C00
 	sta ppu_settings
 
 	; Copy sprite data to OAM
@@ -55,17 +55,17 @@ vectordone:
 	; Draw UI box around logo
 	lda #6
 	sta arg0
-	lda #6
+	lda #5
 	sta arg1
 	lda #24
 	sta arg2
-	lda #15
+	lda #14
 	sta arg3
 	jsr draw_large_box
 
 	; Draw Pwn Adventure logo
 	LOAD_PTR pwn_logo
-	ldy #8
+	ldy #7
 
 pwn_logo_loop:
 	tya
@@ -78,7 +78,7 @@ pwn_logo_loop:
 	pla
 	tay
 	iny
-	cpy #12
+	cpy #11
 	bne pwn_logo_loop
 
 	; Copy Z logo sprite data to OAM
@@ -94,6 +94,7 @@ zloop:
 	; Set palette for logo
 	lda #4
 	sta arg0
+	lda #3
 	sta arg1
 	lda #8
 	sta arg2
@@ -123,14 +124,14 @@ zloop:
 	; Draw text
 	LOAD_PTR adventure_str
 	ldx #8
-	ldy #13
+	ldy #12
 	jsr write_string
 	LOAD_PTR retro_str
 	ldx #4
-	ldy #17
+	ldy #16
 	jsr write_string
 	ldx #10
-	ldy #23
+	ldy #22
 	jsr write_string
 
 	; Fade in to the palette and start displaying the title screen

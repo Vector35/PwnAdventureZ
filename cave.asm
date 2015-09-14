@@ -48,13 +48,13 @@ PROC gen_cave_common
 	adc #6
 	sta scratch + SCRATCH_BOT_OPENING_POS
 
-	lda #3
+	lda #2
 	jsr genrange_left
 	clc
 	adc #5
 	sta scratch + SCRATCH_LEFT_OPENING_POS
 
-	lda #3
+	lda #2
 	jsr genrange_right
 	clc
 	adc #5
@@ -319,7 +319,7 @@ cluttertry:
 	adc #2
 	sta arg0
 
-	lda #9
+	lda #8
 	jsr genrange_cur
 	clc
 	adc #2

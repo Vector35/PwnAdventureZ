@@ -137,7 +137,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 
 ; Map parameters
 .define MAP_WIDTH  15
-.define MAP_HEIGHT 13
+.define MAP_HEIGHT 12
 
 
 ; Cave tile set
