@@ -7,6 +7,7 @@ PROC main
 
 	jsr init_game_state
 
+	jsr map_viewer
 	rts
 .endproc
 
@@ -14,9 +15,17 @@ PROC main
 PROC init_game_state
 	jsr init_map
 
+	lda #$0f
+	sta game_palette + 16
+	sta game_palette + 20
+	sta game_palette + 24
+	sta game_palette + 28
+
 	rts
 .endproc
 
+
+.segment "FIXED"
 
 PROC game_over
 	lda rendering_enabled
@@ -106,6 +115,8 @@ loop:
 	bne loop
 
 	sta controller
+
+	jsr update_entropy
 	rts
 .endproc
 

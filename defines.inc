@@ -34,9 +34,9 @@ VAR .ident(.concat(.string(var), "_count"))
 	LOAD_PTR var
 	lda .ident(.concat(.string(var), "_bank"))
 	tay
-	lda #<(addr) * $10
+	lda #<((addr) * $10)
 	sta temp
-	lda #>(addr) * $10
+	lda #>((addr) * $10)
 	sta temp + 1
 	lda count
 	jsr copy_tiles
@@ -135,11 +135,34 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define MAP_TYPE_COUNT     13
 
 
+; Map parameters
+.define MAP_WIDTH  15
+.define MAP_HEIGHT 13
+
+
+; Cave tile set
+.define CAVE_OUTER_TOP_LEFT     $00
+.define CAVE_OUTER_TOP_CENTER   $04
+.define CAVE_OUTER_TOP_RIGHT    $08
+.define CAVE_OUTER_CENTER_LEFT  $0c
+.define CAVE_INTERIOR           $10
+.define CAVE_OUTER_CENTER_RIGHT $14
+.define CAVE_OUTER_BOT_LEFT     $18
+.define CAVE_OUTER_BOT_CENTER   $1c
+.define CAVE_OUTER_BOT_RIGHT    $20
+.define CAVE_INNER_TOP_LEFT     $24
+.define CAVE_INNER_TOP_RIGHT    $28
+.define CAVE_WALL               $2c
+.define CAVE_INNER_BOT_LEFT     $30
+.define CAVE_INNER_BOT_RIGHT    $34
+.define CAVE_INNER_SINGLE       $38
+
+
 ; Globally accessible zero page variables
 .zeropage
 .global ptr ; For manipulating pointers
 .global temp ; 2 byte temporary
-.global arg0, arg1, arg2, arg3, arg4
+.global arg0, arg1, arg2, arg3, arg4, arg5
 
 .global rendering_enabled
 .global ppu_settings

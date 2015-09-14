@@ -38,6 +38,9 @@ clearmem:
 	inx
 	bne clearmem
 
+	; Ensure mapper has bank #0 at 0x8000-0xc000
+	sta bankswitch
+
 	; Initialize APU
 	lda #$f
 	sta SND_CHN
@@ -129,9 +132,19 @@ loop:
 .endproc
 
 
+PROC call_ptr
+	jmp (ptr)
+.endproc
+
+
 PROC irq
 	rti
 .endproc
+
+
+.data
+VAR bankswitch
+	.byte 0, 1, 2, 3, 4, 5, 6, 7
 
 
 .zeropage
@@ -149,6 +162,8 @@ VAR arg3
 	.byte 0
 VAR arg4
 	.byte 0
+VAR arg5
+	.byte 0
 
 VAR rendering_enabled
 	.byte 0
@@ -162,6 +177,9 @@ VAR vblank_count
 
 
 .segment "SPRITE"
+; Map generator will use sprite memory as a working buffer, as the screen
+; is off during map generation
+VAR map_gen_buf
 ; Define RAM buffer for sprites that will be updated using DMA during vblank
 VAR sprites
 	.repeat 256
