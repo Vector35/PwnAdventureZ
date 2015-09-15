@@ -32,7 +32,12 @@ clearloop:
 	iny
 	bne clearloop
 
-	sta gen_index
+	sta gen_cur_index
+	sta gen_left_index
+	sta gen_right_index
+	lda #$80
+	sta gen_up_index
+	sta gen_down_index
 
 	rts
 .endproc
@@ -47,11 +52,64 @@ PROC map_viewer
 loop:
 	jsr wait_for_vblank
 	jsr update_controller
-	and #JOY_START
+	and #JOY_A
+	bne change_base
+	lda controller
+	and #JOY_LEFT
+	bne left
+	lda controller
+	and #JOY_RIGHT
+	bne right
+	lda controller
+	and #JOY_UP
+	bne up
+	lda controller
+	and #JOY_DOWN
+	bne down
+	jmp loop
+
+left:
+	jsr read_overworld_left
+	jsr is_boundary_map_type
 	beq loop
-
 	jsr fade_out
+	ldx cur_screen_x
+	dex
+	stx cur_screen_x
+	jmp map_viewer
 
+right:
+	jsr read_overworld_right
+	jsr is_boundary_map_type
+	beq loop
+	jsr fade_out
+	ldx cur_screen_x
+	inx
+	stx cur_screen_x
+	jmp map_viewer
+
+up:
+	jsr read_overworld_up
+	jsr is_boundary_map_type
+	beq loop
+	jsr fade_out
+	ldy cur_screen_y
+	dey
+	sty cur_screen_y
+	jmp map_viewer
+
+down:
+	jsr read_overworld_down
+	jsr is_boundary_map_type
+	beq loop
+	jsr fade_out
+	ldy cur_screen_y
+	iny
+	sty cur_screen_y
+	jmp map_viewer
+
+change_base:
+	jsr fade_out
 	ldx gen_base
 	inx
 	stx gen_base
@@ -90,9 +148,9 @@ end:
 
 PROC genrange_cur
 	pha
-	ldy gen_index
+	ldy gen_cur_index
 	iny
-	sty gen_index
+	sty gen_cur_index
 
 	tya
 	ldx cur_screen_x
@@ -109,20 +167,50 @@ PROC genrange_cur
 
 
 PROC genrange_up
-	jmp genrange_cur
+	pha
+	ldy gen_up_index
+	iny
+	sty gen_up_index
+
+	tya
+	ldx cur_screen_x
+	ldy cur_screen_y
+	jsr gen8
+	tay
+
+	pla
+	tax
+	tya
+	jsr mod8
+	rts
 .endproc
 
 
 PROC genrange_left
-	jmp genrange_cur
+	pha
+	ldy gen_left_index
+	iny
+	sty gen_left_index
+
+	tya
+	ldx cur_screen_x
+	ldy cur_screen_y
+	jsr gen8
+	tay
+
+	pla
+	tax
+	tya
+	jsr mod8
+	rts
 .endproc
 
 
 PROC genrange_down
 	pha
-	ldy gen_index
+	ldy gen_down_index
 	iny
-	sty gen_index
+	sty gen_down_index
 
 	tya
 	ldx cur_screen_x
@@ -141,9 +229,9 @@ PROC genrange_down
 
 PROC genrange_right
 	pha
-	ldy gen_index
+	ldy gen_right_index
 	iny
-	sty gen_index
+	sty gen_right_index
 
 	tya
 	ldx cur_screen_x
@@ -156,6 +244,61 @@ PROC genrange_right
 	tax
 	tya
 	jsr mod8
+	rts
+.endproc
+
+
+PROC read_overworld_cur
+	ldx cur_screen_x
+	ldy cur_screen_y
+	jsr read_overworld_map
+	rts
+.endproc
+
+
+PROC read_overworld_left
+	ldx cur_screen_x
+	dex
+	ldy cur_screen_y
+	jsr read_overworld_map
+	rts
+.endproc
+
+
+PROC read_overworld_right
+	ldx cur_screen_x
+	inx
+	ldy cur_screen_y
+	jsr read_overworld_map
+	rts
+.endproc
+
+
+PROC read_overworld_up
+	ldx cur_screen_x
+	ldy cur_screen_y
+	dey
+	jsr read_overworld_map
+	rts
+.endproc
+
+
+PROC read_overworld_down
+	ldx cur_screen_x
+	ldy cur_screen_y
+	iny
+	jsr read_overworld_map
+	rts
+.endproc
+
+
+PROC is_boundary_map_type
+	cmp #MAP_BOUNDARY
+	beq done
+	cmp #MAP_LAKE
+	beq done
+	cmp #MAP_BASE_WALL
+done:
 	rts
 .endproc
 
@@ -398,7 +541,15 @@ VAR game_palette
 	.byte 0, 0, 0, 0
 	.byte 0, 0, 0, 0
 
-VAR gen_index
+VAR gen_cur_index
+	.byte 0
+VAR gen_left_index
+	.byte 0
+VAR gen_right_index
+	.byte 0
+VAR gen_up_index
+	.byte 0
+VAR gen_down_index
 	.byte 0
 
 

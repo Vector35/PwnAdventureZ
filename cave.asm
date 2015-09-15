@@ -62,7 +62,7 @@ PROC gen_cave_common
 
 	; Generate the left side of the cave wall
 	lda #3
-	jsr genrange_left
+	jsr genrange_cur
 	sta arg2
 	lda #0
 	sta arg0
@@ -74,7 +74,7 @@ PROC gen_cave_common
 	jsr fill_map_box
 
 	lda #3
-	jsr genrange_left
+	jsr genrange_cur
 	sta arg2
 	lda scratch + SCRATCH_LEFT_OPENING_POS
 	sta arg1
@@ -85,7 +85,7 @@ PROC gen_cave_common
 
 	; Generate the right side of the cave wall
 	lda #3
-	jsr genrange_right
+	jsr genrange_cur
 	clc
 	adc #1
 	sta temp
@@ -103,7 +103,7 @@ PROC gen_cave_common
 	jsr fill_map_box
 
 	lda #3
-	jsr genrange_right
+	jsr genrange_cur
 	clc
 	adc #1
 	sta temp
@@ -120,7 +120,7 @@ PROC gen_cave_common
 
 	; Generate the top side of the cave wall
 	lda #3
-	jsr genrange_up
+	jsr genrange_cur
 	sta arg3
 	lda #0
 	sta arg0
@@ -132,7 +132,7 @@ PROC gen_cave_common
 	jsr fill_map_box
 
 	lda #3
-	jsr genrange_up
+	jsr genrange_cur
 	sta arg3
 	lda scratch + SCRATCH_TOP_OPENING_POS
 	sta arg0
@@ -143,7 +143,7 @@ PROC gen_cave_common
 
 	; Generate the bottom side of the cave wall
 	lda #3
-	jsr genrange_down
+	jsr genrange_cur
 	clc
 	adc #1
 	sta temp
@@ -161,7 +161,7 @@ PROC gen_cave_common
 	jsr fill_map_box
 
 	lda #3
-	jsr genrange_down
+	jsr genrange_cur
 	clc
 	adc #1
 	sta temp
