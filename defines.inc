@@ -130,9 +130,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define MAP_BOSS            8
 .define MAP_BASE_HORDE      9
 .define MAP_BASE_INTERIOR  10
-.define MAP_BASE_WALL      11
-.define MAP_FLAG           12
-.define MAP_TYPE_COUNT     13
+.define MAP_TYPE_COUNT     11
 
 
 ; Map parameters

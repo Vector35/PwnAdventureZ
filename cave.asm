@@ -202,6 +202,9 @@ PROC gen_cave_common
 	sta scratch + SCRATCH_RIGHT_OPENING_SIZE
 
 	; Generate top opening
+	jsr can_travel_up
+	bne notravelup
+
 	lda scratch + SCRATCH_TOP_OPENING_SIZE
 	lsr
 	sta arg0
@@ -223,6 +226,10 @@ topextent:
 	sta arg3
 	lda #$80 + CAVE_INTERIOR
 	jsr fill_map_box
+
+notravelup:
+	jsr can_travel_down
+	bne notraveldown
 
 	; Generate bottom opening
 	lda scratch + SCRATCH_BOT_OPENING_SIZE
@@ -247,6 +254,10 @@ botextent:
 	lda #$80 + CAVE_INTERIOR
 	jsr fill_map_box
 
+notraveldown:
+	jsr can_travel_left
+	bne notravelleft
+
 	; Generate left opening
 	lda scratch + SCRATCH_LEFT_OPENING_SIZE
 	lsr
@@ -269,6 +280,10 @@ leftextent:
 	sta arg2
 	lda #$80 + CAVE_INTERIOR
 	jsr fill_map_box
+
+notravelleft:
+	jsr can_travel_right
+	bne notravelright
 
 	; Generate right opening
 	lda scratch + SCRATCH_RIGHT_OPENING_SIZE
@@ -293,6 +308,7 @@ rightextent:
 	lda #$80 + CAVE_INTERIOR
 	jsr fill_map_box
 
+notravelright:
 	; Create clutter in the middle of the cave
 	lda #5
 	jsr genrange_cur

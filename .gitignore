@@ -3,3 +3,4 @@
 PwnAdventureZ_*.bin
 *.o
 *.sublime-workspace
+.DS_Store

@@ -1,0 +1,140 @@
+<html>
+<head>
+<title>Pwn Adventure Z Map Editor</title>
+<script langauge='javascript'>
+data = []
+for (var i = 0; i < 32 * 24; i++)
+	data[i] = 0xc1;
+
+function update_data() {
+	result = "\t.byte ";
+	for (var i = 0; i < 32 * 24; i++) {
+		if ((i > 0) && ((i % 16) == 0))
+			result += "\n\t.byte ";
+		else if (i > 0)
+			result += ", ";
+		value = data[i].toString(16);
+		if (value.length < 2)
+			value = "0" + value;
+		result += "$" + value;
+	}
+	document.getElementById('data').value = result;
+}
+
+function load_map() {
+	text = document.getElementById('data').value;
+	for (var i = 0; i < 32 * 24; i++) {
+		text = text.substr(text.indexOf("$") + 1);
+		data[i] = parseInt(text.substr(0, 2), 16);
+		if ((i % 32) < 26)
+			data_img[i].src = images[data[i]];
+		text = text.substr(2);
+	}
+	update_data();
+}
+
+function map_clicked(x, y) {
+	data[(y * 32) + x] = active;
+	data_img[(y * 32) + x].src = images[active];
+	update_data();
+}
+
+function create_single_tile(parent, title, name, value) {
+	var col = document.createElement('td');
+	col.style.verticalAlign = 'top';
+	col.innerHTML = "<small>" + title + "</small><br/><img src='images/" + name + ".png' onclick='active=" +
+		value.toString() + "'>";
+	parent.appendChild(col);
+	images[value] = 'images/' + name + '.png';
+}
+
+function create_tile_set(parent, title, name, value) {
+	var col = document.createElement('td');
+	col.style.verticalAlign = 'top';
+	col.innerHTML = "<small>" + title + "</small><br/>" +
+		"<img src='images/" + name + "_00.png' onclick='active=" + value.toString() + "'>" +
+		"<img src='images/" + name + "_40.png' onclick='active=" + (value + 0x40).toString() + "'><br/>" +
+		"<img src='images/" + name + "_80.png' onclick='active=" + (value + 0x80).toString() + "'>" +
+		"<img src='images/" + name + "_c0.png' onclick='active=" + (value + 0xc0).toString() + "'>";
+	parent.appendChild(col);
+	images[value] = 'images/' + name + '_00.png';
+	images[value + 0x40] = 'images/' + name + '_40.png';
+	images[value + 0x80] = 'images/' + name + '_80.png';
+	images[value + 0xc0] = 'images/' + name + '_c0.png';
+}
+
+function init() {
+	map = document.getElementById('map');
+	update_data();
+
+	var table = document.createElement('table');
+	data_img = [];
+	for (var y = 0; y < 24; y++) {
+		var row = document.createElement('tr');
+		for (var x = 0; x < 26; x++) {
+			var col = document.createElement('td');
+			var img = document.createElement('img');
+			img.src = 'images/boundary.png';
+			img.onmouseenter = function() { this.style.opacity = 0.5; };
+			img.onmouseleave = function() { this.style.opacity = 1; };
+			img.onclick = function() { map_clicked(this.map_x, this.map_y); };
+			img.map_x = x;
+			img.map_y = y;
+			img.style.opacity = 1;
+			data_img[(y * 32) + x] = img;
+			col.appendChild(img);
+			col.style.border = 0;
+			col.style.padding = 0;
+			row.appendChild(col);
+		}
+		row.style.border.width = 0;
+		row.style.padding = 0;
+		table.appendChild(row);
+	}
+	table.style.borderSpacing = 0;
+	map.appendChild(table);
+
+	tiles = document.getElementById('tiles');
+	var table = document.createElement('table');
+	tiles.appendChild(table);
+	var row = document.createElement('tr');
+	table.appendChild(row);
+	images = [];
+
+	create_single_tile(row, "Boundary", "boundary", 0xc1);
+	create_single_tile(row, "Lake", "lake", 0xc7);
+	create_tile_set(row, "Start", "start", 0x00);
+	create_tile_set(row, "Cave", "cave", 0x02);
+	create_tile_set(row, "Forest", "forest", 0x03);
+
+	var row = document.createElement('tr');
+	table.appendChild(row);
+	create_tile_set(row, "House", "house", 0x04);
+	create_tile_set(row, "Shop", "shop", 0x05);
+	create_tile_set(row, "Park", "park", 0x06);
+
+	var row = document.createElement('tr');
+	table.appendChild(row);
+	create_tile_set(row, "Boss", "boss", 0x08);
+	create_tile_set(row, "Base horde", "basehorde", 0x09);
+	create_tile_set(row, "Base", "base", 0x0a);
+}
+
+active = 0xc1;
+</script>
+</head>
+<body onload="init()">
+<table>
+<tr>
+<td><div id="map"></div></td>
+<td valign='top'><div id="tiles">
+</div></td>
+</tr>
+</table>
+<pre>
+Raw map data:
+<textarea id="data" cols="120" rows="49"></textarea>
+<button type="button" onclick="load_map()">Load</button>
+</pre>
+</body>
+</html>
