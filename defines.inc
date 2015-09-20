@@ -156,6 +156,11 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define CAVE_INNER_SINGLE       $38
 
 
+; Forest tile set
+.define FOREST_GRASS $00
+.define FOREST_TREE  $04
+
+
 ; Globally accessible zero page variables
 .zeropage
 .global ptr ; For manipulating pointers

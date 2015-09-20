@@ -522,6 +522,54 @@ loadloop:
 .endproc
 
 
+PROC load_game_palette_0
+	ldy #0
+loadloop:
+	lda (ptr), y
+	sta game_palette + 0, y
+	iny
+	cpy #4
+	bne loadloop
+	rts
+.endproc
+
+
+PROC load_game_palette_1
+	ldy #0
+loadloop:
+	lda (ptr), y
+	sta game_palette + 4, y
+	iny
+	cpy #4
+	bne loadloop
+	rts
+.endproc
+
+
+PROC load_game_palette_2
+	ldy #0
+loadloop:
+	lda (ptr), y
+	sta game_palette + 8, y
+	iny
+	cpy #4
+	bne loadloop
+	rts
+.endproc
+
+
+PROC load_game_palette_3
+	ldy #0
+loadloop:
+	lda (ptr), y
+	sta game_palette + 12, y
+	iny
+	cpy #4
+	bne loadloop
+	rts
+.endproc
+
+
 PROC fill_map_box
 	ldy arg1
 yloop:
@@ -540,6 +588,507 @@ nexty:
 	jmp yloop
 
 end:
+	rts
+.endproc
+
+
+PROC gen_map_opening_locations
+	; Pick random locations for the openings to the next map location, which will also
+	; be used to choose different widths of the outer border, giving a non-rectangular
+	; appearance
+	lda #5
+	jsr genrange_up
+	clc
+	adc #6
+	sta top_opening_pos
+
+	lda #5
+	jsr genrange_down
+	clc
+	adc #6
+	sta bot_opening_pos
+
+	lda #2
+	jsr genrange_left
+	clc
+	adc #5
+	sta left_opening_pos
+
+	lda #2
+	jsr genrange_right
+	clc
+	adc #5
+	sta right_opening_pos
+
+	; Pick random widths for openings to next map location
+	lda #3
+	jsr genrange_up
+	clc
+	adc #3
+	sta top_opening_size
+
+	lda #3
+	jsr genrange_down
+	clc
+	adc #3
+	sta bot_opening_size
+
+	lda #3
+	jsr genrange_left
+	clc
+	adc #3
+	sta left_opening_size
+
+	lda #3
+	jsr genrange_right
+	clc
+	adc #3
+	sta right_opening_size
+
+	rts
+.endproc
+
+
+PROC gen_left_wall_small
+	sta arg4
+
+	lda #2
+	jsr genrange_cur
+	sta arg2
+	sta left_wall_top_extent
+	lda #0
+	sta arg0
+	sta arg1
+	ldx left_opening_pos
+	dex
+	stx arg3
+	lda arg4
+	jsr fill_map_box
+
+	lda #2
+	jsr genrange_cur
+	sta arg2
+	sta left_wall_bot_extent
+	lda left_opening_pos
+	sta arg1
+	lda #MAP_HEIGHT - 1
+	sta arg3
+	lda arg4
+	jsr fill_map_box
+
+	rts
+.endproc
+
+
+PROC gen_left_wall_large
+	sta arg4
+
+	lda #3
+	jsr genrange_cur
+	sta arg2
+	sta left_wall_top_extent
+	lda #0
+	sta arg0
+	sta arg1
+	ldx left_opening_pos
+	dex
+	stx arg3
+	lda arg4
+	jsr fill_map_box
+
+	lda #3
+	jsr genrange_cur
+	sta arg2
+	sta left_wall_bot_extent
+	lda left_opening_pos
+	sta arg1
+	lda #MAP_HEIGHT - 1
+	sta arg3
+	lda arg4
+	jsr fill_map_box
+
+	rts
+.endproc
+
+
+PROC gen_right_wall_small
+	sta arg4
+
+	lda #2
+	jsr genrange_cur
+	clc
+	adc #1
+	sta temp
+	lda #MAP_WIDTH
+	sec
+	sbc temp
+	sta arg0
+	sta right_wall_top_extent
+	lda #MAP_WIDTH
+	sta arg2
+	lda #0
+	sta arg1
+	ldx right_opening_pos
+	stx arg3
+	lda arg4
+	jsr fill_map_box
+
+	lda #2
+	jsr genrange_cur
+	clc
+	adc #1
+	sta temp
+	lda #MAP_WIDTH
+	sec
+	sbc temp
+	sta arg0
+	sta right_wall_bot_extent
+	lda right_opening_pos
+	sta arg1
+	lda #MAP_HEIGHT - 1
+	sta arg3
+	lda arg4
+	jsr fill_map_box
+
+	rts
+.endproc
+
+
+PROC gen_right_wall_large
+	sta arg4
+
+	lda #3
+	jsr genrange_cur
+	clc
+	adc #1
+	sta temp
+	lda #MAP_WIDTH
+	sec
+	sbc temp
+	sta arg0
+	sta right_wall_top_extent
+	lda #MAP_WIDTH
+	sta arg2
+	lda #0
+	sta arg1
+	ldx right_opening_pos
+	stx arg3
+	lda arg4
+	jsr fill_map_box
+
+	lda #3
+	jsr genrange_cur
+	clc
+	adc #1
+	sta temp
+	lda #MAP_WIDTH
+	sec
+	sbc temp
+	sta arg0
+	sta right_wall_bot_extent
+	lda right_opening_pos
+	sta arg1
+	lda #MAP_HEIGHT - 1
+	sta arg3
+	lda arg4
+	jsr fill_map_box
+
+	rts
+.endproc
+
+
+PROC gen_top_wall_small
+	sta arg4
+
+	lda #2
+	jsr genrange_cur
+	sta arg3
+	sta top_wall_left_extent
+	lda #0
+	sta arg0
+	sta arg1
+	ldx top_opening_pos
+	dex
+	stx arg2
+	lda arg4
+	jsr fill_map_box
+
+	lda #2
+	jsr genrange_cur
+	sta arg3
+	sta top_wall_right_extent
+	lda top_opening_pos
+	sta arg0
+	lda #MAP_WIDTH - 1
+	sta arg2
+	lda arg4
+	jsr fill_map_box
+
+	rts
+.endproc
+
+
+PROC gen_top_wall_large
+	sta arg4
+
+	lda #3
+	jsr genrange_cur
+	sta arg3
+	sta top_wall_left_extent
+	lda #0
+	sta arg0
+	sta arg1
+	ldx top_opening_pos
+	dex
+	stx arg2
+	lda arg4
+	jsr fill_map_box
+
+	lda #3
+	jsr genrange_cur
+	sta arg3
+	sta top_wall_right_extent
+	lda top_opening_pos
+	sta arg0
+	lda #MAP_WIDTH - 1
+	sta arg2
+	lda arg4
+	jsr fill_map_box
+
+	rts
+.endproc
+
+
+PROC gen_top_wall_always_thick
+	sta arg4
+
+	lda #3
+	jsr genrange_cur
+	sta arg3
+	sta top_wall_left_extent
+	lda #0
+	sta arg0
+	sta arg1
+	ldx top_opening_pos
+	dex
+	stx arg2
+	lda arg4
+	jsr fill_map_box
+
+	lda #2
+	jsr genrange_cur
+	clc
+	adc #1
+	sta arg3
+	sta top_wall_right_extent
+	lda top_opening_pos
+	sta arg0
+	lda #MAP_WIDTH - 1
+	sta arg2
+	lda arg4
+	jsr fill_map_box
+
+	rts
+.endproc
+
+
+PROC gen_bot_wall_small
+	sta arg4
+
+	lda #2
+	jsr genrange_cur
+	clc
+	adc #1
+	sta temp
+	lda #MAP_HEIGHT
+	sec
+	sbc temp
+	sta arg1
+	sta bot_wall_left_extent
+	lda #MAP_HEIGHT
+	sta arg3
+	lda #0
+	sta arg0
+	ldx bot_opening_pos
+	stx arg2
+	lda arg4
+	jsr fill_map_box
+
+	lda #2
+	jsr genrange_cur
+	clc
+	adc #1
+	sta temp
+	lda #MAP_HEIGHT
+	sec
+	sbc temp
+	sta arg1
+	sta bot_wall_right_extent
+	lda bot_opening_pos
+	sta arg0
+	lda #MAP_WIDTH - 1
+	sta arg2
+	lda arg4
+	jsr fill_map_box
+
+	rts
+.endproc
+
+
+PROC gen_bot_wall_large
+	sta arg4
+
+	lda #3
+	jsr genrange_cur
+	clc
+	adc #1
+	sta temp
+	lda #MAP_HEIGHT
+	sec
+	sbc temp
+	sta arg1
+	sta bot_wall_left_extent
+	lda #MAP_HEIGHT
+	sta arg3
+	lda #0
+	sta arg0
+	ldx bot_opening_pos
+	stx arg2
+	lda arg4
+	jsr fill_map_box
+
+	lda #3
+	jsr genrange_cur
+	clc
+	adc #1
+	sta temp
+	lda #MAP_HEIGHT
+	sec
+	sbc temp
+	sta arg1
+	sta bot_wall_right_extent
+	lda bot_opening_pos
+	sta arg0
+	lda #MAP_WIDTH - 1
+	sta arg2
+	lda arg4
+	jsr fill_map_box
+
+	rts
+.endproc
+
+
+PROC gen_walkable_path
+	sta arg4
+
+	; Generate top opening
+	jsr can_travel_up
+	bne notravelup
+
+	lda top_opening_size
+	lsr
+	sta arg0
+	lda top_opening_pos
+	sec
+	sbc arg0
+	sta arg0
+	clc
+	adc top_opening_size
+	adc #$ff
+	sta arg2
+	lda #0
+	sta arg1
+	lda left_opening_pos
+	cmp right_opening_pos
+	bcs topextent
+	lda right_opening_pos
+topextent:
+	sta arg3
+	lda arg4
+	jsr fill_map_box
+
+notravelup:
+	jsr can_travel_down
+	bne notraveldown
+
+	; Generate bottom opening
+	lda bot_opening_size
+	lsr
+	sta arg0
+	lda bot_opening_pos
+	sec
+	sbc arg0
+	sta arg0
+	clc
+	adc bot_opening_size
+	adc #$ff
+	sta arg2
+	lda #MAP_HEIGHT - 1
+	sta arg3
+	lda left_opening_pos
+	cmp right_opening_pos
+	bcs botextent
+	lda right_opening_pos
+botextent:
+	sta arg1
+	lda arg4
+	jsr fill_map_box
+
+notraveldown:
+	jsr can_travel_left
+	bne notravelleft
+
+	; Generate left opening
+	lda left_opening_size
+	lsr
+	sta arg1
+	lda left_opening_pos
+	sec
+	sbc arg1
+	sta arg1
+	clc
+	adc left_opening_size
+	adc #$ff
+	sta arg3
+	lda #0
+	sta arg0
+	lda top_opening_pos
+	cmp bot_opening_pos
+	bcs leftextent
+	lda bot_opening_pos
+leftextent:
+	sta arg2
+	lda arg4
+	jsr fill_map_box
+
+notravelleft:
+	jsr can_travel_right
+	bne notravelright
+
+	; Generate right opening
+	lda right_opening_size
+	lsr
+	sta arg1
+	lda right_opening_pos
+	sec
+	sbc arg1
+	sta arg1
+	clc
+	adc right_opening_size
+	adc #$ff
+	sta arg3
+	lda #MAP_WIDTH - 1
+	sta arg2
+	lda top_opening_pos
+	cmp bot_opening_pos
+	bcs rightextent
+	lda bot_opening_pos
+rightextent:
+	sta arg0
+	lda arg4
+	jsr fill_map_box
+
+notravelright:
 	rts
 .endproc
 
@@ -566,6 +1115,48 @@ VAR gen_up_index
 VAR gen_down_index
 	.byte 0
 
+VAR top_opening_pos
+	.byte 0
+VAR bot_opening_pos
+	.byte 0
+VAR left_opening_pos
+	.byte 0
+VAR right_opening_pos
+	.byte 0
+VAR top_opening_size
+	.byte 0
+VAR bot_opening_size
+	.byte 0
+VAR left_opening_size
+	.byte 0
+VAR right_opening_size
+	.byte 0
+
+VAR left_wall_top_extent
+	.byte 0
+VAR left_wall_bot_extent
+	.byte 0
+VAR right_wall_top_extent
+	.byte 0
+VAR right_wall_bot_extent
+	.byte 0
+VAR top_wall_left_extent
+	.byte 0
+VAR top_wall_right_extent
+	.byte 0
+VAR bot_wall_left_extent
+	.byte 0
+VAR bot_wall_right_extent
+	.byte 0
+
+VAR clutter_count
+	.byte 0
+VAR clutter_size
+	.byte 0
+
+VAR border_type
+	.byte 0
+
 
 .data
 
@@ -583,7 +1174,7 @@ VAR initial_map_generators
 	.word gen_cave_start
 	.word game_over
 	.word gen_cave_interior
-	.word gen_cave_interior;gen_forest
+	.word gen_forest
 	.word start;gen_house
 	.word start;gen_shop
 	.word start;gen_park
@@ -605,41 +1196,41 @@ VAR map
 	.byte $c1, $c1, $02, $82, $42, $c1, $42, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $c1, $03, $83, $c3, $c1, $c1, $c1, $c1, $c1, $03, $83, $83, $03, $03, $03
 	.byte $43, $c1, $42, $82, $02, $82, $c2, $02, $42, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $c1, $43, $03, $43, $c1, $c1, $c1, $03, $83, $c3, $03, $43, $03, $03, $43
+	.byte $c1, $c1, $43, $03, $43, $c1, $c1, $c1, $03, $03, $c3, $03, $43, $03, $03, $43
 	.byte $43, $c1, $42, $c1, $c2, $c1, $c1, $c2, $42, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $03, $43, $83, $83, $43, $c1, $03, $43, $c7, $c7, $43, $43, $03, $83, $03
+	.byte $c1, $c1, $43, $83, $83, $43, $c1, $03, $03, $c3, $c7, $43, $43, $03, $83, $03
 	.byte $43, $c1, $82, $82, $82, $02, $02, $82, $c2, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $03, $c3, $03, $43, $03, $03, $03, $c3, $c7, $c7, $c3, $43, $83, $03, $03
+	.byte $c1, $03, $43, $03, $43, $03, $03, $03, $c3, $c7, $c7, $c3, $43, $83, $03, $03
 	.byte $43, $c1, $c1, $c1, $c1, $c2, $42, $c1, $42, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $03, $03, $03, $03, $03, $c3, $43, $c7, $c7, $c7, $83, $03, $43, $03, $03
+	.byte $c1, $03, $c3, $03, $03, $03, $c3, $43, $c7, $c7, $c7, $83, $03, $43, $03, $03
 	.byte $03, $43, $c1, $02, $82, $02, $c2, $02, $c2, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $83, $03, $83, $83, $03, $03, $43, $c7, $c7, $c7, $c7, $43, $43, $03, $43
+	.byte $c1, $03, $03, $83, $83, $03, $03, $43, $c7, $c7, $c7, $c7, $43, $43, $03, $43
 	.byte $03, $43, $c1, $42, $c1, $82, $82, $c2, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $c1, $03, $04, $44, $83, $03, $03, $43, $c7, $c7, $c7, $03, $43, $03, $03
+	.byte $c1, $43, $03, $04, $44, $83, $03, $03, $43, $c7, $c7, $c7, $03, $43, $03, $03
 	.byte $83, $03, $03, $43, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $c1, $43, $06, $04, $c6, $83, $03, $03, $43, $03, $03, $c3, $43, $03, $03
+	.byte $c1, $03, $43, $06, $04, $c6, $83, $03, $03, $43, $03, $03, $c3, $43, $03, $03
 	.byte $03, $43, $03, $83, $83, $83, $03, $43, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $c1, $43, $84, $84, $04, $84, $04, $03, $43, $43, $83, $03, $43, $03, $43
-	.byte $03, $43, $43, $03, $83, $c5, $03, $03, $43, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $c1, $43, $46, $45, $04, $86, $c4, $03, $03, $03, $43, $83, $c3, $03, $03
-	.byte $c3, $43, $c3, $83, $03, $c3, $03, $83, $c3, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $03, $03, $84, $84, $84, $03, $03, $43, $03, $03, $43, $03, $03, $03, $83
-	.byte $c3, $83, $83, $83, $c3, $03, $03, $03, $43, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $83, $03, $03, $03, $03, $83, $83, $03, $03, $83, $03, $03, $03, $03, $03
-	.byte $43, $03, $03, $03, $83, $83, $03, $c3, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $c1, $03, $43, $03, $83, $c7, $c7, $03, $03, $03, $84, $44, $03, $43, $c3
-	.byte $43, $03, $83, $c3, $8a, $4a, $43, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $c1, $83, $43, $84, $84, $04, $84, $04, $03, $43, $43, $83, $03, $43, $03, $43
+	.byte $03, $43, $43, $03, $03, $43, $03, $03, $43, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $c1, $03, $43, $46, $45, $04, $86, $c4, $03, $03, $03, $43, $83, $c3, $03, $03
+	.byte $c3, $43, $c3, $c3, $43, $c5, $03, $83, $c3, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $c1, $83, $03, $84, $84, $84, $03, $03, $43, $03, $03, $43, $03, $03, $03, $83
+	.byte $c3, $83, $83, $83, $c3, $03, $03, $03, $c3, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $c1, $c1, $03, $03, $03, $03, $83, $83, $03, $03, $83, $03, $03, $03, $03, $03
+	.byte $03, $03, $03, $83, $83, $03, $03, $c3, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $c1, $c1, $03, $43, $03, $c3, $c7, $c7, $03, $03, $03, $84, $44, $03, $43, $c3
+	.byte $43, $83, $c3, $8a, $4a, $03, $43, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $c1, $83, $03, $43, $c7, $c7, $c7, $03, $43, $03, $43, $c5, $83, $c3, $03
-	.byte $c3, $03, $8a, $8a, $0a, $4a, $43, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $c1, $c1, $83, $43, $c7, $c7, $c7, $03, $83, $43, $03, $03, $83, $03, $43
-	.byte $43, $43, $0a, $8a, $ca, $ca, $43, $02, $42, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $03, $8a, $8a, $0a, $4a, $43, $43, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $c1, $c1, $c1, $83, $43, $c7, $c7, $03, $03, $83, $43, $03, $03, $83, $03, $43
+	.byte $43, $0a, $8a, $ca, $ca, $03, $c3, $02, $42, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $c1, $c1, $c1, $03, $43, $03, $83, $03, $03, $03, $83, $43, $c1, $83, $43
-	.byte $03, $43, $8a, $8a, $89, $c8, $43, $42, $42, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $43, $8a, $8a, $89, $c8, $03, $43, $42, $42, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $c1, $c1, $c1, $83, $83, $c3, $c1, $83, $03, $03, $03, $c3, $c1, $c1, $03
 	.byte $c3, $83, $c3, $03, $83, $83, $c3, $c2, $42, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $83, $83, $c3, $c1, $c1, $c1, $83
-	.byte $83, $03, $83, $03, $82, $02, $82, $82, $c2, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $83, $03, $83, $03, $43, $02, $02, $82, $c2, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $83, $83, $c3, $c1, $82, $82, $82, $c2, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $c1, $83, $83, $83, $83, $c3, $82, $82, $c2, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c2

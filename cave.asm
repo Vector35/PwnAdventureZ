@@ -33,296 +33,36 @@ PROC gen_cave_common
 	LOAD_PTR cave_palette
 	jsr load_background_game_palette
 
-	; Pick random locations for the openings to the next map location, which will also
-	; be used to choose different widths of the outer border, giving a non-rectangular
-	; appearance
-	lda #5
-	jsr genrange_up
-	clc
-	adc #6
-	sta scratch + SCRATCH_TOP_OPENING_POS
+	; Generate parameters for map generation
+	jsr gen_map_opening_locations
 
-	lda #5
-	jsr genrange_down
-	clc
-	adc #6
-	sta scratch + SCRATCH_BOT_OPENING_POS
-
-	lda #2
-	jsr genrange_left
-	clc
-	adc #5
-	sta scratch + SCRATCH_LEFT_OPENING_POS
-
-	lda #2
-	jsr genrange_right
-	clc
-	adc #5
-	sta scratch + SCRATCH_RIGHT_OPENING_POS
-
-	; Generate the left side of the cave wall
-	lda #3
-	jsr genrange_cur
-	sta arg2
-	lda #0
-	sta arg0
-	sta arg1
-	ldx scratch + SCRATCH_LEFT_OPENING_POS
-	dex
-	stx arg3
+	; Generate the sides of the cave wall
 	lda #$80 + CAVE_WALL
-	jsr fill_map_box
-
-	lda #3
-	jsr genrange_cur
-	sta arg2
-	lda scratch + SCRATCH_LEFT_OPENING_POS
-	sta arg1
-	lda #MAP_HEIGHT - 1
-	sta arg3
+	jsr gen_left_wall_large
 	lda #$80 + CAVE_WALL
-	jsr fill_map_box
-
-	; Generate the right side of the cave wall
-	lda #3
-	jsr genrange_cur
-	clc
-	adc #1
-	sta temp
-	lda #MAP_WIDTH
-	sec
-	sbc temp
-	sta arg0
-	lda #MAP_WIDTH
-	sta arg2
-	lda #0
-	sta arg1
-	ldx scratch + SCRATCH_RIGHT_OPENING_POS
-	stx arg3
+	jsr gen_right_wall_large
 	lda #$80 + CAVE_WALL
-	jsr fill_map_box
-
-	lda #3
-	jsr genrange_cur
-	clc
-	adc #1
-	sta temp
-	lda #MAP_WIDTH
-	sec
-	sbc temp
-	sta arg0
-	lda scratch + SCRATCH_RIGHT_OPENING_POS
-	sta arg1
-	lda #MAP_HEIGHT - 1
-	sta arg3
+	jsr gen_top_wall_large
 	lda #$80 + CAVE_WALL
-	jsr fill_map_box
+	jsr gen_bot_wall_large
 
-	; Generate the top side of the cave wall
-	lda #3
-	jsr genrange_cur
-	sta arg3
-	lda #0
-	sta arg0
-	sta arg1
-	ldx scratch + SCRATCH_TOP_OPENING_POS
-	dex
-	stx arg2
-	lda #$80 + CAVE_WALL
-	jsr fill_map_box
-
-	lda #3
-	jsr genrange_cur
-	sta arg3
-	lda scratch + SCRATCH_TOP_OPENING_POS
-	sta arg0
-	lda #MAP_WIDTH - 1
-	sta arg2
-	lda #$80 + CAVE_WALL
-	jsr fill_map_box
-
-	; Generate the bottom side of the cave wall
-	lda #3
-	jsr genrange_cur
-	clc
-	adc #1
-	sta temp
-	lda #MAP_HEIGHT
-	sec
-	sbc temp
-	sta arg1
-	lda #MAP_HEIGHT
-	sta arg3
-	lda #0
-	sta arg0
-	ldx scratch + SCRATCH_BOT_OPENING_POS
-	stx arg2
-	lda #$80 + CAVE_WALL
-	jsr fill_map_box
-
-	lda #3
-	jsr genrange_cur
-	clc
-	adc #1
-	sta temp
-	lda #MAP_HEIGHT
-	sec
-	sbc temp
-	sta arg1
-	lda scratch + SCRATCH_BOT_OPENING_POS
-	sta arg0
-	lda #MAP_WIDTH - 1
-	sta arg2
-	lda #$80 + CAVE_WALL
-	jsr fill_map_box
-
-	; Pick random widths for openings to next map location
-	lda #3
-	jsr genrange_up
-	clc
-	adc #3
-	sta scratch + SCRATCH_TOP_OPENING_SIZE
-
-	lda #3
-	jsr genrange_down
-	clc
-	adc #3
-	sta scratch + SCRATCH_BOT_OPENING_SIZE
-
-	lda #3
-	jsr genrange_left
-	clc
-	adc #3
-	sta scratch + SCRATCH_LEFT_OPENING_SIZE
-
-	lda #3
-	jsr genrange_right
-	clc
-	adc #3
-	sta scratch + SCRATCH_RIGHT_OPENING_SIZE
-
-	; Generate top opening
-	jsr can_travel_up
-	bne notravelup
-
-	lda scratch + SCRATCH_TOP_OPENING_SIZE
-	lsr
-	sta arg0
-	lda scratch + SCRATCH_TOP_OPENING_POS
-	sec
-	sbc arg0
-	sta arg0
-	clc
-	adc scratch + SCRATCH_TOP_OPENING_SIZE
-	adc #$ff
-	sta arg2
-	lda #0
-	sta arg1
-	lda scratch + SCRATCH_LEFT_OPENING_POS
-	cmp scratch + SCRATCH_RIGHT_OPENING_POS
-	bcs topextent
-	lda scratch + SCRATCH_RIGHT_OPENING_POS
-topextent:
-	sta arg3
 	lda #$80 + CAVE_INTERIOR
-	jsr fill_map_box
+	jsr gen_walkable_path
 
-notravelup:
-	jsr can_travel_down
-	bne notraveldown
-
-	; Generate bottom opening
-	lda scratch + SCRATCH_BOT_OPENING_SIZE
-	lsr
-	sta arg0
-	lda scratch + SCRATCH_BOT_OPENING_POS
-	sec
-	sbc arg0
-	sta arg0
-	clc
-	adc scratch + SCRATCH_BOT_OPENING_SIZE
-	adc #$ff
-	sta arg2
-	lda #MAP_HEIGHT - 1
-	sta arg3
-	lda scratch + SCRATCH_LEFT_OPENING_POS
-	cmp scratch + SCRATCH_RIGHT_OPENING_POS
-	bcs botextent
-	lda scratch + SCRATCH_RIGHT_OPENING_POS
-botextent:
-	sta arg1
-	lda #$80 + CAVE_INTERIOR
-	jsr fill_map_box
-
-notraveldown:
-	jsr can_travel_left
-	bne notravelleft
-
-	; Generate left opening
-	lda scratch + SCRATCH_LEFT_OPENING_SIZE
-	lsr
-	sta arg1
-	lda scratch + SCRATCH_LEFT_OPENING_POS
-	sec
-	sbc arg1
-	sta arg1
-	clc
-	adc scratch + SCRATCH_LEFT_OPENING_SIZE
-	adc #$ff
-	sta arg3
-	lda #0
-	sta arg0
-	lda scratch + SCRATCH_TOP_OPENING_POS
-	cmp scratch + SCRATCH_BOT_OPENING_POS
-	bcs leftextent
-	lda scratch + SCRATCH_BOT_OPENING_POS
-leftextent:
-	sta arg2
-	lda #$80 + CAVE_INTERIOR
-	jsr fill_map_box
-
-notravelleft:
-	jsr can_travel_right
-	bne notravelright
-
-	; Generate right opening
-	lda scratch + SCRATCH_RIGHT_OPENING_SIZE
-	lsr
-	sta arg1
-	lda scratch + SCRATCH_RIGHT_OPENING_POS
-	sec
-	sbc arg1
-	sta arg1
-	clc
-	adc scratch + SCRATCH_RIGHT_OPENING_SIZE
-	adc #$ff
-	sta arg3
-	lda #MAP_WIDTH - 1
-	sta arg2
-	lda scratch + SCRATCH_TOP_OPENING_POS
-	cmp scratch + SCRATCH_BOT_OPENING_POS
-	bcs rightextent
-	lda scratch + SCRATCH_BOT_OPENING_POS
-rightextent:
-	sta arg0
-	lda #$80 + CAVE_INTERIOR
-	jsr fill_map_box
-
-notravelright:
 	; Create clutter in the middle of the cave
 	lda #5
 	jsr genrange_cur
-	sta scratch + SCRATCH_CLUTTER_COUNT
+	sta clutter_count
 
 clutterloop:
-	lda scratch + SCRATCH_CLUTTER_COUNT
+	lda clutter_count
 	bne placeclutter
 	jmp clutterend
 placeclutter:
 
 	lda #4
 	jsr genrange_cur
-	sta scratch + SCRATCH_CLUTTER_SIZE
+	sta clutter_size
 
 	lda #8
 	sta arg5
@@ -341,7 +81,7 @@ cluttertry:
 	adc #2
 	sta arg1
 
-	lda scratch + SCRATCH_CLUTTER_SIZE
+	lda clutter_size
 	cmp #0
 	beq smallclutter
 
@@ -458,31 +198,47 @@ clutterblock:
 	jmp cluttertry
 
 nextclutter:
-	ldx scratch + SCRATCH_CLUTTER_COUNT
+	ldx clutter_count
 	dex
-	stx scratch + SCRATCH_CLUTTER_COUNT
+	stx clutter_count
 	jmp clutterloop
 clutterend:
 
-	; Convert cave walls into the correct tile to account for surroundings.  This will
+	lda #$80
+	jsr process_rock_sides
+
+	rts
+.endproc
+
+
+PROC process_rock_sides
+	sta rock_tile_base
+	clc
+	adc #CAVE_INTERIOR
+	sta rock_tile_interior
+	lda rock_tile_base
+	clc
+	adc #CAVE_WALL
+	sta rock_tile_wall
+
+	; Convert rock walls into the correct tile to account for surroundings.  This will
 	; give them a contour along the edges.
 	ldy #0
 yloop:
 	ldx #0
 xloop:
-	jsr process_cave_sides_for_tile
+	jsr process_rock_sides_for_tile
 	inx
 	cpx #MAP_WIDTH
 	bne xloop
 	iny
 	cpy #MAP_HEIGHT
 	bne yloop
-
 	rts
 .endproc
 
 
-PROC process_cave_sides_for_tile
+PROC process_rock_sides_for_tile
 	txa
 	sta arg0
 	tya
@@ -490,11 +246,8 @@ PROC process_cave_sides_for_tile
 
 	; If the tile is empty space, don't touch it
 	jsr read_gen_map
-	cmp #0
-	beq nowrite
-	cmp #$80 + CAVE_INTERIOR
-	bne solid
-nowrite:
+	cmp rock_tile_wall
+	beq solid
 	jmp done
 solid:
 
@@ -543,9 +296,9 @@ notcenter:
 
 	; Read map and check for a cave wall
 	jsr read_gen_map
-	cmp #0
-	beq next
-	cmp #$80 + CAVE_INTERIOR
+	cmp rock_tile_base
+	bcc next
+	cmp rock_tile_interior
 	beq next
 
 out:
@@ -608,9 +361,19 @@ PROC get_cave_tile_for_sides
 	ldy #0
 	sty bankswitch
 
-	ora #$80
+	clc
+	adc rock_tile_base
 	rts
 .endproc
+
+
+.bss
+VAR rock_tile_base
+	.byte 0
+VAR rock_tile_interior
+	.byte 0
+VAR rock_tile_wall
+	.byte 0
 
 
 .data
