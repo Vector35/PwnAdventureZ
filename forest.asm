@@ -42,6 +42,8 @@ bordertypedone:
 	beq rockborderset
 	cmp #MAP_CAVE_INTERIOR
 	beq caveborderset
+	cmp #MAP_LAKE
+	beq lakeborderset
 
 	; Not a special border set, use trees to block
 	lda #MAP_FOREST
@@ -66,6 +68,13 @@ rockborderset:
 	; There is a map boundary or cave next to this area, load the rock border tile set
 	LOAD_ALL_TILES BORDER_TILES, forest_rock_border_tiles
 	LOAD_PTR forest_rock_border_palette
+	jsr load_game_palette_1
+	jmp borderloaded
+
+lakeborderset:
+	; There is a lake next to this area, load the lake border tile set
+	LOAD_ALL_TILES BORDER_TILES, forest_lake_border_tiles
+	LOAD_PTR forest_lake_border_palette
 	jsr load_game_palette_1
 	jmp borderloaded
 
@@ -131,6 +140,8 @@ botnotforest:
 	beq rock_boundary
 	cmp #MAP_CAVE_INTERIOR
 	beq cave_boundary
+	cmp #MAP_LAKE
+	beq lake_boundary
 	jmp boundarydone
 
 rock_boundary:
@@ -147,9 +158,13 @@ cave_boundary:
 	ldx top_opening_pos
 	inx
 	ldy top_wall_right_extent
-	lda #BORDER_TILES + CAVE_INTERIOR + BORDER_PALETTE
+	lda #BORDER_TILES + BORDER_INTERIOR + BORDER_PALETTE
 	jsr write_gen_map
 
+	jmp boundarydone
+
+lake_boundary:
+	jsr gen_forest_lake_boundary
 	jmp boundarydone
 
 boundarydone:
@@ -289,7 +304,7 @@ PROC gen_forest_rock_boundary
 	and #$3f
 	cmp #MAP_FOREST
 	beq leftnotrock
-	lda #BORDER_TILES + CAVE_WALL + BORDER_PALETTE
+	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
 	jsr gen_left_wall_large
 
 leftnotrock:
@@ -297,7 +312,7 @@ leftnotrock:
 	and #$3f
 	cmp #MAP_FOREST
 	beq rightnotrock
-	lda #BORDER_TILES + CAVE_WALL + BORDER_PALETTE
+	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
 	jsr gen_right_wall_large
 
 rightnotrock:
@@ -309,11 +324,11 @@ rightnotrock:
 	lda border_type
 	cmp #MAP_CAVE_INTERIOR
 	bne rightnotcave
-	lda #BORDER_TILES + CAVE_WALL + BORDER_PALETTE
+	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
 	jsr gen_top_wall_always_thick
 	jmp topnotrock
 rightnotcave:
-	lda #BORDER_TILES + CAVE_WALL + BORDER_PALETTE
+	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
 	jsr gen_top_wall_large
 
 topnotrock:
@@ -321,14 +336,55 @@ topnotrock:
 	and #$3f
 	cmp #MAP_FOREST
 	beq botnotrock
-	lda #BORDER_TILES + CAVE_WALL + BORDER_PALETTE
+	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
 	jsr gen_bot_wall_large
 
 botnotrock:
 	; Process the rock tiles to give them a contoured appearance
 	lda #BORDER_TILES + BORDER_PALETTE
-	jsr process_rock_sides
+	jsr process_border_sides
 
+	rts
+.endproc
+
+
+PROC gen_forest_lake_boundary
+	; Generate borders of rock type with the rock tile set
+	jsr read_overworld_left
+	and #$3f
+	cmp #MAP_FOREST
+	beq leftnotlake
+	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
+	jsr gen_left_wall_large
+
+leftnotlake:
+	jsr read_overworld_right
+	and #$3f
+	cmp #MAP_FOREST
+	beq rightnotlake
+	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
+	jsr gen_right_wall_large
+
+rightnotlake:
+	jsr read_overworld_up
+	and #$3f
+	cmp #MAP_FOREST
+	beq topnotlake
+	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
+	jsr gen_top_wall_large
+
+topnotlake:
+	jsr read_overworld_down
+	and #$3f
+	cmp #MAP_FOREST
+	beq botnotlake
+	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
+	jsr gen_bot_wall_large
+
+botnotlake:
+	; Process the lake tiles to give them a contoured appearance
+	lda #BORDER_TILES + BORDER_PALETTE
+	jsr process_border_sides
 	rts
 .endproc
 
@@ -343,6 +399,9 @@ VAR forest_palette
 VAR forest_rock_border_palette
 	.byte $0f, $19, $07, $17
 
+VAR forest_lake_border_palette
+	.byte $0f, $02, $12, $19
 
 TILES forest_tiles, 2, "tiles/forest/forest.chr", 8
 TILES forest_rock_border_tiles, 2, "tiles/forest/rock.chr", 60
+TILES forest_lake_border_tiles, 2, "tiles/forest/lake.chr", 60

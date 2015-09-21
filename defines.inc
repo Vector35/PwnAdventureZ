@@ -138,22 +138,22 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define MAP_HEIGHT 12
 
 
-; Cave tile set
-.define CAVE_OUTER_TOP_LEFT     $00
-.define CAVE_OUTER_TOP_CENTER   $04
-.define CAVE_OUTER_TOP_RIGHT    $08
-.define CAVE_OUTER_CENTER_LEFT  $0c
-.define CAVE_INTERIOR           $10
-.define CAVE_OUTER_CENTER_RIGHT $14
-.define CAVE_OUTER_BOT_LEFT     $18
-.define CAVE_OUTER_BOT_CENTER   $1c
-.define CAVE_OUTER_BOT_RIGHT    $20
-.define CAVE_INNER_TOP_LEFT     $24
-.define CAVE_INNER_TOP_RIGHT    $28
-.define CAVE_WALL               $2c
-.define CAVE_INNER_BOT_LEFT     $30
-.define CAVE_INNER_BOT_RIGHT    $34
-.define CAVE_INNER_SINGLE       $38
+; Border tile sets
+.define BORDER_OUTER_TOP_LEFT     $00
+.define BORDER_OUTER_TOP_CENTER   $04
+.define BORDER_OUTER_TOP_RIGHT    $08
+.define BORDER_OUTER_CENTER_LEFT  $0c
+.define BORDER_INTERIOR           $10
+.define BORDER_OUTER_CENTER_RIGHT $14
+.define BORDER_OUTER_BOT_LEFT     $18
+.define BORDER_OUTER_BOT_CENTER   $1c
+.define BORDER_OUTER_BOT_RIGHT    $20
+.define BORDER_INNER_TOP_LEFT     $24
+.define BORDER_INNER_TOP_RIGHT    $28
+.define BORDER_CENTER             $2c
+.define BORDER_INNER_BOT_LEFT     $30
+.define BORDER_INNER_BOT_RIGHT    $34
+.define BORDER_INNER_SINGLE       $38
 
 
 ; Forest tile set
