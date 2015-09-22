@@ -19,6 +19,18 @@ PROC reset_mapper
 	lsr
 	sta $8000
 
+	; Set CHR select to 0, disable save RAM for some SNROM boards
+	lda #$10
+	sta $a000
+	lsr
+	sta $a000
+	lsr
+	sta $a000
+	lsr
+	sta $a000
+	lsr
+	sta $a000
+
 	; Map first bank into $8000, disable save RAM until accessing
 	lda #$10
 	sta $e000
@@ -57,6 +69,8 @@ PROC has_save_ram
 
 
 PROC enable_save_ram
+	; Enable RAM in both CHR and PRG select registers, as the original SNROM boards
+	; used CHR select bit 4 as a write protect as well
 	lda #$00
 	sta $e000
 	lsr
@@ -67,11 +81,25 @@ PROC enable_save_ram
 	sta $e000
 	lsr
 	sta $e000
+
+	lda #$00
+	sta $a000
+	lsr
+	sta $a000
+	lsr
+	sta $a000
+	lsr
+	sta $a000
+	lsr
+	sta $a000
+
 	rts
 .endproc
 
 
 PROC disable_save_ram
+	; Disable RAM in both CHR and PRG select registers, as the original SNROM boards
+	; used CHR select bit 4 as a write protect as well
 	lda #$10
 	sta $e000
 	lsr
@@ -82,6 +110,18 @@ PROC disable_save_ram
 	sta $e000
 	lsr
 	sta $e000
+
+	lda #$10
+	sta $a000
+	lsr
+	sta $a000
+	lsr
+	sta $a000
+	lsr
+	sta $a000
+	lsr
+	sta $a000
+
 	rts
 .endproc
 
