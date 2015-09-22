@@ -3,6 +3,35 @@
 .code
 
 PROC main
+	; First check the save RAM and clear any invalid saves
+	lda #0
+	jsr is_save_slot_valid
+	beq slot0valid
+	lda #0
+	jsr clear_slot
+
+slot0valid:
+	lda #1
+	jsr is_save_slot_valid
+	beq slot1valid
+	lda #1
+	jsr clear_slot
+
+slot1valid:
+	lda #2
+	jsr is_save_slot_valid
+	beq slot2valid
+	lda #2
+	jsr clear_slot
+
+slot2valid:
+	lda #3
+	jsr is_save_slot_valid
+	beq slot3valid
+	lda #3
+	jsr clear_slot
+
+slot3valid:
 	jsr title
 
 	jsr init_game_state
@@ -154,6 +183,9 @@ VAR map_screen_generators
 VAR cur_screen_x
 	.byte 0
 VAR cur_screen_y
+	.byte 0
+
+VAR active_save_slot
 	.byte 0
 
 

@@ -39,7 +39,7 @@ clearmem:
 	bne clearmem
 
 	; Ensure mapper has bank #0 at 0x8000-0xc000
-	sta bankswitch
+	jsr reset_mapper
 
 	; Initialize APU
 	lda #$f
@@ -142,11 +142,6 @@ PROC irq
 .endproc
 
 
-.data
-VAR bankswitch
-	.byte 0, 1, 2, 3, 4, 5, 6, 7
-
-
 .zeropage
 VAR ptr
 	.word 0
@@ -193,16 +188,6 @@ VAR scratch ; 32 bytes of temporary space
 	.byte 0
 	.endrepeat
 
-
-.segment "HEADER"
-	.byte "NES", $1a
-	.byte 8 ; 128kb program ROM
-	.byte 0 ; CHR-RAM
-	.byte $20 ; Mapper 2 (UNROM)
-	.byte 0
-	.byte 0
-	.byte 0 ; NTSC
-	.byte $10 ; No program RAM (internal RAM only)
 
 .segment "VECTORS"
 

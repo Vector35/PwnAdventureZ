@@ -328,8 +328,10 @@ skip:
 	bne yloop
 
 	; The bit mask has been generated, look it up in the table to get the proper tile
-	lda arg4
-	jsr get_border_tile_for_sides
+	ldy arg4
+	lda border_tile_for_sides, y
+	clc
+	adc border_tile_base
 
 	; Write the new tile to the map
 	ldx arg0
@@ -341,28 +343,6 @@ done:
 	tax
 	lda arg1
 	tay
-	rts
-.endproc
-
-
-.segment "FIXED"
-
-PROC get_border_tile_for_sides
-	tay
-
-	; Switch to bank that contains the mapping.  Must write to a memory location that
-	; contains the same value being written due to bus conflicts.
-	lda #2
-	sta bankswitch + 2
-
-	lda border_tile_for_sides, y
-
-	; Switch back to game code bank
-	ldy #0
-	sty bankswitch
-
-	clc
-	adc border_tile_base
 	rts
 .endproc
 
@@ -388,10 +368,7 @@ TILES cave_border_tiles, 2, "tiles/cave/border.chr", 60
 
 ; Place a lookup table for determining which tile to use based on the 8 surrounding tiles.  This
 ; is represented with a bit field, with $80 representing the top left and $01 representing the
-; bottom right.  Place this into the segment with the tiles as it will need to be aligned to
-; a 256 byte boundary for access, and we don't want to waste space in the main data segment.
-.segment "CHR2"
-	.align 256
+; bottom right.
 VAR border_tile_for_sides
 	.byte BORDER_INNER_SINGLE, BORDER_INNER_SINGLE, BORDER_INNER_SINGLE, BORDER_INNER_SINGLE ; $00
 	.byte BORDER_INNER_SINGLE, BORDER_INNER_SINGLE, BORDER_INNER_SINGLE, BORDER_INNER_SINGLE ; $04

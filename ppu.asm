@@ -554,10 +554,9 @@ PROC prepare_for_rendering
 PROC copy_tiles
 	tax
 
-	; Switch to bank that contains the tiles.  Must write to a memory location that
-	; contains the same value being written due to bus conflicts.
+	; Switch to bank that contains the tiles
 	tya
-	sta bankswitch, y
+	jsr bankswitch
 
 	; Set PPU target address
 	lda PPUSTATUS
@@ -587,7 +586,7 @@ tileloop:
 
 	; Switch back to game code bank
 	lda #0
-	sta bankswitch
+	jsr bankswitch
 
 	rts
 .endproc
