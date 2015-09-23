@@ -114,11 +114,70 @@ no_rendering:
 
 
 PROC wait_for_vblank
+	pha
+	txa
+	pha
+	tya
+	pha
+
+	; Update frames played
+	ldx time_played + 5
+	inx
+	stx time_played + 5
+	cpx #59
+	bcc timeupdatedone
+	lda #0
+	sta time_played + 5
+
+	; Update seconds played
+	ldx time_played + 4
+	inx
+	stx time_played + 4
+	cpx #59
+	bcc timeupdatedone
+	lda #0
+	sta time_played + 4
+
+	; Update minutes played
+	ldx time_played + 3
+	inx
+	stx time_played + 3
+	cpx #9
+	bcc timeupdatedone
+	lda #0
+	sta time_played + 3
+	ldx time_played + 2
+	inx
+	stx time_played + 2
+	cpx #5
+	bcc timeupdatedone
+	lda #0
+	sta time_played + 2
+
+	; Update hours played
+	ldx time_played + 1
+	inx
+	stx time_played + 1
+	cpx #9
+	bcc timeupdatedone
+	lda #0
+	sta time_played + 1
+	ldx time_played
+	inx
+	stx time_played
+
+timeupdatedone:
 	lda PPUSTATUS
 	lda vblank_count
 loop:
 	cmp vblank_count
 	beq loop
+
+	pla
+	tay
+	pla
+	tax
+	pla
 	rts
 .endproc
 
@@ -139,6 +198,18 @@ PROC call_ptr
 
 PROC irq
 	rti
+.endproc
+
+
+PROC zero_unused_stack_page
+	tsx
+	lda #0
+loop:
+	dex
+	sta $0100, x
+	cpx #0
+	bne loop
+	rts
 .endproc
 
 

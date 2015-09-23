@@ -137,6 +137,8 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define MAP_WIDTH  15
 .define MAP_HEIGHT 12
 
+.define FINAL_KEY_COUNT 6
+
 
 ; Border tile sets
 .define BORDER_OUTER_TOP_LEFT     $00
@@ -159,6 +161,23 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 ; Forest tile set
 .define FOREST_GRASS $00
 .define FOREST_TREE  $04
+
+
+; Save stats tile set
+.define SAVE_TILE_NORMAL      $00
+.define SAVE_TILE_HARD        $04
+.define SAVE_TILE_APOCALYPSE  $07
+.define SAVE_TILE_KEY_COUNT   $0e
+.define SAVE_TILE_NUMBERS     $15
+.define SAVE_TILE_COLON       $1f
+
+
+; Save state header
+.define SAVE_HEADER_SIGNATURE   $00
+.define SAVE_HEADER_NAME        $04
+.define SAVE_HEADER_DIFFICULTY  $12
+.define SAVE_HEADER_KEY_COUNT   $13
+.define SAVE_HEADER_TIME_PLAYED $14
 
 
 ; Globally accessible zero page variables

@@ -25,6 +25,10 @@ PROC prepare_map_gen
 	jsr clear_screen
 	jsr clear_tiles
 
+	; Use 8x8 sprites on first CHR page
+	lda #PPUCTRL_ENABLE_NMI | PPUCTRL_SPRITE_PATTERN | PPUCTRL_NAMETABLE_2C00
+	sta ppu_settings
+
 	ldy #0
 	lda #0
 clearloop:
@@ -45,6 +49,8 @@ clearloop:
 
 PROC map_viewer
 	jsr generate_map
+
+	jsr save
 
 	LOAD_PTR game_palette
 	jsr fade_in

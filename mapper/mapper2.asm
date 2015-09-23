@@ -23,6 +23,16 @@ PROC has_save_ram
 .endproc
 
 
+PROC enable_save_ram
+	rts
+.endproc
+
+
+PROC disable_save_ram
+	rts
+.endproc
+
+
 PROC clear_slot
 	rts
 .endproc

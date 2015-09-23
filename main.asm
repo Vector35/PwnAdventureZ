@@ -32,24 +32,79 @@ slot2valid:
 	jsr clear_slot
 
 slot3valid:
+	lda #4
+	jsr is_save_slot_valid
+	beq slot4valid
+	lda #4
+	jsr clear_slot
+
+slot4valid:
 	jsr title
 
-	jsr init_game_state
+	jsr has_save_ram
+	beq newgame
 
+	jsr save_select
+
+	; Ensure the entire RAM, including the scratch area below the stack, is in a
+	; known state to prevent all possibility of cross-save contamination
+	jsr zero_unused_stack_page
+
+	lda start_new_game
+	cmp #0
+	beq resume
+
+newgame:
+	jsr new_game
+
+resume:
 	jsr map_viewer
 	rts
 .endproc
 
 
-PROC init_game_state
+PROC new_game
+	; Zero out all memory except the stack page to get the game into a known state
+	ldx #0
+	lda #0
+clearloop:
+	sta $0000, x
+	sta $0200, x
+	sta $0300, x
+	sta $0400, x
+	sta $0500, x
+	sta $0600, x
+	sta $0700, x
+	inx
+	bne clearloop
+
+	jsr zero_unused_stack_page
+
+	; Initialize map generators
 	jsr init_map
 
+	; Don't start a new game on restore
+	lda #0
+	sta start_new_game
+
+	; Ensure game palette has black as the background
 	lda #$0f
 	sta game_palette + 16
 	sta game_palette + 20
 	sta game_palette + 24
 	sta game_palette + 28
 
+	; Ask for name if we are saving
+	jsr has_save_ram
+	beq done
+
+	jsr enter_name
+
+	; Save the initial state to the save slot
+	lda active_save_slot
+	jsr save_ram_to_slot
+
+done:
 	rts
 .endproc
 
@@ -157,6 +212,13 @@ loop:
 .endproc
 
 
+PROC save
+	lda active_save_slot
+	jsr save_ram_to_slot
+	rts
+.endproc
+
+
 .data
 VAR game_over_strings
 	.byte "THE ZOMBIES HAVE", 0
@@ -186,6 +248,19 @@ VAR cur_screen_y
 	.byte 0
 
 VAR active_save_slot
+	.byte 0
+VAR start_new_game
+	.byte 0
+
+VAR name
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
+VAR difficulty
+	.byte 0
+VAR time_played
+	.byte 0, 0, 0, 0, 0, 0
+
+VAR key_count
 	.byte 0
 
 
