@@ -65,6 +65,9 @@ resume:
 
 PROC new_game
 	; Zero out all memory except the stack page to get the game into a known state
+	lda active_save_slot
+	sta scratch
+
 	ldx #0
 	lda #0
 clearloop:
@@ -78,7 +81,106 @@ clearloop:
 	inx
 	bne clearloop
 
+	lda scratch
+	sta active_save_slot
+
 	jsr zero_unused_stack_page
+
+	; Ask for name if we are saving
+	jsr has_save_ram
+	bne nameloop
+	jmp namedone
+
+nameloop:
+	ldx #0
+	lda #0
+nameclearloop:
+	sta name, x
+	inx
+	cpx #14
+	bne nameclearloop
+
+	jsr enter_name
+
+	lda name
+	cmp #'Q'
+	bne nothard
+	lda name + 1
+	cmp #'U'
+	bne nothard
+	lda name + 2
+	cmp #'E'
+	bne nothard
+	lda name + 3
+	cmp #'S'
+	bne nothard
+	lda name + 4
+	cmp #'T'
+	bne nothard
+	lda name + 5
+	cmp #' '
+	bne nothard
+	lda name + 6
+	cmp #'2'
+	bne nothard
+	lda name + 7
+	cmp #'.'
+	bne nothard
+	lda name + 8
+	cmp #'0'
+	bne nothard
+	lda name + 9
+	cmp #0
+	bne nothard
+
+	; Secret name entered for hard difficulty, set it and restart name entry
+	lda #1
+	sta new_game_difficulty
+	jmp nameloop
+
+nothard:
+	lda name
+	cmp #'U'
+	bne namedone
+	lda name + 1
+	cmp #'N'
+	bne namedone
+	lda name + 2
+	cmp #'B'
+	bne namedone
+	lda name + 3
+	cmp #'E'
+	bne namedone
+	lda name + 4
+	cmp #'A'
+	bne namedone
+	lda name + 5
+	cmp #'R'
+	bne namedone
+	lda name + 6
+	cmp #'A'
+	bne namedone
+	lda name + 7
+	cmp #'B'
+	bne namedone
+	lda name + 8
+	cmp #'L'
+	bne namedone
+	lda name + 9
+	cmp #'E'
+	bne namedone
+	lda name + 10
+	cmp #0
+	bne namedone
+
+	; Secret name entered for hardest difficulty, set it and restart name entry
+	lda #2
+	sta new_game_difficulty
+	jmp nameloop
+
+namedone:
+	lda new_game_difficulty
+	sta difficulty
 
 	; Initialize map generators
 	jsr init_map
@@ -94,17 +196,10 @@ clearloop:
 	sta game_palette + 24
 	sta game_palette + 28
 
-	; Ask for name if we are saving
-	jsr has_save_ram
-	beq done
-
-	jsr enter_name
-
 	; Save the initial state to the save slot
 	lda active_save_slot
 	jsr save_ram_to_slot
 
-done:
 	rts
 .endproc
 
@@ -261,6 +356,9 @@ VAR time_played
 	.byte 0, 0, 0, 0, 0, 0
 
 VAR key_count
+	.byte 0
+
+VAR new_game_difficulty
 	.byte 0
 
 
