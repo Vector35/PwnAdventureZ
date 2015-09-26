@@ -125,9 +125,9 @@ validsave:
 	asl
 	tay
 
-	lda $6000 + SAVE_HEADER_DIFFICULTY
+	lda $6000 + SAVE_HEADER_DIFFICULTY, y
 	sta difficulty
-	lda $6000 + SAVE_HEADER_KEY_COUNT
+	lda $6000 + SAVE_HEADER_KEY_COUNT, y
 	sta key_count
 
 	tya
@@ -332,15 +332,34 @@ minuteloop:
 	; Copy generated tiles to CHR RAM
 	LOAD_PTR sprites
 	ldy #0
-	lda #0
+	lda arg0
+	asl
+	asl
+	asl
+	asl
+	asl
+	asl
 	sta temp
-	lda #$f
+	lda arg0
+	lsr
+	lsr
+	ora #$e
 	sta temp + 1
 	lda #3
 	jsr copy_tiles
 
 	; Show time played text
-	LOAD_PTR time_tiles
+	lda arg0
+	asl
+	asl
+	ora #$e0
+	tax
+	stx scratch
+	inx
+	stx scratch + 1
+	inx
+	stx scratch + 2
+	LOAD_PTR scratch
 	ldx #21
 	lda arg0
 	asl
@@ -1129,9 +1148,6 @@ VAR difficulty_tiles
 	.byte TILE_SAVE + SAVE_TILE_APOCALYPSE + 5
 	.byte TILE_SAVE + SAVE_TILE_APOCALYPSE + 6
 	.byte 0
-
-VAR time_tiles
-	.byte $f0, $f1, $f2
 
 VAR name_entry_title
 	.byte $3b, " ENTER NAME ", $3d, 0

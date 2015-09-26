@@ -49,6 +49,24 @@ PROC gen_cave_common
 	lda #$80 + BORDER_INTERIOR
 	jsr gen_walkable_path
 
+	; In the starting cave, make sure the player spawn point is not covered
+	jsr read_overworld_cur
+	and #$3f
+	cmp #MAP_CAVE_START
+	bne notstartcave
+
+	lda #6
+	sta arg0
+	lda #5
+	sta arg1
+	lda #8
+	sta arg2
+	lda #7
+	sta arg3
+	lda #$80 + BORDER_INTERIOR
+	jsr fill_map_box
+
+notstartcave:
 	; Create clutter in the middle of the cave
 	lda #5
 	jsr genrange_cur

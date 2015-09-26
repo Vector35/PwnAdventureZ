@@ -172,6 +172,22 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define SAVE_TILE_COLON       $1f
 
 
+; Movement directions
+.define DIR_UP        0
+.define DIR_LEFT      1
+.define DIR_RIGHT     2
+.define DIR_DOWN      3
+.define DIR_RUN_UP    4
+.define DIR_RUN_LEFT  5
+.define DIR_RUN_RIGHT 6
+.define DIR_RUN_DOWN  7
+
+
+; Sprite tile indicies
+.define SPRITE_OAM_PLAYER  $00
+.define SPRITE_TILE_PLAYER $00
+
+
 ; Save state header
 .define SAVE_HEADER_SIGNATURE   $00
 .define SAVE_HEADER_NAME        $04
@@ -190,3 +206,5 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .global ppu_settings
 
 .global controller
+
+.global player_x, player_y, player_direction, player_anim_frame

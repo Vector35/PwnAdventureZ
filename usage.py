@@ -37,10 +37,10 @@ for line in f:
 			elif parts[0][:3] == "CHR":
 				chr_size += int(parts[3], 16)
 
-rom_size = code_size + data_size
+fixed_size = fixed_size + data_size
 
-print "Bank 0:     %5d of %5d bytes  %3d%%  %5d bytes code, %5d bytes data" % (rom_size, 0x4000, int((rom_size * 100.0) / 0x4000), code_size, data_size)
-print "Fixed bank: %5d of %5d bytes  %3d%%" % (fixed_size, 0x3ffa, int((fixed_size * 100.0) / 0x3ffa))
+print "Bank 0:     %5d of %5d bytes  %3d%%" % (code_size, 0x4000, int((code_size * 100.0) / 0x4000))
+print "Fixed bank: %5d of %5d bytes  %3d%%  %5d bytes code, %5d bytes data" % (fixed_size, 0x3ffa, int((fixed_size * 100.0) / 0x3ffa), fixed_size, data_size)
 print "RAM:        %5d of %5d bytes  %3d%%" % (ram_size, 0x500, int((ram_size * 100.0) / 0x500))
 print "Zero page:  %5d of %5d bytes  %3d%%" % (zero_size, 0x100, int((zero_size * 100.0) / 0x600))
 print "CHR:        %5d of %5d chars  %3d%%" % (chr_size / 16, 0x1800, int((chr_size * 100.0) / 0x18000))

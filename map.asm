@@ -26,7 +26,7 @@ PROC prepare_map_gen
 	jsr clear_tiles
 
 	; Use 8x8 sprites on first CHR page
-	lda #PPUCTRL_ENABLE_NMI | PPUCTRL_SPRITE_PATTERN | PPUCTRL_NAMETABLE_2C00
+	lda #PPUCTRL_ENABLE_NMI | PPUCTRL_SPRITE_SIZE | PPUCTRL_NAMETABLE_2C00
 	sta ppu_settings
 
 	ldy #0
@@ -569,6 +569,54 @@ PROC load_game_palette_3
 loadloop:
 	lda (ptr), y
 	sta game_palette + 12, y
+	iny
+	cpy #4
+	bne loadloop
+	rts
+.endproc
+
+
+PROC load_sprite_palette_0
+	ldy #0
+loadloop:
+	lda (ptr), y
+	sta game_palette + 16, y
+	iny
+	cpy #4
+	bne loadloop
+	rts
+.endproc
+
+
+PROC load_sprite_palette_1
+	ldy #0
+loadloop:
+	lda (ptr), y
+	sta game_palette + 20, y
+	iny
+	cpy #4
+	bne loadloop
+	rts
+.endproc
+
+
+PROC load_sprite_palette_2
+	ldy #0
+loadloop:
+	lda (ptr), y
+	sta game_palette + 24, y
+	iny
+	cpy #4
+	bne loadloop
+	rts
+.endproc
+
+
+PROC load_sprite_palette_3
+	ldy #0
+loadloop:
+	lda (ptr), y
+	sta game_palette + 28, y
 	iny
 	cpy #4
 	bne loadloop
@@ -1162,6 +1210,10 @@ VAR clutter_size
 
 VAR border_type
 	.byte 0
+
+VAR collision
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 
 .data
