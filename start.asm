@@ -196,6 +196,11 @@ PROC call_ptr
 .endproc
 
 
+PROC call_temp
+	jmp (temp)
+.endproc
+
+
 PROC irq
 	rti
 .endproc

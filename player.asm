@@ -47,13 +47,13 @@ PROC update_player_sprite
 	sta sprites + SPRITE_OAM_PLAYER
 	sta sprites + SPRITE_OAM_PLAYER + 4
 
-	lda player_sprites_for_state, x
+	lda walking_sprites_for_state, x
 	sta sprites + SPRITE_OAM_PLAYER + 1
-	lda player_sprites_for_state + 1, x
+	lda walking_sprites_for_state + 1, x
 	sta sprites + SPRITE_OAM_PLAYER + 2
-	lda player_sprites_for_state + 2, x
+	lda walking_sprites_for_state + 2, x
 	sta sprites + SPRITE_OAM_PLAYER + 5
-	lda player_sprites_for_state + 3, x
+	lda walking_sprites_for_state + 3, x
 	sta sprites + SPRITE_OAM_PLAYER + 6
 
 	lda player_x
@@ -309,51 +309,51 @@ VAR player_anim_frame
 
 
 .data
-VAR player_sprites_for_state
+VAR walking_sprites_for_state
 	; Up
-	.byte SPRITE_TILE_PLAYER + $1c + 1, $00
-	.byte SPRITE_TILE_PLAYER + $1e + 1, $00
-	.byte SPRITE_TILE_PLAYER + $1c + 1, $00
-	.byte SPRITE_TILE_PLAYER + $1e + 1, $00
+	.byte $1c + 1, $00
+	.byte $1e + 1, $00
+	.byte $1c + 1, $00
+	.byte $1e + 1, $00
 	; Left
-	.byte SPRITE_TILE_PLAYER + $0a + 1, $40
-	.byte SPRITE_TILE_PLAYER + $08 + 1, $40
-	.byte SPRITE_TILE_PLAYER + $0a + 1, $40
-	.byte SPRITE_TILE_PLAYER + $08 + 1, $40
+	.byte $0a + 1, $40
+	.byte $08 + 1, $40
+	.byte $0a + 1, $40
+	.byte $08 + 1, $40
 	; Right
-	.byte SPRITE_TILE_PLAYER + $08 + 1, $00
-	.byte SPRITE_TILE_PLAYER + $0a + 1, $00
-	.byte SPRITE_TILE_PLAYER + $08 + 1, $00
-	.byte SPRITE_TILE_PLAYER + $0a + 1, $00
+	.byte $08 + 1, $00
+	.byte $0a + 1, $00
+	.byte $08 + 1, $00
+	.byte $0a + 1, $00
 	; Down
-	.byte SPRITE_TILE_PLAYER + $18 + 1, $00
-	.byte SPRITE_TILE_PLAYER + $1a + 1, $00
-	.byte SPRITE_TILE_PLAYER + $18 + 1, $00
-	.byte SPRITE_TILE_PLAYER + $1a + 1, $00
+	.byte $18 + 1, $00
+	.byte $1a + 1, $00
+	.byte $18 + 1, $00
+	.byte $1a + 1, $00
 	; Run Up
-	.byte SPRITE_TILE_PLAYER + $10 + 1, $00
-	.byte SPRITE_TILE_PLAYER + $12 + 1, $00
-	.byte SPRITE_TILE_PLAYER + $14 + 1, $00
-	.byte SPRITE_TILE_PLAYER + $16 + 1, $00
+	.byte $10 + 1, $00
+	.byte $12 + 1, $00
+	.byte $14 + 1, $00
+	.byte $16 + 1, $00
 	; Run Left
-	.byte SPRITE_TILE_PLAYER + $0a + 1, $40
-	.byte SPRITE_TILE_PLAYER + $08 + 1, $40
-	.byte SPRITE_TILE_PLAYER + $0e + 1, $40
-	.byte SPRITE_TILE_PLAYER + $0c + 1, $40
+	.byte $0a + 1, $40
+	.byte $08 + 1, $40
+	.byte $0e + 1, $40
+	.byte $0c + 1, $40
 	; Run Right
-	.byte SPRITE_TILE_PLAYER + $08 + 1, $00
-	.byte SPRITE_TILE_PLAYER + $0a + 1, $00
-	.byte SPRITE_TILE_PLAYER + $0c + 1, $00
-	.byte SPRITE_TILE_PLAYER + $0e + 1, $00
+	.byte $08 + 1, $00
+	.byte $0a + 1, $00
+	.byte $0c + 1, $00
+	.byte $0e + 1, $00
 	; Run Down
-	.byte SPRITE_TILE_PLAYER + $00 + 1, $00
-	.byte SPRITE_TILE_PLAYER + $02 + 1, $00
-	.byte SPRITE_TILE_PLAYER + $04 + 1, $00
-	.byte SPRITE_TILE_PLAYER + $06 + 1, $00
+	.byte $00 + 1, $00
+	.byte $02 + 1, $00
+	.byte $04 + 1, $00
+	.byte $06 + 1, $00
 
 VAR dark_player_palette
-	.byte $0f, $2d, $36, $17
+	.byte $0f, $2d, $37, $07
 VAR light_player_palette
-	.byte $0f, $0f, $36, $07
+	.byte $0f, $0f, $37, $07
 
 TILES unarmed_player_tiles, 2, "tiles/characters/player/unarmed.chr", 32

@@ -183,9 +183,28 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define DIR_RUN_DOWN  7
 
 
+; Enemy types
+.define ENEMY_NORMAL_ZOMBIE 0
+.define ENEMY_FAT_ZOMBIE    1
+.define ENEMY_NONE          $ff
+
+.define ENEMY_MAX_COUNT     8
+
+.define ENEMY_DESC_TICK    0
+.define ENEMY_DESC_DIE     2
+.define ENEMY_DESC_COLLIDE 4
+.define ENEMY_DESC_TILE    6
+.define ENEMY_DESC_PALETTE 7
+
+
 ; Sprite tile indicies
 .define SPRITE_OAM_PLAYER  $00
+.define SPRITE_OAM_ENEMIES $08
+
 .define SPRITE_TILE_PLAYER $00
+
+.define SPRITE_TILE_NORMAL_ZOMBIE $20
+.define SPRITE_TILE_FAT_ZOMBIE    $40
 
 
 ; Save state header
@@ -208,3 +227,5 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .global controller
 
 .global player_x, player_y, player_direction, player_anim_frame
+
+.global cur_enemy

@@ -67,6 +67,7 @@ PROC game_loop
 prepare:
 	jsr generate_map
 	jsr init_player_sprites
+	jsr init_zombie_sprites
 
 	jsr save
 
@@ -83,8 +84,11 @@ loop:
 	jsr perform_player_move
 	bne prepare
 
+	jsr update_enemies
+
 	jsr wait_for_vblank
 	jsr update_player_sprite
+	jsr update_enemy_sprites
 	jsr prepare_for_rendering
 
 	jmp loop

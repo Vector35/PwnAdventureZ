@@ -29,9 +29,11 @@ PROC gen_cave_common
 	; Load cave tiles
 	LOAD_ALL_TILES $080, cave_border_tiles
 
-	; Set up collision info
+	; Set up collision and spawning info
 	lda #$80 + BORDER_INTERIOR
 	sta traversable_tiles
+	lda #$80 + BORDER_INTERIOR
+	sta spawnable_tiles
 
 	; Load cave palette
 	LOAD_PTR cave_palette

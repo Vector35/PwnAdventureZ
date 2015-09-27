@@ -12,11 +12,13 @@ PROC gen_forest
 	; Load forest tiles
 	LOAD_ALL_TILES FOREST_TILES, forest_tiles
 
-	; Set up collision info
+	; Set up collision and spawning info
 	lda #FOREST_TILES + FOREST_GRASS
 	sta traversable_tiles
 	lda #BORDER_TILES + BORDER_INTERIOR
 	sta traversable_tiles + 1
+	lda #FOREST_TILES + FOREST_GRASS
+	sta spawnable_tiles
 
 	; Load forest palette
 	LOAD_PTR forest_palette
@@ -301,6 +303,26 @@ nextblank:
 	iny
 	cpy #MAP_HEIGHT
 	bne yloop
+
+	; Create enemies
+	jsr prepare_spawn
+
+	lda #3
+	jsr rand_range
+	clc
+	adc #1
+	tax
+spawnloop:
+	txa
+	pha
+
+	lda #ENEMY_NORMAL_ZOMBIE
+	jsr spawn_starting_enemy
+
+	pla
+	tax
+	dex
+	bne spawnloop
 
 	rts
 .endproc

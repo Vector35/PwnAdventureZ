@@ -295,6 +295,34 @@ done:
 .endproc
 
 
+PROC read_spawnable_at
+	tya
+	asl
+	sta temp
+	txa
+	lsr
+	lsr
+	lsr
+	ora temp
+	tay
+
+	txa
+	and #7
+	tax
+	lda #$80
+bitloop:
+	cpx #0
+	beq bitloopend
+	lsr
+	dex
+	bne bitloop
+bitloopend:
+
+	and spawnable, y
+	rts
+.endproc
+
+
 .segment "FIXED"
 
 PROC get_flag
@@ -607,6 +635,26 @@ initloop:
 	cpx #8
 	bne initloop
 
+	; Initialize spawnable tile list
+	ldx #0
+	lda #$ff
+initspawnloop:
+	sta spawnable_tiles, x
+	inx
+	cpx #4
+	bne initspawnloop
+	lda #0
+	sta spawn_ready
+
+	; Clear enemy list
+	ldx #0
+	lda #ENEMY_NONE
+initenemyloop:
+	sta enemy_type, x
+	inx
+	cpx #ENEMY_MAX_COUNT
+	bne initenemyloop
+
 	ldx cur_screen_x
 	ldy cur_screen_y
 	jsr read_overworld_map
@@ -667,6 +715,8 @@ nextcollision:
 	inx
 	cpx #MAP_HEIGHT * 2
 	bne collisionloop
+
+	jsr prepare_spawn
 
 	; Write generated tiles to screen
 	ldy #0
@@ -744,6 +794,65 @@ clearsprites:
 	iny
 	bne clearsprites
 
+	rts
+.endproc
+
+
+PROC prepare_spawn
+	lda spawn_ready
+	beq notready
+	rts
+
+notready:
+	; Zero spawning data memory
+	ldx #0
+	lda #0
+zerospawnloop:
+	sta spawnable, x
+	inx
+	cpx #32
+	bne zerospawnloop
+
+	; Compute spawning data
+	ldx #0
+	stx arg0
+	lda #$80
+	sta temp + 1
+spawnableloop:
+	ldy arg0
+	lda map_gen_buf, y
+	and #$fc
+	sta temp
+
+	ldy #0
+checkspawnable:
+	lda spawnable_tiles, y
+	cmp temp
+	beq canspawn
+	iny
+	cpy #4
+	bne checkspawnable
+	jmp nextspawn
+
+canspawn:
+	lda temp + 1
+	ora spawnable, x
+	sta spawnable, x
+
+nextspawn:
+	inc arg0
+	lda temp + 1
+	lsr
+	sta temp + 1
+	bne spawnableloop
+	lda #$80
+	sta temp + 1
+	inx
+	cpx #MAP_HEIGHT * 2
+	bne spawnableloop
+
+	lda #1
+	sta spawn_ready
 	rts
 .endproc
 
@@ -1445,8 +1554,16 @@ VAR border_type
 
 VAR traversable_tiles
 	.byte 0, 0, 0, 0, 0, 0, 0, 0
+VAR spawnable_tiles
+	.byte 0, 0, 0, 0
 
 VAR collision
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
+VAR spawn_ready
+	.byte 0
+VAR spawnable
 	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
