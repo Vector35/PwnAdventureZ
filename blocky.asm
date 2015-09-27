@@ -5,7 +5,7 @@
 PROC gen_blocky_puzzle
 	LOAD_ALL_TILES $080, cave_border_tiles
 	LOAD_ALL_TILES $0c0, bigdoor_tiles
-
+	LOAD_ALL_TILES $0e0, urn_tiles 
 	; Load cave palette
 	LOAD_PTR cave_palette
 	jsr load_background_game_palette
@@ -24,15 +24,40 @@ PROC gen_blocky_puzzle
 	lda #0
 	jsr gen_walkable_bot_path
 
-
 	lda #$80
 	jsr process_border_sides
+
+	; Place the urns
+
+	ldy #2
+	jsr write_urns
+	ldy #4
+	jsr write_urns
+	ldy #7
+	jsr write_urns
+	ldy #9
+	jsr write_urns
+	rts
+.endproc
+
+PROC write_urns
+	ldx #2
+loop_write_urn:
+	cpx #14
+	beq done
+	lda #$0e4
+	jsr write_gen_map
+	inx
+	inx
+	jmp loop_write_urn
+done:
 	rts
 .endproc
 
 PROC gen_blocky_treasure
 	LOAD_ALL_TILES $080, cave_border_tiles
 	LOAD_ALL_TILES $0c0, treasure_tiles
+	LOAD_ALL_TILES $0e0, urn_tiles 
 	; Load cave palette
 	LOAD_PTR cave_palette
 	jsr load_background_game_palette
@@ -52,13 +77,43 @@ PROC gen_blocky_treasure
 	jsr process_border_sides
 
 
-	; Now place the treasure chest
-
+	; Place the treasure chest
 	ldx #7
-	ldy #2
+	ldy #3
 	lda #$c0
 	jsr write_gen_map
 
+	; Place some urns around the room for some ambiance
+	ldx #5
+	ldy #3
+	lda #$e4	
+	jsr write_gen_map
+
+	ldx #9
+	ldy #3
+	lda #$e4
+	jsr write_gen_map
+
+	ldx #3
+	ldy #5
+	lda #$e4	
+	jsr write_gen_map
+
+	ldx #11
+	ldy #5
+	lda #$e4
+	jsr write_gen_map
+
+	ldx #3
+	ldy #8
+	lda #$e4	
+	jsr write_gen_map
+
+	ldx #11
+	ldy #8
+	lda #$e4
+	jsr write_gen_map
+	
 	rts
 .endproc
 
@@ -244,3 +299,4 @@ PROC gen_walkable_bot_path
 
 TILES bigdoor_tiles, 2, "tiles/cave/bigdoor.chr", 48
 TILES treasure_tiles, 2, "tiles/cave/chest.chr", 8
+TILES urn_tiles, 2, "tiles/cave/urn-orig.chr", 16
