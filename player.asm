@@ -67,6 +67,236 @@ PROC update_player_sprite
 .endproc
 
 
+PROC perform_player_move
+	lda controller
+	and #JOY_UP
+	bne up
+	lda controller
+	and #JOY_DOWN
+	bne down
+	jmp checkhoriz
+
+up:
+	; Check for cave entrance
+	lda entrance_x
+	asl
+	asl
+	asl
+	asl
+	cmp player_x
+	bne notentrance
+	lda entrance_y
+	asl
+	asl
+	asl
+	asl
+	cmp player_y
+	bne notentrance
+	jmp transitionup
+notentrance:
+	; Check for top of map
+	ldy player_y
+	bne nottopbounds
+	jmp transitionup
+nottopbounds:
+	; Collision detection
+	tya
+	and #15
+	bne noupcollide
+	jsr read_collision_up
+	bne noupcollide
+	jmp checkhoriz
+noupcollide:
+	; Move OK
+	ldy player_y
+	dey
+	sty player_y
+	lda #DIR_RUN_UP
+	sta player_direction
+	lda #1
+	sta arg4
+	jmp checkhoriz
+
+down:
+	; Check for bottom of map
+	ldy player_y
+	cpy #(MAP_HEIGHT - 1) * 16
+	bcc notbotbounds
+	jmp transitiondown
+notbotbounds:
+	; Collision detection
+	tya
+	and #15
+	bne nodowncollide
+	jsr read_collision_down
+	bne nodowncollide
+	jmp checkhoriz
+nodowncollide:
+	; Move OK
+	ldy player_y
+	iny
+	sty player_y
+	lda #DIR_RUN_DOWN
+	sta player_direction
+	lda #1
+	sta arg4
+	jmp checkhoriz
+
+checkhoriz:
+	lda controller
+	and #JOY_LEFT
+	bne left
+	lda controller
+	and #JOY_RIGHT
+	bne right
+	jmp movedone
+
+left:
+	; Check for left of map
+	ldx player_x
+	bne notleftbounds
+	jmp transitionleft
+notleftbounds:
+	; Collision detection
+	txa
+	and #15
+	bne noleftcollide
+	jsr read_collision_left
+	bne noleftcollide
+	jmp movedone
+noleftcollide:
+	; Move OK
+	ldx player_x
+	dex
+	stx player_x
+	lda #DIR_RUN_LEFT
+	sta player_direction
+	lda #1
+	sta arg4
+	jmp movedone
+
+right:
+	; Check for right of map
+	ldx player_x
+	cpx #(MAP_WIDTH - 1) * 16
+	bcc notrightbounds
+	jmp transitionright
+notrightbounds:
+	; Collision detection
+	txa
+	and #15
+	bne norightcollide
+	jsr read_collision_right
+	bne norightcollide
+	jmp movedone
+norightcollide:
+	; Move OK
+	ldx player_x
+	inx
+	stx player_x
+	lda #DIR_RUN_RIGHT
+	sta player_direction
+	lda #1
+	sta arg4
+	jmp movedone
+
+movedone:
+	; Animate player if moving
+	lda arg4
+	beq notmoving
+
+	inc player_anim_frame
+	jmp moveanimdone
+
+notmoving:
+	lda #7
+	sta player_anim_frame
+	lda player_direction
+	and #3
+	sta player_direction
+
+moveanimdone:
+	lda #0
+	rts
+
+transitionleft:
+	jsr fade_out
+	dec cur_screen_x
+	lda #(MAP_WIDTH - 1) * 16
+	sta player_x
+	lda #DIR_LEFT
+	sta player_direction
+	lda #1
+	rts
+
+transitionright:
+	jsr fade_out
+	inc cur_screen_x
+	lda #0
+	sta player_x
+	lda #DIR_RIGHT
+	sta player_direction
+	lda #1
+	rts
+
+transitionup:
+	jsr fade_out
+	dec cur_screen_y
+	lda #(MAP_HEIGHT - 1) * 16
+	sta player_y
+	lda #DIR_UP
+	sta player_direction
+	lda #1
+	rts
+
+transitiondown:
+	jsr fade_out
+
+	jsr read_overworld_cur
+	and #$3f
+	cmp #MAP_CAVE_INTERIOR
+	bne notcaveexit
+
+	jsr read_overworld_down
+	and #$3f
+	cmp #MAP_FOREST
+	bne notcaveexit
+
+	; Exiting cave, place player at cave entrance
+	inc cur_screen_y
+	jsr prepare_map_gen
+	jsr gen_forest
+	lda top_wall_right_extent
+	asl
+	asl
+	asl
+	asl
+	sta player_y
+	lda top_opening_pos
+	clc
+	adc #1
+	asl
+	asl
+	asl
+	asl
+	sta player_x
+	lda #DIR_DOWN
+	sta player_direction
+	lda #1
+	rts
+
+notcaveexit:
+	; Normal exit down
+	inc cur_screen_y
+	lda #0
+	sta player_y
+	lda #DIR_DOWN
+	sta player_direction
+	lda #1
+	rts
+.endproc
+
+
 .zeropage
 VAR player_x
 	.byte 0

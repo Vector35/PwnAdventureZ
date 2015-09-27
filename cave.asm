@@ -29,6 +29,10 @@ PROC gen_cave_common
 	; Load cave tiles
 	LOAD_ALL_TILES $080, cave_border_tiles
 
+	; Set up collision info
+	lda #$80 + BORDER_INTERIOR
+	sta traversable_tiles
+
 	; Load cave palette
 	LOAD_PTR cave_palette
 	jsr load_background_game_palette
