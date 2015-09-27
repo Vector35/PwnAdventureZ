@@ -187,6 +187,49 @@ done:
 .endproc
 
 
+PROC read_collision_left_direct
+	lda player_x
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+	dex
+
+	lda player_y
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+
+	jsr read_collision_at
+	rts
+.endproc
+
+
+PROC read_collision_left_bottom
+	lda player_x
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+	dex
+
+	lda player_y
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+	iny
+
+	jsr read_collision_at
+	rts
+.endproc
+
+
 PROC read_collision_right
 	lda player_x
 	lsr
@@ -219,6 +262,49 @@ aligned:
 	jsr read_collision_at
 
 done:
+	rts
+.endproc
+
+
+PROC read_collision_right_direct
+	lda player_x
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+	inx
+
+	lda player_y
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+
+	jsr read_collision_at
+	rts
+.endproc
+
+
+PROC read_collision_right_bottom
+	lda player_x
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+	inx
+
+	lda player_y
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+	iny
+
+	jsr read_collision_at
 	rts
 .endproc
 
@@ -259,6 +345,49 @@ done:
 .endproc
 
 
+PROC read_collision_up_direct
+	lda player_x
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+
+	lda player_y
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+	dey
+
+	jsr read_collision_at
+	rts
+.endproc
+
+
+PROC read_collision_up_right
+	lda player_x
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+	inx
+
+	lda player_y
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+	dey
+
+	jsr read_collision_at
+	rts
+.endproc
+
+
 PROC read_collision_down
 	lda player_x
 	lsr
@@ -291,6 +420,49 @@ aligned:
 	jsr read_collision_at
 
 done:
+	rts
+.endproc
+
+
+PROC read_collision_down_direct
+	lda player_x
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+
+	lda player_y
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+	iny
+
+	jsr read_collision_at
+	rts
+.endproc
+
+
+PROC read_collision_down_right
+	lda player_x
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+	inx
+
+	lda player_y
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+	iny
+
+	jsr read_collision_at
 	rts
 .endproc
 

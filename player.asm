@@ -72,13 +72,21 @@ PROC update_player_sprite
 
 
 PROC perform_player_move
+	lda player_direction
+	sta temp_direction
 	lda controller
+	sta temp_controller
+
+	lda temp_controller
 	and #JOY_UP
 	bne up
-	lda controller
+	lda temp_controller
 	and #JOY_DOWN
-	bne down
+	bne downpressed
 	jmp checkhoriz
+
+downpressed:
+	jmp down
 
 up:
 	; Check for cave entrance
@@ -103,13 +111,44 @@ notentrance:
 	bne nottopbounds
 	jmp transitionup
 nottopbounds:
+	lda #DIR_UP
+	sta temp_direction
 	; Collision detection
 	tya
 	and #15
 	bne noupcollide
 	jsr read_collision_up
 	bne noupcollide
+	ldx player_x
+	txa
+	and #15
+	cmp #8
+	bcc upsnapleft
+	jmp upsnapright
+upmoveinvalid:
 	jmp checkhoriz
+upsnapleft:
+	lda temp_controller
+	and #JOY_LEFT | JOY_RIGHT
+	bne upmoveinvalid
+	jsr read_collision_up_direct
+	beq upmoveinvalid
+	lda temp_controller
+	and #(~JOY_UP) & $ff
+	sta temp_controller
+	jmp left
+upsnapright:
+	lda controller
+	and #JOY_LEFT | JOY_RIGHT
+	bne upmoveinvalid
+	jsr read_collision_right
+	beq upmoveinvalid
+	jsr read_collision_up_right
+	beq upmoveinvalid
+	lda temp_controller
+	and #(~JOY_UP) & $ff
+	sta temp_controller
+	jmp right
 noupcollide:
 	; Move OK
 	ldy player_y
@@ -128,13 +167,44 @@ down:
 	bcc notbotbounds
 	jmp transitiondown
 notbotbounds:
+	lda #DIR_DOWN
+	sta temp_direction
 	; Collision detection
 	tya
 	and #15
 	bne nodowncollide
 	jsr read_collision_down
 	bne nodowncollide
+	ldx player_x
+	txa
+	and #15
+	cmp #8
+	bcc downsnapleft
+	jmp downsnapright
+downmoveinvalid:
 	jmp checkhoriz
+downsnapleft:
+	lda temp_controller
+	and #JOY_LEFT | JOY_RIGHT
+	bne downmoveinvalid
+	jsr read_collision_down_direct
+	beq downmoveinvalid
+	lda temp_controller
+	and #(~JOY_UP) & $ff
+	sta temp_controller
+	jmp left
+downsnapright:
+	lda controller
+	and #JOY_LEFT | JOY_RIGHT
+	bne downmoveinvalid
+	jsr read_collision_right
+	beq downmoveinvalid
+	jsr read_collision_down_right
+	beq downmoveinvalid
+	lda temp_controller
+	and #(~JOY_UP) & $ff
+	sta temp_controller
+	jmp right
 nodowncollide:
 	; Move OK
 	ldy player_y
@@ -147,10 +217,10 @@ nodowncollide:
 	jmp checkhoriz
 
 checkhoriz:
-	lda controller
+	lda temp_controller
 	and #JOY_LEFT
 	bne left
-	lda controller
+	lda temp_controller
 	and #JOY_RIGHT
 	bne right
 	jmp movedone
@@ -161,13 +231,44 @@ left:
 	bne notleftbounds
 	jmp transitionleft
 notleftbounds:
+	lda #DIR_LEFT
+	sta temp_direction
 	; Collision detection
 	txa
 	and #15
 	bne noleftcollide
 	jsr read_collision_left
 	bne noleftcollide
+	ldx player_y
+	txa
+	and #15
+	cmp #8
+	bcc leftsnaptop
+	jmp leftsnapbot
+leftmoveinvalid:
 	jmp movedone
+leftsnaptop:
+	lda temp_controller
+	and #JOY_UP | JOY_DOWN
+	bne leftmoveinvalid
+	jsr read_collision_left_direct
+	beq leftmoveinvalid
+	lda temp_controller
+	and #(~JOY_LEFT) & $ff
+	sta temp_controller
+	jmp up
+leftsnapbot:
+	lda controller
+	and #JOY_UP | JOY_DOWN
+	bne leftmoveinvalid
+	jsr read_collision_down
+	beq leftmoveinvalid
+	jsr read_collision_left_bottom
+	beq leftmoveinvalid
+	lda temp_controller
+	and #(~JOY_LEFT) & $ff
+	sta temp_controller
+	jmp down
 noleftcollide:
 	; Move OK
 	ldx player_x
@@ -186,13 +287,44 @@ right:
 	bcc notrightbounds
 	jmp transitionright
 notrightbounds:
+	lda #DIR_RIGHT
+	sta temp_direction
 	; Collision detection
 	txa
 	and #15
 	bne norightcollide
 	jsr read_collision_right
 	bne norightcollide
+	ldx player_y
+	txa
+	and #15
+	cmp #8
+	bcc rightsnaptop
+	jmp rightsnapbot
+rightmoveinvalid:
 	jmp movedone
+rightsnaptop:
+	lda temp_controller
+	and #JOY_UP | JOY_DOWN
+	bne rightmoveinvalid
+	jsr read_collision_right_direct
+	beq rightmoveinvalid
+	lda temp_controller
+	and #(~JOY_RIGHT) & $ff
+	sta temp_controller
+	jmp up
+rightsnapbot:
+	lda controller
+	and #JOY_UP | JOY_DOWN
+	bne rightmoveinvalid
+	jsr read_collision_down
+	beq rightmoveinvalid
+	jsr read_collision_right_bottom
+	beq rightmoveinvalid
+	lda temp_controller
+	and #(~JOY_RIGHT) & $ff
+	sta temp_controller
+	jmp down
 norightcollide:
 	; Move OK
 	ldx player_x
@@ -215,7 +347,7 @@ movedone:
 notmoving:
 	lda #7
 	sta player_anim_frame
-	lda player_direction
+	lda temp_direction
 	and #3
 	sta player_direction
 
@@ -309,6 +441,13 @@ VAR player_y
 VAR player_direction
 	.byte 0
 VAR player_anim_frame
+	.byte 0
+
+
+.bss
+VAR temp_direction
+	.byte 0
+VAR temp_controller
 	.byte 0
 
 
