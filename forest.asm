@@ -12,6 +12,12 @@ PROC gen_forest
 	; Load forest tiles
 	LOAD_ALL_TILES FOREST_TILES, forest_tiles
 
+	; Set up collision info
+	lda #FOREST_TILES + FOREST_GRASS
+	sta traversable_tiles
+	lda #BORDER_TILES + BORDER_INTERIOR
+	sta traversable_tiles + 1
+
 	; Load forest palette
 	LOAD_PTR forest_palette
 	jsr load_background_game_palette
@@ -159,6 +165,8 @@ cave_boundary:
 	inx
 	ldy top_wall_right_extent
 	lda #BORDER_TILES + BORDER_INTERIOR + BORDER_PALETTE
+	stx entrance_x
+	sty entrance_y
 	jsr write_gen_map
 
 	jmp boundarydone

@@ -75,129 +75,19 @@ prepare:
 
 loop:
 	lda #0
-	sta arg0
+	sta arg4
 
 	; Get latest controller state and look for movement
 	jsr update_controller
-	and #JOY_UP
-	bne up
-	lda controller
-	and #JOY_DOWN
-	bne down
-	jmp checkhoriz
 
-up:
-	ldy player_y
-	bne nottopbounds
-	jmp transitionup
-nottopbounds:
-	dey
-	sty player_y
-	lda #DIR_RUN_UP
-	sta player_direction
-	lda #1
-	sta arg0
-	jmp checkhoriz
+	jsr perform_player_move
+	bne prepare
 
-down:
-	ldy player_y
-	cpy #(MAP_HEIGHT - 1) * 16
-	bcc notbotbounds
-	jmp transitiondown
-notbotbounds:
-	iny
-	sty player_y
-	lda #DIR_RUN_DOWN
-	sta player_direction
-	lda #1
-	sta arg0
-	jmp checkhoriz
-
-checkhoriz:
-	lda controller
-	and #JOY_LEFT
-	bne left
-	lda controller
-	and #JOY_RIGHT
-	bne right
-	jmp movedone
-
-left:
-	ldx player_x
-	bne notleftbounds
-	jmp transitionleft
-notleftbounds:
-	dex
-	stx player_x
-	lda #DIR_RUN_LEFT
-	sta player_direction
-	lda #1
-	sta arg0
-	jmp movedone
-
-right:
-	ldx player_x
-	cpx #(MAP_WIDTH - 1) * 16
-	bcc notrightbounds
-	jmp transitionright
-notrightbounds:
-	inx
-	stx player_x
-	lda #DIR_RUN_RIGHT
-	sta player_direction
-	lda #1
-	sta arg0
-	jmp movedone
-
-movedone:
-	; Animate player if moving
-	lda arg0
-	beq notmoving
-
-	inc player_anim_frame
-	jmp moveanimdone
-
-notmoving:
-	lda #7
-	sta player_anim_frame
-	lda player_direction
-	and #3
-	sta player_direction
-
-moveanimdone:
 	jsr wait_for_vblank
 	jsr update_player_sprite
 	jsr prepare_for_rendering
 
 	jmp loop
-
-transitionleft:
-	jsr fade_out
-	dec cur_screen_x
-	lda #(MAP_WIDTH - 1) * 16
-	sta player_x
-	jmp prepare
-
-transitionright:
-	jsr fade_out
-	inc cur_screen_x
-	lda #0
-	sta player_x
-	jmp prepare
-
-transitionup:
-	jsr fade_out
-	dec cur_screen_y
-	lda #(MAP_HEIGHT - 1) * 16
-	sta player_y
-	jmp prepare
-
-transitiondown:
-	jsr fade_out
-	inc cur_screen_y
-	lda #0
-	sta player_y
-	jmp prepare
 .endproc
 
 

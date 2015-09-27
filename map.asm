@@ -43,6 +43,10 @@ clearloop:
 	sta gen_up_index
 	sta gen_down_index
 
+	lda #$ff
+	sta entrance_x
+	sta entrance_y
+
 	rts
 .endproc
 
@@ -116,6 +120,178 @@ change_base:
 	inx
 	stx gen_base
 	jmp map_viewer
+.endproc
+
+
+PROC read_collision_at
+	tya
+	asl
+	sta temp
+	txa
+	lsr
+	lsr
+	lsr
+	ora temp
+	tay
+
+	txa
+	and #7
+	tax
+	lda #$80
+bitloop:
+	cpx #0
+	beq bitloopend
+	lsr
+	dex
+	bne bitloop
+bitloopend:
+
+	and collision, y
+	rts
+.endproc
+
+
+PROC read_collision_left
+	lda player_x
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+	dex
+	stx arg0
+
+	lda player_y
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+	sty arg1
+
+	lda player_y
+	and #$f
+	beq aligned
+
+	iny
+	jsr read_collision_at
+	beq done
+
+aligned:
+	ldx arg0
+	ldy arg1
+	jsr read_collision_at
+
+done:
+	rts
+.endproc
+
+
+PROC read_collision_right
+	lda player_x
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+	inx
+	stx arg0
+
+	lda player_y
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+	sty arg1
+
+	lda player_y
+	and #$f
+	beq aligned
+
+	iny
+	jsr read_collision_at
+	beq done
+
+aligned:
+	ldx arg0
+	ldy arg1
+	jsr read_collision_at
+
+done:
+	rts
+.endproc
+
+
+PROC read_collision_up
+	lda player_x
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+	stx arg0
+
+	lda player_y
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+	dey
+	sty arg1
+
+	lda player_x
+	and #$f
+	beq aligned
+
+	inx
+	jsr read_collision_at
+	beq done
+
+aligned:
+	ldx arg0
+	ldy arg1
+	jsr read_collision_at
+
+done:
+	rts
+.endproc
+
+
+PROC read_collision_down
+	lda player_x
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+	stx arg0
+
+	lda player_y
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+	iny
+	sty arg1
+
+	lda player_x
+	and #$f
+	beq aligned
+
+	inx
+	jsr read_collision_at
+	beq done
+
+aligned:
+	ldx arg0
+	ldy arg1
+	jsr read_collision_at
+
+done:
+	rts
 .endproc
 
 
@@ -422,6 +598,15 @@ PROC write_gen_map
 PROC generate_map
 	jsr prepare_map_gen
 
+	; Initialize traversable tile list
+	ldx #0
+	lda #0
+initloop:
+	sta traversable_tiles, x
+	inx
+	cpx #8
+	bne initloop
+
 	ldx cur_screen_x
 	ldy cur_screen_y
 	jsr read_overworld_map
@@ -435,6 +620,53 @@ PROC generate_map
 	lda map_screen_generators + 1, y
 	sta ptr + 1
 	jsr call_ptr
+
+	; Zero collision data memory
+	ldx #0
+	lda #0
+zeroloop:
+	sta collision, x
+	inx
+	cpx #32
+	bne zeroloop
+
+	; Compute collision data
+	ldx #0
+	stx arg0
+	lda #$80
+	sta temp + 1
+collisionloop:
+	ldy arg0
+	lda map_gen_buf, y
+	and #$fc
+	sta temp
+
+	ldy #0
+checktraversable:
+	lda traversable_tiles, y
+	cmp temp
+	beq traversable
+	iny
+	cpy #8
+	bne checktraversable
+	jmp nextcollision
+
+traversable:
+	lda temp + 1
+	ora collision, x
+	sta collision, x
+
+nextcollision:
+	inc arg0
+	lda temp + 1
+	lsr
+	sta temp + 1
+	bne collisionloop
+	lda #$80
+	sta temp + 1
+	inx
+	cpx #MAP_HEIGHT * 2
+	bne collisionloop
 
 	; Write generated tiles to screen
 	ldy #0
@@ -1211,9 +1443,17 @@ VAR clutter_size
 VAR border_type
 	.byte 0
 
+VAR traversable_tiles
+	.byte 0, 0, 0, 0, 0, 0, 0, 0
+
 VAR collision
 	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
+VAR entrance_x
+	.byte 0
+VAR entrance_y
+	.byte 0
 
 
 .data
