@@ -377,7 +377,9 @@ VAR game_over_palette
 VAR inventory
 
 VAR map_screen_generators
-	.word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.repeat MAP_TYPE_COUNT
+	.word 0
+	.endrepeat
 
 VAR cur_screen_x
 	.byte 0

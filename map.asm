@@ -965,6 +965,11 @@ loadloop:
 .endproc
 
 
+;arg0 = top x
+;arg1 = top y
+;arg2 = bot x
+;arg3 = bot y
+;Fill in inclusive 
 PROC fill_map_box
 	ldy arg1
 yloop:
@@ -1597,17 +1602,17 @@ VAR initial_map_generators
 	.word start;gen_boss
 	.word start;gen_base_horde
 	.word start;gen_base_interior
-	.word game_over
-	.word get_flag
+	.word gen_blocky_treasure 
+	.word gen_blocky_puzzle
 
 VAR map
 	.byte $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $c1, $c1, $c1, $c1, $43, $03, $43, $43, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $c1, $4b, $c1, $c1, $c1, $43, $03, $43, $43, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $c1, $c1, $c1, $c1, $82, $82, $42, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $c1, $c1, $03, $83, $c3, $43, $83, $c3, $c1, $c1, $c1, $c1, $c1, $c1, $42
+	.byte $c1, $4c, $c1, $03, $83, $c3, $43, $83, $c3, $c1, $c1, $c1, $c1, $c1, $c1, $42
 	.byte $c1, $c1, $c1, $c1, $c1, $c1, $02, $c2, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $c1, $c1, $43, $03, $83, $c3, $c1, $c1, $c1, $c1, $03, $43, $c1, $c1, $42
+	.byte $c1, $82, $42, $43, $03, $83, $c3, $c1, $c1, $c1, $c1, $03, $43, $c1, $c1, $42
 	.byte $c1, $c1, $02, $82, $42, $c1, $42, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $c1, $03, $83, $c3, $c1, $c1, $c1, $c1, $c1, $03, $83, $83, $03, $03, $03
 	.byte $43, $c1, $42, $82, $02, $82, $c2, $02, $42, $c1, $c1, $c1, $c1, $c1, $c1, $c1

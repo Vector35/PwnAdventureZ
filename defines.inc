@@ -129,8 +129,10 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define MAP_LAKE            7
 .define MAP_BOSS            8
 .define MAP_BASE_HORDE      9
-.define MAP_BASE_INTERIOR  10
-.define MAP_TYPE_COUNT     11
+.define MAP_BASE_INTERIOR   10
+.define MAP_BLOCKY_TREASURE 11
+.define MAP_BLOCKY_PUZZLE   12
+.define MAP_TYPE_COUNT      13
 
 
 ; Map parameters
