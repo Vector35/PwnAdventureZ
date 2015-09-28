@@ -146,6 +146,159 @@ next:
 .endproc
 
 
+PROC check_for_enemy_collide
+	lda player_damage_flash_time
+	beq notinvuln
+	rts
+
+notinvuln:
+	lda #0
+	sta cur_enemy
+
+loop:
+	ldx cur_enemy
+	lda enemy_type, x
+	cmp #ENEMY_NONE
+	beq next
+
+	lda enemy_x, x
+	sec
+	sbc player_x
+	cmp #$0b
+	bcc xoverlap
+	cmp #$f4
+	bcs xoverlap
+	jmp next
+
+xoverlap:
+	lda enemy_y, x
+	sec
+	sbc player_y
+	cmp #$0e
+	bcc yoverlap
+	cmp #$f1
+	bcs yoverlap
+	jmp next
+
+yoverlap:
+	; Call the enemy's collide function
+	lda enemy_type, x
+	asl
+	tay
+	lda enemy_descriptors, y
+	sta ptr
+	lda enemy_descriptors + 1, y
+	sta ptr + 1
+
+	ldy #ENEMY_DESC_COLLIDE
+	lda (ptr), y
+	sta temp
+	ldy #ENEMY_DESC_COLLIDE + 1
+	lda (ptr), y
+	sta temp + 1
+	jsr call_temp
+
+next:
+	ldx cur_enemy
+	inx
+	stx cur_enemy
+	cpx #ENEMY_MAX_COUNT
+	bne loop
+
+	rts
+.endproc
+
+
+PROC enemy_knockback
+	ldx cur_enemy
+
+	; Get the absolute value of the X distance from the player
+	lda enemy_x, x
+	cmp player_x
+	bcc leftofplayer
+
+	lda enemy_x, x
+	sec
+	sbc player_x
+	sta arg0
+	jmp checkvert
+
+leftofplayer:
+	lda player_x
+	sec
+	sbc enemy_x, x
+	sta arg0
+
+checkvert:
+	; Get the absolute value of the Y distance from the player
+	lda enemy_y, x
+	cmp player_y
+	bcc upfromplayer
+
+	lda enemy_y, x
+	sec
+	sbc player_y
+	sta arg1
+	jmp finddir
+
+upfromplayer:
+	lda player_y
+	sec
+	sbc enemy_y, x
+	sta arg1
+
+finddir:
+	; Determine far distance from player, this is the direction we want
+	; to send the player
+	lda arg0
+	cmp arg1
+	bcc usevert
+
+	lda enemy_x, x
+	cmp player_x
+	bcc right
+
+	lda #JOY_LEFT
+	sta knockback_control
+	lda #10
+	sta knockback_time
+	lda #DIR_RUN_RIGHT
+	sta player_direction
+	rts
+
+right:
+	lda #JOY_RIGHT
+	sta knockback_control
+	lda #10
+	sta knockback_time
+	lda #DIR_RUN_LEFT
+	sta player_direction
+	rts
+
+usevert:
+	lda enemy_y, x
+	cmp player_y
+	bcc down
+
+	lda #JOY_UP
+	sta knockback_control
+	lda #10
+	sta knockback_time
+	lda #DIR_RUN_DOWN
+	sta player_direction
+	rts
+
+down:
+	lda #JOY_DOWN
+	sta knockback_control
+	lda #10
+	sta knockback_time
+	lda #DIR_RUN_UP
+	sta player_direction
+	rts
+.endproc
+
+
 PROC walking_ai_tick
 	rts
 .endproc
@@ -316,6 +469,11 @@ VAR enemy_idle_time
 	.repeat ENEMY_MAX_COUNT
 	.byte 0
 	.endrepeat
+
+VAR knockback_time
+	.byte 0
+VAR knockback_control
+	.byte 0
 
 
 .data

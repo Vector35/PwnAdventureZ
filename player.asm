@@ -24,6 +24,10 @@ dark:
 	LOAD_PTR dark_player_palette
 
 loadpal:
+	lda ptr
+	sta player_palette
+	lda ptr + 1
+	sta player_palette + 1
 	jsr load_sprite_palette_0
 
 	LOAD_PTR gun_palette
@@ -37,6 +41,31 @@ loadpal:
 
 
 PROC update_player_sprite
+	lda player_damage_flash_time
+	beq normalpalette
+
+	and #4
+	bne flashoff
+
+	LOAD_PTR player_damage_palette
+	lda #4
+	jsr load_single_palette
+
+	dec player_damage_flash_time
+	jmp palettedone
+
+flashoff:
+	dec player_damage_flash_time
+
+normalpalette:
+	lda player_palette
+	sta ptr
+	lda player_palette + 1
+	sta ptr + 1
+	lda #4
+	jsr load_single_palette
+
+palettedone:
 	lda player_anim_frame
 	lsr
 	lsr
@@ -108,6 +137,15 @@ nointeract:
 PROC perform_player_move
 	lda player_direction
 	sta temp_direction
+
+	lda knockback_time
+	beq normalmove
+
+	lda knockback_control
+	sta temp_controller
+	jmp noactivate
+
+normalmove:
 	lda controller
 	sta temp_controller
 
@@ -219,8 +257,11 @@ noupcollide:
 	ldy player_y
 	dey
 	sty player_y
+	lda knockback_time
+	bne noupdirchange
 	lda #DIR_RUN_UP
 	sta player_direction
+noupdirchange:
 	lda #1
 	sta arg4
 	jmp checkhoriz
@@ -292,8 +333,11 @@ nodowncollide:
 	ldy player_y
 	iny
 	sty player_y
+	lda knockback_time
+	bne nodowndirchange
 	lda #DIR_RUN_DOWN
 	sta player_direction
+nodowndirchange:
 	lda #1
 	sta arg4
 	jmp checkhoriz
@@ -376,8 +420,11 @@ noleftcollide:
 	ldx player_x
 	dex
 	stx player_x
+	lda knockback_time
+	bne noleftdirchange
 	lda #DIR_RUN_LEFT
 	sta player_direction
+noleftdirchange:
 	lda #1
 	sta arg4
 	jmp movedone
@@ -449,8 +496,11 @@ norightcollide:
 	ldx player_x
 	inx
 	stx player_x
+	lda knockback_time
+	bne norightdirchange
 	lda #DIR_RUN_RIGHT
 	sta player_direction
+norightdirchange:
 	lda #1
 	sta arg4
 	jmp movedone
@@ -469,6 +519,10 @@ movedone:
 notmoving:
 	lda #7
 	sta player_anim_frame
+
+	lda knockback_time
+	beq moveanimdone
+
 	lda temp_direction
 	and #3
 	sta player_direction
@@ -478,6 +532,8 @@ moveanimdone:
 	rts
 
 transitionleft:
+	lda knockback_time
+	bne moveanimdone
 	jsr fade_out
 	dec cur_screen_x
 	lda #(MAP_WIDTH - 1) * 16
@@ -488,6 +544,8 @@ transitionleft:
 	rts
 
 transitionright:
+	lda knockback_time
+	bne moveanimdone
 	jsr fade_out
 	inc cur_screen_x
 	lda #0
@@ -498,6 +556,8 @@ transitionright:
 	rts
 
 transitionup:
+	lda knockback_time
+	bne moveanimdone
 	jsr fade_out
 	dec cur_screen_y
 	lda #(MAP_HEIGHT - 1) * 16
@@ -508,6 +568,9 @@ transitionup:
 	rts
 
 transitiondown:
+	lda knockback_time
+	bne moveanimdone
+
 	jsr fade_out
 
 	jsr read_overworld_cur
@@ -753,6 +816,11 @@ VAR player_direction
 VAR player_anim_frame
 	.byte 0
 
+VAR player_damage_flash_time
+	.byte 0
+VAR player_palette
+	.word 0
+
 VAR player_left_tile
 	.byte 0
 VAR player_right_tile
@@ -838,6 +906,9 @@ VAR dark_player_palette
 	.byte $0f, $2d, $37, $07
 VAR light_player_palette
 	.byte $0f, $0f, $37, $07
+
+VAR player_damage_palette
+	.byte $0f, $20, $10, $2d
 
 VAR gun_palette
 	.byte $0f, $00, $10, $20

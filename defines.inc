@@ -240,5 +240,9 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .global controller
 
 .global player_x, player_y, player_direction, player_anim_frame
+.global player_damage_flash_time, player_palette
+.global player_left_tile, player_right_tile, player_up_tile, player_down_tile
+.global interaction_type, interaction_sprite_x, interaction_sprite_y, interaction_tile_x, interaction_tile_y
+.global possible_interaction_tile_x, possible_interaction_tile_y
 
 .global cur_enemy

@@ -15,6 +15,9 @@ PROC init_zombie_sprites
 
 
 PROC normal_zombie_collide
+	lda #30
+	sta player_damage_flash_time
+	jsr enemy_knockback
 	rts
 .endproc
 

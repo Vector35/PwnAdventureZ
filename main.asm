@@ -83,17 +83,28 @@ loop:
 	; Get latest controller state and look for movement
 	jsr update_controller
 
+	lda knockback_time
+	beq normalmove
+
+	jsr perform_player_move
+	jsr perform_player_move
+	dec knockback_time
+	jmp movedone
+
+normalmove:
 	jsr perform_player_move
 	bne prepare
 
+movedone:
 	jsr update_enemies
+	jsr check_for_enemy_collide
 
 vblank:
 	jsr wait_for_vblank
 	jsr update_player_surroundings
+	jsr update_player_sprite
 	jsr prepare_for_rendering
 
-	jsr update_player_sprite
 	jsr update_enemy_sprites
 
 	jmp loop
