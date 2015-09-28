@@ -11,6 +11,10 @@ PROC init_player_sprites
 	beq dark
 	cmp #MAP_CAVE_INTERIOR
 	beq dark
+	cmp #MAP_BLOCKY_PUZZLE
+	beq dark
+	cmp #MAP_BLOCKY_TREASURE
+	beq dark
 
 	LOAD_PTR light_player_palette
 	jmp loadpal

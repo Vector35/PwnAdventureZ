@@ -4,8 +4,8 @@
 
 PROC gen_blocky_puzzle
 	LOAD_ALL_TILES $080, cave_border_tiles
-	LOAD_ALL_TILES $0c0, bigdoor_tiles
-	LOAD_ALL_TILES $0e0, urn_tiles 
+	LOAD_ALL_TILES $0bc, bigdoor_tiles
+	LOAD_ALL_TILES $0cc, urn_tiles 
 	; Load cave palette
 	LOAD_PTR cave_palette
 	jsr load_background_game_palette
@@ -18,6 +18,7 @@ PROC gen_blocky_puzzle
 	jsr gen_right_wall_1
 	lda #$80 + BORDER_CENTER
 	jsr gen_top_wall_bigdoor
+	;jsr gen_top_wall_1
 	lda #$80 + BORDER_CENTER
 	jsr gen_bot_wall_1
 
@@ -27,8 +28,7 @@ PROC gen_blocky_puzzle
 	lda #$80
 	jsr process_border_sides
 
-	; Place the urns
-
+	; Place the rows of urns
 	ldy #2
 	jsr write_urns
 	ldy #4
@@ -45,7 +45,7 @@ PROC write_urns
 loop_write_urn:
 	cpx #14
 	beq done
-	lda #$0e4
+	lda #$0d0
 	jsr write_gen_map
 	inx
 	inx
@@ -62,7 +62,6 @@ PROC gen_blocky_treasure
 	LOAD_PTR cave_palette
 	jsr load_background_game_palette
 
-	lsr gen_map_opening_locations
 	; Generate the sides of the cave wall
 	lda #$80 + BORDER_CENTER
 	jsr gen_left_wall_1
@@ -86,32 +85,32 @@ PROC gen_blocky_treasure
 	; Place some urns around the room for some ambiance
 	ldx #5
 	ldy #3
-	lda #$e4	
+	lda #$e0	
 	jsr write_gen_map
 
 	ldx #9
 	ldy #3
-	lda #$e4
+	lda #$e0
 	jsr write_gen_map
 
 	ldx #3
 	ldy #5
-	lda #$e4	
+	lda #$e0	
 	jsr write_gen_map
 
 	ldx #11
 	ldy #5
-	lda #$e4
+	lda #$e0
 	jsr write_gen_map
 
 	ldx #3
 	ldy #8
-	lda #$e4	
+	lda #$e0	
 	jsr write_gen_map
 
 	ldx #11
 	ldy #8
-	lda #$e4
+	lda #$e0
 	jsr write_gen_map
 	
 	rts
@@ -196,17 +195,20 @@ PROC gen_top_wall_bigdoor
 	; Write our door here
 	ldx #6
 	ldy #0
-	lda #$c0
+	lda #$bc
+	sta traversable_tiles + 1
 	jsr write_gen_map
 	
 	ldx #7
 	ldy #0
-	lda #$c4
+	lda #$c0
+	sta traversable_tiles + 2
 	jsr write_gen_map
 
 	ldx #8
 	ldy #0
-	lda #$c8
+	lda #$c4
+	sta traversable_tiles + 3
 	jsr write_gen_map
 
 	lda #9
@@ -277,15 +279,15 @@ PROC gen_walkable_bot_path
 	sta arg4
 
 	; Generate bottom opening
-	lda bot_opening_size
+	lda top_opening_size
 	lsr
 	sta arg0
-	lda bot_opening_pos
+	lda top_opening_pos
 	sec
 	sbc arg0
 	sta arg0
 	clc
-	adc bot_opening_size
+	adc top_opening_size
 	adc #$ff
 	sta arg2
 	lda #MAP_HEIGHT - 1
