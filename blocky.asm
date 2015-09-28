@@ -16,7 +16,7 @@ PROC gen_blocky_puzzle
 	LOAD_PTR cave_palette
 	jsr load_background_game_palette
 
-	lsr gen_map_opening_locations
+	jsr gen_map_opening_locations
 	; Generate the sides of the cave wall
 	lda #$80 + BORDER_CENTER
 	jsr gen_left_wall_1
@@ -24,7 +24,6 @@ PROC gen_blocky_puzzle
 	jsr gen_right_wall_1
 	lda #$80 + BORDER_CENTER
 	jsr gen_top_wall_bigdoor
-	;jsr gen_top_wall_1
 	lda #$80 + BORDER_CENTER
 	jsr gen_bot_wall_1
 
@@ -330,15 +329,15 @@ PROC gen_walkable_bot_path
 	sta arg4
 
 	; Generate bottom opening
-	lda top_opening_size
+	lda bot_opening_size
 	lsr
 	sta arg0
-	lda top_opening_pos
+	lda bot_opening_pos
 	sec
 	sbc arg0
 	sta arg0
 	clc
-	adc top_opening_size
+	adc bot_opening_size
 	adc #$ff
 	sta arg2
 	lda #MAP_HEIGHT - 1
