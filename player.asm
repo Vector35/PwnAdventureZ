@@ -175,15 +175,19 @@ nottopbounds:
 	bcc upsnapleft
 	jmp upsnapright
 upmoveinvalid:
+	jsr get_player_tile
+	stx possible_interaction_tile_x
+	dey
+	sty possible_interaction_tile_y
 	lda player_up_tile
 	jsr check_for_interactive_tile
 	cmp #INTERACT_NONE
 	beq upnotinteract
 	sta interaction_type
-	jsr get_player_tile
+	ldx possible_interaction_tile_x
 	stx interaction_tile_x
+	ldy possible_interaction_tile_y
 	sty interaction_tile_y
-	dey
 	dey
 	jsr set_interaction_pos
 upnotinteract:
@@ -243,15 +247,20 @@ notbotbounds:
 	bcc downsnapleft
 	jmp downsnapright
 downmoveinvalid:
+	jsr get_player_tile
+	stx possible_interaction_tile_x
+	iny
+	sty possible_interaction_tile_y
 	lda player_down_tile
 	jsr check_for_interactive_tile
 	cmp #INTERACT_NONE
 	beq downnotinteract
 	sta interaction_type
 	jsr get_player_tile
+	ldx possible_interaction_tile_x
 	stx interaction_tile_x
+	ldy possible_interaction_tile_y
 	sty interaction_tile_y
-	iny
 	iny
 	jsr set_interaction_pos
 downnotinteract:
@@ -322,16 +331,21 @@ notleftbounds:
 	bcc leftsnaptop
 	jmp leftsnapbot
 leftmoveinvalid:
+	jsr get_player_tile
+	dex
+	stx possible_interaction_tile_x
+	sty possible_interaction_tile_y
 	lda player_left_tile
 	jsr check_for_interactive_tile
 	cmp #INTERACT_NONE
 	beq leftnotinteract
 	sta interaction_type
 	jsr get_player_tile
+	ldx possible_interaction_tile_x
 	stx interaction_tile_x
-	dex
-	dex
+	ldy possible_interaction_tile_y
 	sty interaction_tile_y
+	dex
 	jsr set_interaction_pos
 leftnotinteract:
 	jmp movedone
@@ -390,16 +404,21 @@ notrightbounds:
 	bcc rightsnaptop
 	jmp rightsnapbot
 rightmoveinvalid:
+	jsr get_player_tile
+	inx
+	stx possible_interaction_tile_x
+	sty possible_interaction_tile_y
 	lda player_right_tile
 	jsr check_for_interactive_tile
 	cmp #INTERACT_NONE
 	beq rightnotinteract
 	sta interaction_type
 	jsr get_player_tile
+	ldx possible_interaction_tile_x
 	stx interaction_tile_x
-	inx
-	inx
+	ldy possible_interaction_tile_y
 	sty interaction_tile_y
+	inx
 	jsr set_interaction_pos
 rightnotinteract:
 	jmp movedone
@@ -646,8 +665,9 @@ ok:
 	lda (ptr), y
 	sta temp + 1
 
-	jsr get_player_tile
 	lda arg0
+	ldx possible_interaction_tile_x
+	ldy possible_interaction_tile_y
 	jsr call_temp
 	bne invalid
 
@@ -707,6 +727,8 @@ ok:
 
 	jsr get_player_tile
 	lda interaction_type
+	ldx interaction_tile_x
+	ldy interaction_tile_y
 	jsr call_temp
 
 	lda #INTERACT_NONE
@@ -749,6 +771,11 @@ VAR interaction_sprite_y
 VAR interaction_tile_x
 	.byte 0
 VAR interaction_tile_y
+	.byte 0
+
+VAR possible_interaction_tile_x
+	.byte 0
+VAR possible_interaction_tile_y
 	.byte 0
 
 

@@ -401,8 +401,8 @@ PROC is_starting_chest_interactable
 PROC starting_chest_interact
 	jsr wait_for_vblank
 
-	ldx #7
-	ldy #4
+	ldx interaction_tile_x
+	ldy interaction_tile_y
 	lda #$f4
 	jsr write_large_tile
 
