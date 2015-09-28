@@ -406,7 +406,7 @@ PROC toggle_urn
 	;now we have the bit position y
 	;and the byte position in x
 	lda blocky_state, x
-	eor toggleMask, y
+	eor toggle_mask, y
 	sta blocky_state, x
 	rts
 .endproc
@@ -443,15 +443,15 @@ PROC is_urn_on
 	;now we have the bit position y
 	;and the byte position in x
 	lda blocky_state, x
-	and toggleMask, y
+	and toggle_mask, y
 	rts
 .endproc
 
 
 PROC bigdoor_interact
-	lda blocky_state
-	cmp #$0ff
-	beq opendoor
+	jsr check_blocky_state
+	cmp #0
+	bne opendoor
 	rts
 opendoor:
 	ldx #30
@@ -529,9 +529,14 @@ VAR blocky_state
 
 VAR blocky_door_state
 	.byte 0
+
+VAR traces
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0
+
 .data
 
-VAR toggleMask
+VAR toggle_mask
 	.byte 1, 2, 4, 8, 16, 32, 64, 128
 
 VAR blocky_urn
