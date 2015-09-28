@@ -199,14 +199,25 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define ENEMY_DESC_PALETTE 7
 
 
+; Interaction types
+.define INTERACT_STARTING_CHEST   0
+.define INTERACT_NONE             $ff
+
+.define INTERACT_DESC_IS_VALID 0
+.define INTERACT_DESC_ACTIVATE 2
+
+
 ; Sprite tile indicies
-.define SPRITE_OAM_PLAYER  $00
-.define SPRITE_OAM_ENEMIES $08
+.define SPRITE_OAM_PLAYER   $00
+.define SPRITE_OAM_INTERACT $08
+.define SPRITE_OAM_ENEMIES  $10
 
 .define SPRITE_TILE_PLAYER $00
 
 .define SPRITE_TILE_NORMAL_ZOMBIE $20
 .define SPRITE_TILE_FAT_ZOMBIE    $40
+
+.define SPRITE_TILE_INTERACT      $f8
 
 
 ; Save state header

@@ -15,6 +15,27 @@
 
 PROC gen_cave_start
 	jsr gen_cave_common
+
+	; Place chest in the starting room to get the initial weapon
+	LOAD_ALL_TILES $0f0, chest_tiles
+
+	lda #INTERACT_STARTING_CHEST
+	sta interactive_tile_types
+	lda #$f0
+	sta interactive_tile_values
+
+	ldx #7
+	ldy #4
+
+	lda starting_chest_opened
+	bne opened
+	lda #$f0
+	jsr write_gen_map
+	rts
+
+opened:
+	lda #$f4
+	jsr write_gen_map
 	rts
 .endproc
 
@@ -63,7 +84,7 @@ PROC gen_cave_common
 
 	lda #6
 	sta arg0
-	lda #5
+	lda #3
 	sta arg1
 	lda #8
 	sta arg2
@@ -371,12 +392,39 @@ done:
 .endproc
 
 
+PROC is_starting_chest_interactable
+	lda starting_chest_opened
+	rts
+.endproc
+
+
+PROC starting_chest_interact
+	jsr wait_for_vblank
+
+	ldx interaction_tile_x
+	ldy interaction_tile_y
+	lda #$f4
+	jsr write_large_tile
+
+	jsr prepare_for_rendering
+
+	lda #1
+	sta starting_chest_opened
+
+	jsr save
+	rts
+.endproc
+
+
 .bss
 VAR border_tile_base
 	.byte 0
 VAR border_tile_interior
 	.byte 0
 VAR border_tile_wall
+	.byte 0
+
+VAR starting_chest_opened
 	.byte 0
 
 
@@ -387,8 +435,13 @@ VAR cave_palette
 	.byte $0f, $07, $17, $27
 	.byte $0f, $07, $17, $27
 
+VAR starting_chest_descriptor
+	.word is_starting_chest_interactable
+	.word starting_chest_interact
+
 
 TILES cave_border_tiles, 2, "tiles/cave/border.chr", 60
+TILES chest_tiles, 2, "tiles/cave/chest.chr", 8
 
 ; Place a lookup table for determining which tile to use based on the 8 surrounding tiles.  This
 ; is represented with a bit field, with $80 representing the top left and $01 representing the
