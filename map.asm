@@ -14,8 +14,10 @@ genloop:
 
 	lda #1
 	sta cur_screen_x
+	sta spawn_screen_x
 	lda #16
 	sta cur_screen_y
+	sta spawn_screen_y
 
 	rts
 .endproc
@@ -1774,13 +1776,13 @@ VAR flag_palette
 
 VAR initial_map_generators
 	.word gen_cave_start
-	.word game_over
+	.word start
 	.word gen_cave_interior
 	.word gen_forest
 	.word start;gen_house
 	.word start;gen_shop
 	.word start;gen_park
-	.word game_over
+	.word start
 	.word start;gen_boss
 	.word start;gen_base_horde
 	.word start;gen_base_interior

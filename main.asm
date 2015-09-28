@@ -77,9 +77,13 @@ prepare:
 	jmp vblank
 
 loop:
-	lda #0
-	sta arg4
+	lda player_health
+	bne notdead
 
+	jsr game_over
+	jmp prepare
+
+notdead:
 	; Get latest controller state and look for movement
 	jsr update_controller
 
@@ -236,12 +240,16 @@ namedone:
 	; Set player spawn position
 	lda #112
 	sta player_x
+	sta spawn_pos_x
 	lda #112
 	sta player_y
+	sta spawn_pos_y
 	lda #DIR_DOWN
 	sta player_direction
 	lda #0
 	sta player_anim_frame
+	lda #100
+	sta player_health
 
 	; Don't start a new game on restore
 	lda #0
@@ -265,26 +273,81 @@ namedone:
 .segment "FIXED"
 
 PROC game_over
-	lda rendering_enabled
-	beq already_disabled
-	jsr fade_out
-already_disabled:
+	; Update number of deaths
+	ldx death_count + 2
+	inx
+	stx death_count + 2
+	cpx #10
+	bne deathupdatedone
 
+	lda #0
+	sta death_count + 2
+	ldx death_count + 1
+	inx
+	stx death_count + 1
+	cpx #10
+	bne deathupdatedone
+
+	lda #0
+	sta death_count + 1
+	ldx death_count
+	inx
+	stx death_count
+	cpx #10
+	bne deathupdatedone
+
+	lda #9
+	sta death_count
+	sta death_count + 1
+	sta death_count + 2
+
+deathupdatedone:
+	; Respawn player at the most recent spawn point
+	lda spawn_screen_x
+	sta cur_screen_x
+	lda spawn_screen_y
+	sta cur_screen_y
+	lda spawn_pos_x
+	sta player_x
+	lda spawn_pos_y
+	sta player_y
+	lda #100
+	sta player_health
+	lda #0
+	sta player_damage_flash_time
+	lda #0
+	sta knockback_time
+	jsr save
+
+	jsr fade_out
 	jsr clear_screen
+
+	LOAD_ALL_TILES 0, ui_tiles
 
 	; Draw text
 	LOAD_PTR game_over_strings
 	ldx #7
-	ldy #13
+	ldy #9
 	jsr write_string
 	ldx #8
-	ldy #14
+	ldy #10
 	jsr write_string
 	ldx #7
-	ldy #17
+	ldy #13
 	jsr write_string
 
 	; Set palette for game over text
+	lda #3
+	sta arg0
+	lda #6
+	sta arg1
+	sta arg3
+	lda #12
+	sta arg2
+	lda #1
+	sta arg4
+	jsr set_box_palette
+
 	lda #3
 	sta arg0
 	lda #8
@@ -292,7 +355,7 @@ already_disabled:
 	sta arg3
 	lda #12
 	sta arg2
-	lda #1
+	lda #2
 	sta arg4
 	jsr set_box_palette
 
@@ -303,7 +366,7 @@ already_disabled:
 	jsr wait_for_frame_count
 
 	ldy #0
-	LOAD_PTR game_over_palette + 8
+	LOAD_PTR game_over_palette + 12
 game_over_fade:
 	tya
 	pha
@@ -321,13 +384,80 @@ game_over_fade:
 	cpy #4
 	bne game_over_fade
 
-end:
+	jsr wait_for_vblank
+	LOAD_PTR continue_str
+	ldx #10
+	ldy #16
+	jsr write_string
+	LOAD_PTR right_arrow_str
+	ldx #8
+	ldy #16
+	jsr write_string
+	jsr prepare_for_rendering
+
+	jsr wait_for_vblank
+	LOAD_PTR save_quit_str
+	ldx #10
+	ldy #17
+	jsr write_string
+	jsr prepare_for_rendering
+
+	lda #0
+	sta selection
+
+loop:
 	jsr wait_for_vblank
 	jsr update_controller
 	lda controller
-	and #JOY_START
-	beq end
+	and #JOY_START | JOY_A
+	bne done
+	lda controller
+	and #JOY_UP | JOY_DOWN | JOY_SELECT
+	bne change
+	jmp loop
+
+change:
+	jsr wait_for_vblank
+
+	LOAD_PTR space_str
+	lda #16
+	clc
+	adc selection
+	tay
+	ldx #8
+	jsr write_string
+
+	lda selection
+	eor #1
+	sta selection
+
+	LOAD_PTR right_arrow_str
+	lda #16
+	clc
+	adc selection
+	tay
+	ldx #8
+	jsr write_string
+
+	jsr prepare_for_rendering
+
+waitfordepress:
+	jsr wait_for_vblank
+	jsr update_controller
+	lda controller
+	bne waitfordepress
+
+	jmp loop
+
+done:
+	lda selection
+	beq continue
+
 	jmp start
+
+continue:
+	jsr fade_out
+	rts
 .endproc
 
 
@@ -378,32 +508,23 @@ VAR game_over_strings
 	.byte "OVERTAKEN YOU.", 0
 	.byte $3b, $3b, " GAME  OVER ", $3d, $3d, 0
 
+VAR continue_str
+	.byte "CONTINUE", 0
+VAR save_quit_str
+	.byte "SAVE AND QUIT", 0
+
 VAR game_over_palette
 	.byte $0f, $26, $26, $26
 	.byte $0f, $0f, $0f, $0f
+	.byte $0f, $30, $30, $30
 	.byte $0f, $07, $07, $07
 	.byte $0f, $17, $17, $17
 	.byte $0f, $27, $27, $27
 	.byte $0f, $37, $37, $37
 	.byte $0f, $26, $26, $26
-	.byte $0f, $26, $26, $26
 
 
 .bss
-VAR inventory
-
-VAR map_screen_generators
-	.repeat MAP_TYPE_COUNT
-	.word 0
-	.endrepeat
-
-VAR cur_screen_x
-	.byte 0
-VAR cur_screen_y
-	.byte 0
-
-VAR active_save_slot
-	.byte 0
 VAR start_new_game
 	.byte 0
 
@@ -421,7 +542,37 @@ VAR key_count
 VAR new_game_difficulty
 	.byte 0
 
+VAR death_count
+	.byte 0, 0, 0
+
+VAR selection
+	.byte 0
+
 
 .zeropage
 VAR controller
+	.byte 0
+
+VAR inventory
+
+VAR map_screen_generators
+	.repeat MAP_TYPE_COUNT
+	.word 0
+	.endrepeat
+
+VAR cur_screen_x
+	.byte 0
+VAR cur_screen_y
+	.byte 0
+
+VAR spawn_screen_x
+	.byte 0
+VAR spawn_screen_y
+	.byte 0
+VAR spawn_pos_x
+	.byte 0
+VAR spawn_pos_y
+	.byte 0
+
+VAR active_save_slot
 	.byte 0

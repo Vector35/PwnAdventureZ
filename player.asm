@@ -135,6 +135,9 @@ nointeract:
 
 
 PROC perform_player_move
+	lda #0
+	sta arg4
+
 	lda player_direction
 	sta temp_direction
 
@@ -808,6 +811,47 @@ PROC always_interactable
 .endproc
 
 
+PROC take_damage
+	sta temp
+
+	lda difficulty
+	cmp #1
+	beq hard
+	cmp #2
+	beq veryhard
+	jmp ok
+
+hard:
+	lda temp
+	lsr
+	clc
+	adc temp
+	sta temp
+	jmp ok
+
+veryhard:
+	lda temp
+	asl
+	sta temp
+
+ok:
+	lda player_health
+	sec
+	sbc temp
+	bcc dead
+	sta player_health
+
+	lda #30
+	sta player_damage_flash_time
+	rts
+
+dead:
+	lda #0
+	sta player_health
+	rts
+.endproc
+
+
 .zeropage
 VAR player_x
 	.byte 0
@@ -846,6 +890,9 @@ VAR interaction_tile_y
 VAR possible_interaction_tile_x
 	.byte 0
 VAR possible_interaction_tile_y
+	.byte 0
+
+VAR player_health
 	.byte 0
 
 
