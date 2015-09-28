@@ -919,6 +919,8 @@ VAR fire_palette
 
 VAR interaction_descriptors
 	.word starting_chest_descriptor
+	.word blocky_urn 
+	.word blocky_bigdoor
 
 TILES unarmed_player_tiles, 2, "tiles/characters/player/unarmed.chr", 32
 TILES interact_tiles, 2, "tiles/interact.chr", 8

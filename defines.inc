@@ -201,6 +201,9 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 
 ; Interaction types
 .define INTERACT_STARTING_CHEST   0
+.define INTERACT_URN			  1
+.define INTERACT_BIGDOOR          2
+.define INTERACT_BLOCKY_CHEST     3
 .define INTERACT_NONE             $ff
 
 .define INTERACT_DESC_IS_VALID 0
