@@ -526,7 +526,7 @@ notmoving:
 	sta player_anim_frame
 
 	lda knockback_time
-	beq moveanimdone
+	bne moveanimdone
 
 	lda temp_direction
 	and #3
