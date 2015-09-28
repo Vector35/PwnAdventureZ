@@ -824,7 +824,7 @@ initspawnloop:
 interactloop:
 	sta interactive_tile_types, x
 	inx
-	cpx #4
+	cpx #6
 	bne interactloop
 	sta interaction_type
 

@@ -226,7 +226,9 @@ upmoveinvalid:
 	stx interaction_tile_x
 	ldy possible_interaction_tile_y
 	sty interaction_tile_y
+	beq interactionattop
 	dey
+interactionattop:
 	jsr set_interaction_pos
 upnotinteract:
 	jmp checkhoriz
@@ -700,7 +702,7 @@ loop:
 	cmp temp
 	beq found
 	inx
-	cpx #4
+	cpx #6
 	bne loop
 
 	lda #INTERACT_NONE
@@ -854,9 +856,9 @@ VAR temp_controller
 	.byte 0
 
 VAR interactive_tile_types
-	.byte 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0
 VAR interactive_tile_values
-	.byte 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0
 
 
 .data
