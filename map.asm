@@ -818,6 +818,16 @@ initspawnloop:
 	lda #0
 	sta spawn_ready
 
+	; Initialize interactive tile list
+	ldx #0
+	lda #INTERACT_NONE
+interactloop:
+	sta interactive_tile_types, x
+	inx
+	cpx #4
+	bne interactloop
+	sta interaction_type
+
 	; Clear enemy list
 	ldx #0
 	lda #ENEMY_NONE

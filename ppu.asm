@@ -182,6 +182,49 @@ copyloop:
 .endproc
 
 
+PROC write_large_tile
+	stx arg0
+	sty arg1
+	sta arg2
+
+	and #3
+	jsr set_tile_palette
+
+	; Write tile data
+	lda arg0
+	asl
+	tax
+	lda arg1
+	asl
+	tay
+	jsr set_ppu_addr_to_coord
+
+	lda arg2
+	and #$fc
+	sta PPUDATA
+	ora #$02
+	sta PPUDATA
+
+	lda arg0
+	asl
+	tax
+	lda arg1
+	asl
+	tay
+	iny
+	jsr set_ppu_addr_to_coord
+
+	lda arg2
+	and #$fc
+	ora #$01
+	sta PPUDATA
+	ora #$02
+	sta PPUDATA
+
+	rts
+.endproc
+
+
 PROC draw_large_box
 	lda ppu_settings
 	ora #PPUCTRL_ADD_32

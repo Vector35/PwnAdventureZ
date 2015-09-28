@@ -160,6 +160,9 @@ PROC enemy_die
 
 
 PROC update_enemy_sprites
+	; NES only supports 8 sprites per scan line, so rotate priority of enemy sprites
+	; to ensure all of them get screen time.  This will create the classic flicker
+	; effect when there is a lot going on.
 	lda enemy_sprite_rotation
 	clc
 	adc #3

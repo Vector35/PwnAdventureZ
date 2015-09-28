@@ -4,6 +4,7 @@
 
 PROC init_player_sprites
 	LOAD_ALL_TILES $100 + SPRITE_TILE_PLAYER, unarmed_player_tiles
+	LOAD_ALL_TILES $100 + SPRITE_TILE_INTERACT, interact_tiles
 
 	jsr read_overworld_cur
 	and #$3f
@@ -24,6 +25,11 @@ dark:
 
 loadpal:
 	jsr load_sprite_palette_0
+
+	LOAD_PTR gun_palette
+	jsr load_sprite_palette_2
+	LOAD_PTR fire_palette
+	jsr load_sprite_palette_3
 
 	jsr update_player_sprite
 	rts
@@ -67,6 +73,34 @@ PROC update_player_sprite
 	adc #8
 	sta sprites + SPRITE_OAM_PLAYER + 7
 
+	lda interaction_type
+	cmp #INTERACT_NONE
+	beq nointeract
+
+	lda interaction_sprite_y
+	clc
+	adc #7
+	sta sprites + SPRITE_OAM_INTERACT
+	sta sprites + SPRITE_OAM_INTERACT + 4
+	lda #$f9
+	sta sprites + SPRITE_OAM_INTERACT + 1
+	lda #$fb
+	sta sprites + SPRITE_OAM_INTERACT + 5
+	lda #3
+	sta sprites + SPRITE_OAM_INTERACT + 2
+	sta sprites + SPRITE_OAM_INTERACT + 6
+	lda interaction_sprite_x
+	clc
+	adc #8
+	sta sprites + SPRITE_OAM_INTERACT + 3
+	adc #8
+	sta sprites + SPRITE_OAM_INTERACT + 7
+	rts
+
+nointeract:
+	lda #$ff
+	sta sprites + SPRITE_OAM_INTERACT
+	sta sprites + SPRITE_OAM_INTERACT + 4
 	rts
 .endproc
 
@@ -77,6 +111,21 @@ PROC perform_player_move
 	lda controller
 	sta temp_controller
 
+	lda temp_controller
+	and #JOY_A
+	beq noactivate
+
+	lda interaction_type
+	cmp #INTERACT_NONE
+	beq nointeract
+
+	jsr activate_interaction
+	jmp noactivate
+
+nointeract:
+	jsr fire_weapon
+
+noactivate:
 	lda temp_controller
 	and #JOY_UP
 	bne up
@@ -126,6 +175,18 @@ nottopbounds:
 	bcc upsnapleft
 	jmp upsnapright
 upmoveinvalid:
+	lda player_up_tile
+	jsr check_for_interactive_tile
+	cmp #INTERACT_NONE
+	beq upnotinteract
+	sta interaction_type
+	jsr get_player_tile
+	stx interaction_tile_x
+	sty interaction_tile_y
+	dey
+	dey
+	jsr set_interaction_pos
+upnotinteract:
 	jmp checkhoriz
 upsnapleft:
 	lda temp_controller
@@ -182,6 +243,18 @@ notbotbounds:
 	bcc downsnapleft
 	jmp downsnapright
 downmoveinvalid:
+	lda player_down_tile
+	jsr check_for_interactive_tile
+	cmp #INTERACT_NONE
+	beq downnotinteract
+	sta interaction_type
+	jsr get_player_tile
+	stx interaction_tile_x
+	sty interaction_tile_y
+	iny
+	iny
+	jsr set_interaction_pos
+downnotinteract:
 	jmp checkhoriz
 downsnapleft:
 	lda temp_controller
@@ -222,8 +295,11 @@ checkhoriz:
 	bne left
 	lda temp_controller
 	and #JOY_RIGHT
-	bne right
+	bne rightpressed
 	jmp movedone
+
+rightpressed:
+	jmp right
 
 left:
 	; Check for left of map
@@ -246,6 +322,18 @@ notleftbounds:
 	bcc leftsnaptop
 	jmp leftsnapbot
 leftmoveinvalid:
+	lda player_left_tile
+	jsr check_for_interactive_tile
+	cmp #INTERACT_NONE
+	beq leftnotinteract
+	sta interaction_type
+	jsr get_player_tile
+	stx interaction_tile_x
+	dex
+	dex
+	sty interaction_tile_y
+	jsr set_interaction_pos
+leftnotinteract:
 	jmp movedone
 leftsnaptop:
 	lda temp_controller
@@ -302,6 +390,18 @@ notrightbounds:
 	bcc rightsnaptop
 	jmp rightsnapbot
 rightmoveinvalid:
+	lda player_right_tile
+	jsr check_for_interactive_tile
+	cmp #INTERACT_NONE
+	beq rightnotinteract
+	sta interaction_type
+	jsr get_player_tile
+	stx interaction_tile_x
+	inx
+	inx
+	sty interaction_tile_y
+	jsr set_interaction_pos
+rightnotinteract:
 	jmp movedone
 rightsnaptop:
 	lda temp_controller
@@ -340,6 +440,9 @@ movedone:
 	; Animate player if moving
 	lda arg4
 	beq notmoving
+
+	lda #INTERACT_NONE
+	sta interaction_type
 
 	inc player_anim_frame
 	jmp moveanimdone
@@ -433,6 +536,187 @@ notcaveexit:
 .endproc
 
 
+PROC update_player_surroundings
+	lda player_x
+	lsr
+	lsr
+	lsr
+	lsr
+	adc #0 ; Round to nearest
+	asl
+	sta arg0
+
+	lda player_y
+	lsr
+	lsr
+	lsr
+	lsr
+	adc #0 ; Round to nearest
+	asl
+	sta arg1
+
+	ldx arg0
+	dex
+	ldy arg1
+	jsr set_ppu_addr_to_coord
+	lda PPUDATA
+	lda PPUDATA
+	sta player_left_tile
+	lda PPUDATA
+	lda PPUDATA
+	lda PPUDATA
+	sta player_right_tile
+
+	ldx arg0
+	ldy arg1
+	dey
+	jsr set_ppu_addr_to_coord
+	lda PPUDATA
+	lda PPUDATA
+	sta player_up_tile
+
+	ldx arg0
+	ldy arg1
+	iny
+	iny
+	jsr set_ppu_addr_to_coord
+	lda PPUDATA
+	lda PPUDATA
+	sta player_down_tile
+
+	rts
+.endproc
+
+
+PROC get_player_tile
+	lda player_x
+	lsr
+	lsr
+	lsr
+	lsr
+	adc #0 ; Round to nearest
+	tax
+
+	lda player_y
+	lsr
+	lsr
+	lsr
+	lsr
+	adc #0 ; Round to nearest
+	tay
+
+	rts
+.endproc
+
+
+PROC check_for_interactive_tile
+	and #$fc
+	sta temp
+	ldx #0
+loop:
+	lda interactive_tile_values, x
+	cmp temp
+	beq found
+	inx
+	cpx #4
+	bne loop
+
+	lda #INTERACT_NONE
+	rts
+
+found:
+	lda interactive_tile_types, x
+	sta arg0
+	pha
+
+	asl
+	tax
+	lda interaction_descriptors, x
+	sta ptr
+	lda interaction_descriptors + 1, x
+	sta ptr + 1
+	ldy #INTERACT_DESC_IS_VALID
+	lda (ptr), y
+	sta temp
+	ldy #INTERACT_DESC_IS_VALID + 1
+	lda (ptr), y
+	sta temp + 1
+
+	jsr get_player_tile
+	lda arg0
+	jsr call_temp
+	bne invalid
+
+	pla
+	rts
+
+invalid:
+	pla
+	lda #INTERACT_NONE
+	rts
+.endproc
+
+
+PROC set_interaction_pos
+	txa
+	asl
+	asl
+	asl
+	asl
+	sta interaction_sprite_x
+
+	tya
+	asl
+	asl
+	asl
+	asl
+	sta interaction_sprite_y
+
+	rts
+.endproc
+
+
+PROC fire_weapon
+	rts
+.endproc
+
+
+PROC activate_interaction
+	lda interaction_type
+	cmp #INTERACT_NONE
+	bne ok
+	rts
+
+ok:
+	asl
+	tax
+	lda interaction_descriptors, x
+	sta ptr
+	lda interaction_descriptors + 1, x
+	sta ptr + 1
+	ldy #INTERACT_DESC_ACTIVATE
+	lda (ptr), y
+	sta temp
+	ldy #INTERACT_DESC_ACTIVATE + 1
+	lda (ptr), y
+	sta temp + 1
+
+	jsr get_player_tile
+	lda interaction_type
+	jsr call_temp
+
+	lda #INTERACT_NONE
+	sta interaction_type
+	rts
+.endproc
+
+
+PROC always_interactable
+	lda #0
+	rts
+.endproc
+
+
 .zeropage
 VAR player_x
 	.byte 0
@@ -443,12 +727,37 @@ VAR player_direction
 VAR player_anim_frame
 	.byte 0
 
+VAR player_left_tile
+	.byte 0
+VAR player_right_tile
+	.byte 0
+VAR player_up_tile
+	.byte 0
+VAR player_down_tile
+	.byte 0
+
+VAR interaction_type
+	.byte 0
+VAR interaction_sprite_x
+	.byte 0
+VAR interaction_sprite_y
+	.byte 0
+VAR interaction_tile_x
+	.byte 0
+VAR interaction_tile_y
+	.byte 0
+
 
 .bss
 VAR temp_direction
 	.byte 0
 VAR temp_controller
 	.byte 0
+
+VAR interactive_tile_types
+	.byte 0, 0, 0, 0
+VAR interactive_tile_values
+	.byte 0, 0, 0, 0
 
 
 .data
@@ -499,4 +808,13 @@ VAR dark_player_palette
 VAR light_player_palette
 	.byte $0f, $0f, $37, $07
 
+VAR gun_palette
+	.byte $0f, $00, $10, $20
+VAR fire_palette
+	.byte $0f, $06, $16, $37
+
+VAR interaction_descriptors
+	.word starting_chest_descriptor
+
 TILES unarmed_player_tiles, 2, "tiles/characters/player/unarmed.chr", 32
+TILES interact_tiles, 2, "tiles/interact.chr", 8

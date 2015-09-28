@@ -74,6 +74,8 @@ prepare:
 	LOAD_PTR game_palette
 	jsr fade_in
 
+	jmp vblank
+
 loop:
 	lda #0
 	sta arg4
@@ -86,10 +88,13 @@ loop:
 
 	jsr update_enemies
 
+vblank:
 	jsr wait_for_vblank
+	jsr update_player_surroundings
+	jsr prepare_for_rendering
+
 	jsr update_player_sprite
 	jsr update_enemy_sprites
-	jsr prepare_for_rendering
 
 	jmp loop
 .endproc
@@ -220,7 +225,7 @@ namedone:
 	; Set player spawn position
 	lda #112
 	sta player_x
-	lda #96
+	lda #112
 	sta player_y
 	lda #DIR_DOWN
 	sta player_direction
