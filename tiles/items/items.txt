@@ -1,0 +1,9 @@
+Campfire (16x16)
+Sticks (16x16)
+Shirt (16x16)
+Pants (16x16)
+shoe (top 8x16 is shoe, bottom is empty for now)
+cloth bandage maybe? 16x8
+gunpowder (16x16)
+gas can (16x16)
+smallest bullet just emerging (8x8), lower 8x8 is it further in
