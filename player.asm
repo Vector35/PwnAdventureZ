@@ -626,6 +626,10 @@ loop:
 
 found:
 	lda interactive_tile_types, x
+	cmp #INTERACT_NONE
+	bne ok
+	rts
+ok:
 	sta arg0
 	pha
 

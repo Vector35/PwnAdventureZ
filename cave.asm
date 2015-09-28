@@ -411,6 +411,7 @@ PROC starting_chest_interact
 	lda #1
 	sta starting_chest_opened
 
+	jsr save
 	rts
 .endproc
 
