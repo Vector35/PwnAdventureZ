@@ -471,6 +471,10 @@ godown:
 	jmp down
 
 left:
+	jsr check_for_enemy_overlap_left
+	cmp #0
+	bne leftmoveinvalid
+	ldx cur_enemy
 	lda enemy_x, x
 	and #15
 	bne noleftcollide
@@ -505,6 +509,10 @@ noleftcollide:
 	rts
 
 right:
+	jsr check_for_enemy_overlap_right
+	cmp #0
+	bne rightmoveinvalid
+	ldx cur_enemy
 	lda enemy_x, x
 	and #15
 	bne norightcollide
@@ -539,6 +547,10 @@ norightcollide:
 	rts
 
 up:
+	jsr check_for_enemy_overlap_up
+	cmp #0
+	bne upmoveinvalid
+	ldx cur_enemy
 	lda enemy_y, x
 	and #15
 	bne noupcollide
@@ -573,6 +585,10 @@ noupcollide:
 	rts
 
 down:
+	jsr check_for_enemy_overlap_down
+	cmp #0
+	bne downmoveinvalid
+	ldx cur_enemy
 	lda enemy_y, x
 	and #15
 	bne nodowncollide
@@ -607,12 +623,16 @@ nodowncollide:
 	rts
 
 snapleft:
+	jsr check_for_enemy_overlap_left
+	cmp #0
+	bne snapleftmoveinvalid
 	ldx cur_enemy
 	lda enemy_x, x
 	and #15
 	bne nosnapleftcollide
 	jsr read_enemy_collision_left
 	bne nosnapleftcollide
+snapleftmoveinvalid:
 	lda #0
 	rts
 nosnapleftcollide:
@@ -625,12 +645,16 @@ nosnapleftcollide:
 	rts
 
 snapright:
+	jsr check_for_enemy_overlap_right
+	cmp #0
+	bne snaprightmoveinvalid
 	ldx cur_enemy
 	lda enemy_x, x
 	and #15
 	bne nosnaprightcollide
 	jsr read_enemy_collision_right
 	bne nosnaprightcollide
+snaprightmoveinvalid:
 	lda #0
 	rts
 nosnaprightcollide:
@@ -643,12 +667,16 @@ nosnaprightcollide:
 	rts
 
 snapup:
+	jsr check_for_enemy_overlap_up
+	cmp #0
+	bne snapupmoveinvalid
 	ldx cur_enemy
 	lda enemy_y, x
 	and #15
 	bne nosnapupcollide
 	jsr read_enemy_collision_up
 	bne nosnapupcollide
+snapupmoveinvalid:
 	lda #0
 	rts
 nosnapupcollide:
@@ -661,12 +689,16 @@ nosnapupcollide:
 	rts
 
 snapdown:
+	jsr check_for_enemy_overlap_down
+	cmp #0
+	bne snapdownmoveinvalid
 	ldx cur_enemy
 	lda enemy_y, x
 	and #15
 	bne nosnapdowncollide
 	jsr read_enemy_collision_down
 	bne nosnapdowncollide
+snapdownmoveinvalid:
 	lda #0
 	rts
 nosnapdowncollide:
@@ -676,6 +708,190 @@ nosnapdowncollide:
 	sta enemy_direction, x
 	inc enemy_anim_frame, x
 	lda #1
+	rts
+.endproc
+
+
+PROC check_for_enemy_overlap_left
+	lda #0
+	sta arg0
+
+loop:
+	ldx arg0
+	cpx cur_enemy
+	beq next
+	lda enemy_type, x
+	cmp #ENEMY_NONE
+	beq next
+
+	ldy cur_enemy
+	lda enemy_x, x
+	sec
+	sbc enemy_x, y
+	cmp #$f4
+	bcs xoverlap
+	jmp next
+
+xoverlap:
+	lda enemy_y, x
+	sec
+	sbc enemy_y, y
+	cmp #$0e
+	bcc yoverlap
+	cmp #$f1
+	bcs yoverlap
+	jmp next
+
+yoverlap:
+	lda #1
+	rts
+
+next:
+	ldx arg0
+	inx
+	stx arg0
+	cpx #ENEMY_MAX_COUNT
+	bne loop
+
+	lda #0
+	rts
+.endproc
+
+
+PROC check_for_enemy_overlap_right
+	lda #0
+	sta arg0
+
+loop:
+	ldx arg0
+	cpx cur_enemy
+	beq next
+	lda enemy_type, x
+	cmp #ENEMY_NONE
+	beq next
+
+	ldy cur_enemy
+	lda enemy_x, x
+	sec
+	sbc enemy_x, y
+	cmp #$0b
+	bcc xoverlap
+	jmp next
+
+xoverlap:
+	lda enemy_y, x
+	sec
+	sbc enemy_y, y
+	cmp #$0e
+	bcc yoverlap
+	cmp #$f1
+	bcs yoverlap
+	jmp next
+
+yoverlap:
+	lda #1
+	rts
+
+next:
+	ldx arg0
+	inx
+	stx arg0
+	cpx #ENEMY_MAX_COUNT
+	bne loop
+
+	lda #0
+	rts
+.endproc
+
+
+PROC check_for_enemy_overlap_up
+	lda #0
+	sta arg0
+
+loop:
+	ldx arg0
+	cpx cur_enemy
+	beq next
+	lda enemy_type, x
+	cmp #ENEMY_NONE
+	beq next
+
+	ldy cur_enemy
+	lda enemy_x, x
+	sec
+	sbc enemy_x, y
+	cmp #$0b
+	bcc xoverlap
+	cmp #$f4
+	bcs xoverlap
+	jmp next
+
+xoverlap:
+	lda enemy_y, x
+	sec
+	sbc enemy_y, y
+	cmp #$f1
+	bcs yoverlap
+	jmp next
+
+yoverlap:
+	lda #1
+	rts
+
+next:
+	ldx arg0
+	inx
+	stx arg0
+	cpx #ENEMY_MAX_COUNT
+	bne loop
+
+	lda #0
+	rts
+.endproc
+
+
+PROC check_for_enemy_overlap_down
+	lda #0
+	sta arg0
+
+loop:
+	ldx arg0
+	cpx cur_enemy
+	beq next
+	lda enemy_type, x
+	cmp #ENEMY_NONE
+	beq next
+
+	ldy cur_enemy
+	lda enemy_x, x
+	sec
+	sbc enemy_x, y
+	cmp #$0b
+	bcc xoverlap
+	cmp #$f4
+	bcs xoverlap
+	jmp next
+
+xoverlap:
+	lda enemy_y, x
+	sec
+	sbc enemy_y, y
+	cmp #$0e
+	bcc yoverlap
+	jmp next
+
+yoverlap:
+	lda #1
+	rts
+
+next:
+	ldx arg0
+	inx
+	stx arg0
+	cpx #ENEMY_MAX_COUNT
+	bne loop
+
+	lda #0
 	rts
 .endproc
 
