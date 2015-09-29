@@ -134,12 +134,15 @@ loop:
 	cmp #ENEMY_NONE
 	beq next
 
+	lda enemy_speed_mask, x
+	beq tickenemy
 	lda vblank_count
 	and enemy_speed_mask, x
 	cmp enemy_speed_value, x
 	bcc next
 	beq next
 
+tickenemy:
 	; Call the enemy's tick function
 	lda enemy_type, x
 	asl
