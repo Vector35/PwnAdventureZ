@@ -1132,6 +1132,7 @@ VAR interaction_descriptors
 	.word starting_chest_descriptor
 	.word blocky_urn 
 	.word blocky_bigdoor
+	.word blocky_chest
 
 VAR player_bullet_descriptor
 	.word player_bullet_tick

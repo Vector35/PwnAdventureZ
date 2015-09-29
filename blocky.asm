@@ -7,14 +7,18 @@
 .define BIGDOOR_TILE4 $0e0
 .define URN_TILE      $0ec
 
+;bigdoor and chest tile are not in the same room so
+; no overlap actually exists
+.define CHEST_TILE $0c0
+
 .define TILE1 0
 .define TILE2 4
 .define TILE3 8
 
 .define CAVE_PALETTE    0
 .define BIGDOOR_PALETTE 1
-.define URN_PALETTE     2
-
+.define URN_PALETTE     0
+.define CHEST_PALETTE   0
 .code
 
 PROC gen_blocky_puzzle
@@ -49,35 +53,41 @@ PROC gen_blocky_puzzle
 	sta interactive_tile_types + 4
 
 	;Make sure the open door variant is traversable
-	lda #BIGDOOR_TILE4
+	lda #BIGDOOR_TILE4 + TILE1
 	sta traversable_tiles
-	lda #BIGDOOR_TILE4 + 4
+	lda #BIGDOOR_TILE4 + TILE2
 	sta traversable_tiles + 1
-	lda #BIGDOOR_TILE4 + 8
+	lda #BIGDOOR_TILE4 + TILE3
 	sta traversable_tiles + 2
 
 	ldx #6
 	ldy #0
-	lda #BIGDOOR_TILE + TILE1 + BIGDOOR_PALETTE
+	lda #BIGDOOR_TILE + TILE1
 	clc
 	adc blocky_door_state
 	sta interactive_tile_values + 2
+	clc
+	adc #BIGDOOR_PALETTE
 	jsr write_gen_map
 	
 	ldx #7
 	ldy #0
-	lda #BIGDOOR_TILE + TILE2 + BIGDOOR_PALETTE
+	lda #BIGDOOR_TILE + TILE2
 	clc
 	adc blocky_door_state
 	sta interactive_tile_values + 3
+	clc
+	adc #BIGDOOR_PALETTE
 	jsr write_gen_map
 
 	ldx #8
 	ldy #0
-	lda #BIGDOOR_TILE + TILE3 + BIGDOOR_PALETTE
+	lda #BIGDOOR_TILE + TILE3
 	clc
 	adc blocky_door_state
 	sta interactive_tile_values + 4
+	clc
+	adc #BIGDOOR_PALETTE
 	jsr write_gen_map
 
 	lda #CAVE_TILE
@@ -89,9 +99,9 @@ PROC gen_blocky_puzzle
 	lda #INTERACT_URN
 	sta interactive_tile_types + 1
 
-	lda #URN_TILE + TILE1 + URN_PALETTE
+	lda #URN_TILE + TILE1
 	sta interactive_tile_values
-	lda #URN_TILE + TILE2 + URN_PALETTE
+	lda #URN_TILE + TILE2
 	sta interactive_tile_values + 1
 
 	ldy #2
@@ -133,9 +143,9 @@ done:
 .endproc
 
 PROC gen_blocky_treasure
-	LOAD_ALL_TILES $080, cave_border_tiles
-	LOAD_ALL_TILES $0c0, treasure_tiles
-	LOAD_ALL_TILES $0e0, urn_tiles 
+	LOAD_ALL_TILES CAVE_TILE, cave_border_tiles
+	LOAD_ALL_TILES CHEST_TILE, treasure_tiles
+	LOAD_ALL_TILES URN_TILE, urn_tiles 
 	; Load cave palette
 	LOAD_PTR blocky_palette
 	jsr load_background_game_palette
@@ -154,41 +164,46 @@ PROC gen_blocky_treasure
 	jsr process_border_sides
 
 
+	lda #INTERACT_BLOCKY_CHEST 
+	sta interactive_tile_types
+	lda #CHEST_TILE + TILE1
+	sta interactive_tile_values
+
 	; Place the treasure chest
 	ldx #7
 	ldy #3
-	lda #$c0
+	lda #CHEST_TILE + TILE1 + CHEST_PALETTE
 	jsr write_gen_map
 
 	; Place some urns around the room for some ambiance
 	ldx #5
 	ldy #3
-	lda #$e0	
+	lda #URN_TILE + TILE1 + URN_PALETTE	
 	jsr write_gen_map
 
 	ldx #9
 	ldy #3
-	lda #$e0
+	lda #URN_TILE + TILE1 + URN_PALETTE	
 	jsr write_gen_map
 
 	ldx #3
 	ldy #5
-	lda #$e0	
+	lda #URN_TILE + TILE1 + URN_PALETTE	
 	jsr write_gen_map
 
 	ldx #11
 	ldy #5
-	lda #$e0
+	lda #URN_TILE + TILE1 + URN_PALETTE	
 	jsr write_gen_map
 
 	ldx #3
 	ldy #8
-	lda #$e0	
+	lda #URN_TILE + TILE1 + URN_PALETTE	
 	jsr write_gen_map
 
 	ldx #11
 	ldy #8
-	lda #$e0
+	lda #URN_TILE + TILE1 + URN_PALETTE	
 	jsr write_gen_map
 	
 	rts
@@ -529,8 +544,22 @@ opendoor:
 	rts
 .endproc
 
-PROC diplay_door_frame
-	
+PROC blocky_chest_interact
+	lda blocky_door_state
+	cmp #0
+	beq done
+	;change out the closed tile for the open one
+	jsr wait_for_vblank
+	ldx #7
+	ldy #3
+	lda #CHEST_TILE + TILE2 + CHEST_PALETTE
+	jsr write_large_tile
+	jsr prepare_for_rendering
+	;TODO: Grant item
+	rts
+done:
+	;TODO: HAX they got here without solving the puzzle kill them with FIRE!
+	rts
 .endproc
 .bss
 
@@ -556,9 +585,10 @@ VAR blocky_urn
 VAR blocky_bigdoor
 	.word always_interactable
 	.word bigdoor_interact
-;VAR blocky_chest
-;	.word blocky_chest_interactable
-;	.word blodky_chest_interact
+
+VAR blocky_chest
+	.word always_interactable
+	.word blocky_chest_interact
 
 VAR blocky_palette
 	.byte $0f, $07, $17, $27
