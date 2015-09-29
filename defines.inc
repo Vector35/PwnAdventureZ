@@ -186,11 +186,12 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 
 
 ; Enemy types
-.define ENEMY_NORMAL_ZOMBIE 0
-.define ENEMY_FAT_ZOMBIE    1
-.define ENEMY_NONE          $ff
+.define ENEMY_NORMAL_MALE_ZOMBIE   0
+.define ENEMY_NORMAL_FEMALE_ZOMBIE 1
+.define ENEMY_FAT_ZOMBIE           2
+.define ENEMY_NONE                 $ff
 
-.define ENEMY_MAX_COUNT     8
+.define ENEMY_MAX_COUNT        8
 
 .define ENEMY_DESC_TICK        0
 .define ENEMY_DESC_DIE         2
@@ -216,13 +217,31 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define SPRITE_OAM_PLAYER   $00
 .define SPRITE_OAM_INTERACT $08
 .define SPRITE_OAM_ENEMIES  $10
+.define SPRITE_OAM_EFFECTS  $50
 
 .define SPRITE_TILE_PLAYER $00
 
-.define SPRITE_TILE_NORMAL_ZOMBIE $20
-.define SPRITE_TILE_FAT_ZOMBIE    $40
+.define SPRITE_TILE_NORMAL_MALE_ZOMBIE   $20
+.define SPRITE_TILE_NORMAL_FEMALE_ZOMBIE $40
+.define SPRITE_TILE_FAT_ZOMBIE           $60
 
+.define SPRITE_TILE_BULLET        $f6
 .define SPRITE_TILE_INTERACT      $f8
+
+
+; Effects
+.define EFFECT_PLAYER_BULLET 0
+.define EFFECT_NONE          $ff
+
+.define EFFECT_MAX_COUNT     16
+
+.define EFFECT_DESC_TICK           0
+.define EFFECT_DESC_PLAYER_COLLIDE 2
+.define EFFECT_DESC_ENEMY_COLLIDE  4
+.define EFFECT_DESC_WORLD_COLLIDE  6
+.define EFFECT_DESC_TILE           8
+.define EFFECT_DESC_LARGE          9
+.define EFFECT_DESC_PALETTE        10
 
 
 ; Save state header

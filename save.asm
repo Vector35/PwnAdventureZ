@@ -1059,7 +1059,7 @@ PROC copy_number_tiles_to_temp_area
 
 	ldx #0
 copyloop:
-	lda save_tiles + (SAVE_TILE_NUMBERS * 16), x
+	lda 0 + (save_tiles & $ffff) + (SAVE_TILE_NUMBERS * 16), x
 	sta sprites + $40, x
 	inx
 	cpx #$b0

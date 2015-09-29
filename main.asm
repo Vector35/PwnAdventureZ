@@ -68,6 +68,7 @@ prepare:
 	jsr generate_map
 	jsr init_player_sprites
 	jsr init_zombie_sprites
+	jsr init_effect_sprites
 
 	jsr save
 
@@ -102,6 +103,7 @@ normalmove:
 movedone:
 	jsr update_enemies
 	jsr check_for_enemy_collide
+	jsr update_effects
 
 vblank:
 	jsr wait_for_vblank
@@ -110,6 +112,7 @@ vblank:
 	jsr prepare_for_rendering
 
 	jsr update_enemy_sprites
+	jsr update_effect_sprites
 
 	jmp loop
 .endproc

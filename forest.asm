@@ -339,7 +339,10 @@ spawnloop:
 	txa
 	pha
 
-	lda #ENEMY_NORMAL_ZOMBIE
+	lda #2
+	jsr rand_range
+	tax
+	lda forest_enemy_types, x
 	jsr spawn_starting_enemy
 
 	pla
@@ -454,6 +457,9 @@ VAR forest_rock_border_palette
 
 VAR forest_lake_border_palette
 	.byte $0f, $02, $12, $19
+
+VAR forest_enemy_types
+	.byte ENEMY_NORMAL_MALE_ZOMBIE, ENEMY_NORMAL_FEMALE_ZOMBIE
 
 TILES forest_tiles, 2, "tiles/forest/forest.chr", 8
 TILES forest_rock_border_tiles, 2, "tiles/forest/rock.chr", 60

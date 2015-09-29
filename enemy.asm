@@ -1283,5 +1283,6 @@ VAR knockback_control
 .data
 
 VAR enemy_descriptors
-	.word normal_zombie_descriptor
+	.word normal_male_zombie_descriptor
+	.word normal_female_zombie_descriptor
 	.word fat_zombie_descriptor
