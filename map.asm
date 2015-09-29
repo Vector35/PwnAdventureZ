@@ -469,6 +469,338 @@ PROC read_collision_down_right
 .endproc
 
 
+PROC read_enemy_collision_left
+	ldy cur_enemy
+	lda enemy_x, y
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+	dex
+	stx arg0
+
+	lda enemy_y, y
+	pha
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+	sty arg1
+
+	pla
+	and #$f
+	beq aligned
+
+	iny
+	jsr read_collision_at
+	beq done
+
+aligned:
+	ldx arg0
+	ldy arg1
+	jsr read_collision_at
+
+done:
+	rts
+.endproc
+
+
+PROC read_enemy_collision_left_direct
+	ldy cur_enemy
+	lda enemy_x, y
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+	dex
+
+	lda enemy_y, y
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+
+	jsr read_collision_at
+	rts
+.endproc
+
+
+PROC read_enemy_collision_left_bottom
+	ldy cur_enemy
+	lda enemy_x, y
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+	dex
+
+	lda enemy_y, y
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+	iny
+
+	jsr read_collision_at
+	rts
+.endproc
+
+
+PROC read_enemy_collision_right
+	ldy cur_enemy
+	lda enemy_x, y
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+	inx
+	stx arg0
+
+	lda enemy_y, y
+	pha
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+	sty arg1
+
+	pla
+	and #$f
+	beq aligned
+
+	iny
+	jsr read_collision_at
+	beq done
+
+aligned:
+	ldx arg0
+	ldy arg1
+	jsr read_collision_at
+
+done:
+	rts
+.endproc
+
+
+PROC read_enemy_collision_right_direct
+	ldy cur_enemy
+	lda enemy_x, y
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+	inx
+
+	lda enemy_y, y
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+
+	jsr read_collision_at
+	rts
+.endproc
+
+
+PROC read_enemy_collision_right_bottom
+	ldy cur_enemy
+	lda enemy_x, y
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+	inx
+
+	lda enemy_y, y
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+	iny
+
+	jsr read_collision_at
+	rts
+.endproc
+
+
+PROC read_enemy_collision_up
+	ldy cur_enemy
+	lda enemy_x, y
+	pha
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+	stx arg0
+
+	lda enemy_y, y
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+	dey
+	sty arg1
+
+	pla
+	and #$f
+	beq aligned
+
+	inx
+	jsr read_collision_at
+	beq done
+
+aligned:
+	ldx arg0
+	ldy arg1
+	jsr read_collision_at
+
+done:
+	rts
+.endproc
+
+
+PROC read_enemy_collision_up_direct
+	ldy cur_enemy
+	lda enemy_x, y
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+
+	lda enemy_y, y
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+	dey
+
+	jsr read_collision_at
+	rts
+.endproc
+
+
+PROC read_enemy_collision_up_right
+	ldy cur_enemy
+	lda enemy_x, y
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+	inx
+
+	lda enemy_y, y
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+	dey
+
+	jsr read_collision_at
+	rts
+.endproc
+
+
+PROC read_enemy_collision_down
+	ldy cur_enemy
+	lda enemy_x, y
+	pha
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+	stx arg0
+
+	lda enemy_y, y
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+	iny
+	sty arg1
+
+	pla
+	and #$f
+	beq aligned
+
+	inx
+	jsr read_collision_at
+	beq done
+
+aligned:
+	ldx arg0
+	ldy arg1
+	jsr read_collision_at
+
+done:
+	rts
+.endproc
+
+
+PROC read_enemy_collision_down_direct
+	ldy cur_enemy
+	lda enemy_x, y
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+
+	lda enemy_y, y
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+	iny
+
+	jsr read_collision_at
+	rts
+.endproc
+
+
+PROC read_enemy_collision_down_right
+	ldy cur_enemy
+	lda enemy_x, y
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+	inx
+
+	lda enemy_y, y
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+	iny
+
+	jsr read_collision_at
+	rts
+.endproc
+
+
 PROC read_spawnable_at
 	tya
 	asl

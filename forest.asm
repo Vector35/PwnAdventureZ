@@ -307,11 +307,34 @@ nextblank:
 	; Create enemies
 	jsr prepare_spawn
 
+	lda difficulty
+	cmp #1
+	beq hard
+	cmp #2
+	beq veryhard
+
 	lda #3
 	jsr rand_range
 	clc
 	adc #1
 	tax
+	jmp spawnloop
+
+hard:
+	lda #4
+	jsr rand_range
+	clc
+	adc #2
+	tax
+	jmp spawnloop
+
+veryhard:
+	lda #4
+	jsr rand_range
+	clc
+	adc #4
+	tax
+
 spawnloop:
 	txa
 	pha

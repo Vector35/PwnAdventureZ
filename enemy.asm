@@ -98,12 +98,27 @@ slotfound:
 	ldx arg4
 	sta enemy_direction, x
 
-	lda #150
+	lda #60
 	jsr rand_range
 	clc
 	adc #30
 	ldx arg4
 	sta enemy_idle_time, x
+
+	lda arg5
+	asl
+	tay
+	lda enemy_descriptors, y
+	sta ptr
+	lda enemy_descriptors + 1, y
+	sta ptr + 1
+
+	ldy #ENEMY_DESC_SPEED_MASK
+	lda (ptr), y
+	sta enemy_speed_mask, x
+	ldy #ENEMY_DESC_SPEED_VALUE
+	lda (ptr), y
+	sta enemy_speed_value, x
 
 	rts
 .endproc
@@ -119,7 +134,14 @@ loop:
 	cmp #ENEMY_NONE
 	beq next
 
+	lda vblank_count
+	and enemy_speed_mask, x
+	cmp enemy_speed_value, x
+	bcc next
+	beq next
+
 	; Call the enemy's tick function
+	lda enemy_type, x
 	asl
 	tay
 	lda enemy_descriptors, y
@@ -300,6 +322,360 @@ down:
 
 
 PROC walking_ai_tick
+	ldx cur_enemy
+	lda enemy_idle_time, x
+	beq moving
+
+	sec
+	sbc #1
+	sta enemy_idle_time, x
+	beq idledone
+
+	rts
+
+idledone:
+	lda #0
+	ldx cur_enemy
+	sta enemy_moved, x
+
+	lda #2
+	jsr rand_range
+	cmp #0
+	beq horizontal
+
+	lda #(MAP_HEIGHT - 2) * 16
+	jsr rand_range
+	clc
+	adc #8
+	ldx cur_enemy
+	sta enemy_walk_target, x
+	cmp enemy_y, x
+	bcc up
+
+	lda #DIR_DOWN
+	sta enemy_walk_direction, x
+	rts
+
+up:
+	lda #DIR_UP
+	sta enemy_walk_direction, x
+	rts
+
+horizontal:
+	lda #(MAP_WIDTH - 2) * 16
+	jsr rand_range
+	clc
+	adc #8
+	ldx cur_enemy
+	sta enemy_walk_target, x
+	cmp enemy_x, x
+	bcc left
+
+	lda #DIR_RIGHT
+	sta enemy_walk_direction, x
+	rts
+
+left:
+	lda #DIR_LEFT
+	sta enemy_walk_direction, x
+	rts
+
+moving:
+	ldx cur_enemy
+	lda enemy_walk_direction, x
+	and #3
+	cmp #DIR_UP
+	beq moveup
+	cmp #DIR_DOWN
+	beq movedown
+	cmp #DIR_LEFT
+	beq moveleft
+
+	lda enemy_walk_target, x
+	cmp enemy_x, x
+	beq toidle
+	bcc toidle
+	jmp moveok
+
+moveleft:
+	lda enemy_walk_target, x
+	cmp enemy_x, x
+	bcs toidle
+	jmp moveok
+
+moveup:
+	lda enemy_walk_target, x
+	cmp enemy_y, x
+	bcs toidle
+	jmp moveok
+
+movedown:
+	lda enemy_walk_target, x
+	cmp enemy_y, x
+	beq toidle
+	bcc toidle
+	jmp moveok
+
+moveok:
+	jsr enemy_move
+	cmp #0
+	beq toidle
+	lda #1
+	ldx cur_enemy
+	sta enemy_moved, x
+	rts
+
+toidle:
+	ldx cur_enemy
+	lda enemy_moved, x
+	bne moved
+
+	lda #1
+	sta enemy_idle_time, x
+	rts
+
+moved:
+	lda #60
+	jsr rand_range
+	clc
+	adc #1
+	ldx cur_enemy
+	sta enemy_idle_time, x
+
+	lda enemy_direction, x
+	and #3
+	sta enemy_direction, x
+	lda #7
+	sta enemy_anim_frame, x
+	rts
+.endproc
+
+
+PROC enemy_move
+	ldx cur_enemy
+	lda enemy_walk_direction, x
+	and #3
+	cmp #DIR_LEFT
+	beq left
+	cmp #DIR_RIGHT
+	beq right
+	cmp #DIR_UP
+	beq goup
+	cmp #DIR_DOWN
+	beq godown
+	rts
+
+goup:
+	jmp up
+godown:
+	jmp down
+
+left:
+	lda enemy_x, x
+	and #15
+	bne noleftcollide
+	jsr read_enemy_collision_left
+	bne noleftcollide
+	ldx cur_enemy
+	lda enemy_y, x
+	and #15
+	cmp #8
+	bcc leftsnaptop
+	jmp leftsnapbot
+leftmoveinvalid:
+	lda #0
+	rts
+leftsnaptop:
+	jsr read_enemy_collision_left_direct
+	beq leftmoveinvalid
+	jmp snapup
+leftsnapbot:
+	jsr read_enemy_collision_down
+	beq leftmoveinvalid
+	jsr read_enemy_collision_left_bottom
+	beq leftmoveinvalid
+	jmp snapdown
+noleftcollide:
+	ldx cur_enemy
+	dec enemy_x, x
+	lda #DIR_RUN_LEFT
+	sta enemy_direction, x
+	inc enemy_anim_frame, x
+	lda #1
+	rts
+
+right:
+	lda enemy_x, x
+	and #15
+	bne norightcollide
+	jsr read_enemy_collision_right
+	bne norightcollide
+	ldx cur_enemy
+	lda enemy_y, x
+	and #15
+	cmp #8
+	bcc rightsnaptop
+	jmp rightsnapbot
+rightmoveinvalid:
+	lda #0
+	rts
+rightsnaptop:
+	jsr read_enemy_collision_right_direct
+	beq rightmoveinvalid
+	jmp snapup
+rightsnapbot:
+	jsr read_enemy_collision_down
+	beq rightmoveinvalid
+	jsr read_enemy_collision_right_bottom
+	beq rightmoveinvalid
+	jmp snapdown
+norightcollide:
+	ldx cur_enemy
+	inc enemy_x, x
+	lda #DIR_RUN_RIGHT
+	sta enemy_direction, x
+	inc enemy_anim_frame, x
+	lda #1
+	rts
+
+up:
+	lda enemy_y, x
+	and #15
+	bne noupcollide
+	jsr read_enemy_collision_up
+	bne noupcollide
+	ldx cur_enemy
+	lda enemy_x, x
+	and #15
+	cmp #8
+	bcc upsnapleft
+	jmp upsnapright
+upmoveinvalid:
+	lda #0
+	rts
+upsnapleft:
+	jsr read_enemy_collision_up_direct
+	beq upmoveinvalid
+	jmp snapleft
+upsnapright:
+	jsr read_enemy_collision_right
+	beq upmoveinvalid
+	jsr read_enemy_collision_up_right
+	beq upmoveinvalid
+	jmp snapright
+noupcollide:
+	ldx cur_enemy
+	dec enemy_y, x
+	lda #DIR_RUN_UP
+	sta enemy_direction, x
+	inc enemy_anim_frame, x
+	lda #1
+	rts
+
+down:
+	lda enemy_y, x
+	and #15
+	bne nodowncollide
+	jsr read_enemy_collision_down
+	bne nodowncollide
+	ldx cur_enemy
+	lda enemy_x, x
+	and #15
+	cmp #8
+	bcc downsnapleft
+	jmp downsnapright
+downmoveinvalid:
+	lda #0
+	rts
+downsnapleft:
+	jsr read_enemy_collision_down_direct
+	beq downmoveinvalid
+	jmp snapleft
+downsnapright:
+	jsr read_enemy_collision_right
+	beq downmoveinvalid
+	jsr read_enemy_collision_down_right
+	beq downmoveinvalid
+	jmp snapright
+nodowncollide:
+	ldx cur_enemy
+	inc enemy_y, x
+	lda #DIR_RUN_DOWN
+	sta enemy_direction, x
+	inc enemy_anim_frame, x
+	lda #1
+	rts
+
+snapleft:
+	ldx cur_enemy
+	lda enemy_x, x
+	and #15
+	bne nosnapleftcollide
+	jsr read_enemy_collision_left
+	bne nosnapleftcollide
+	lda #0
+	rts
+nosnapleftcollide:
+	ldx cur_enemy
+	dec enemy_x, x
+	lda #DIR_RUN_LEFT
+	sta enemy_direction, x
+	inc enemy_anim_frame, x
+	lda #1
+	rts
+
+snapright:
+	ldx cur_enemy
+	lda enemy_x, x
+	and #15
+	bne nosnaprightcollide
+	jsr read_enemy_collision_right
+	bne nosnaprightcollide
+	lda #0
+	rts
+nosnaprightcollide:
+	ldx cur_enemy
+	inc enemy_x, x
+	lda #DIR_RUN_RIGHT
+	sta enemy_direction, x
+	inc enemy_anim_frame, x
+	lda #1
+	rts
+
+snapup:
+	ldx cur_enemy
+	lda enemy_y, x
+	and #15
+	bne nosnapupcollide
+	jsr read_enemy_collision_up
+	bne nosnapupcollide
+	lda #0
+	rts
+nosnapupcollide:
+	ldx cur_enemy
+	dec enemy_y, x
+	lda #DIR_RUN_UP
+	sta enemy_direction, x
+	inc enemy_anim_frame, x
+	lda #1
+	rts
+
+snapdown:
+	ldx cur_enemy
+	lda enemy_y, x
+	and #15
+	bne nosnapdowncollide
+	jsr read_enemy_collision_down
+	bne nosnapdowncollide
+	lda #0
+	rts
+nosnapdowncollide:
+	ldx cur_enemy
+	inc enemy_y, x
+	lda #DIR_RUN_DOWN
+	sta enemy_direction, x
+	inc enemy_anim_frame, x
+	lda #1
 	rts
 .endproc
 
@@ -460,12 +836,32 @@ VAR enemy_direction
 	.byte 0
 	.endrepeat
 
+VAR enemy_walk_direction
+	.repeat ENEMY_MAX_COUNT
+	.byte 0
+	.endrepeat
+
 VAR enemy_walk_target
 	.repeat ENEMY_MAX_COUNT
 	.byte 0
 	.endrepeat
 
+VAR enemy_moved
+	.repeat ENEMY_MAX_COUNT
+	.byte 0
+	.endrepeat
+
 VAR enemy_idle_time
+	.repeat ENEMY_MAX_COUNT
+	.byte 0
+	.endrepeat
+
+VAR enemy_speed_mask
+	.repeat ENEMY_MAX_COUNT
+	.byte 0
+	.endrepeat
+
+VAR enemy_speed_value
 	.repeat ENEMY_MAX_COUNT
 	.byte 0
 	.endrepeat

@@ -192,11 +192,13 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 
 .define ENEMY_MAX_COUNT     8
 
-.define ENEMY_DESC_TICK    0
-.define ENEMY_DESC_DIE     2
-.define ENEMY_DESC_COLLIDE 4
-.define ENEMY_DESC_TILE    6
-.define ENEMY_DESC_PALETTE 7
+.define ENEMY_DESC_TICK        0
+.define ENEMY_DESC_DIE         2
+.define ENEMY_DESC_COLLIDE     4
+.define ENEMY_DESC_TILE        6
+.define ENEMY_DESC_PALETTE     7
+.define ENEMY_DESC_SPEED_MASK  8
+.define ENEMY_DESC_SPEED_VALUE 9
 
 
 ; Interaction types

@@ -35,6 +35,7 @@ VAR normal_zombie_descriptor
 	.word normal_zombie_collide
 	.byte SPRITE_TILE_NORMAL_ZOMBIE
 	.byte 1
+	.byte 1, 0
 
 VAR fat_zombie_descriptor
 	.word walking_ai_tick
@@ -42,6 +43,7 @@ VAR fat_zombie_descriptor
 	.word fat_zombie_explode
 	.byte SPRITE_TILE_FAT_ZOMBIE
 	.byte 1
+	.byte 1, 0
 
 VAR zombie_palette
 	.byte $0f, $18, $28, $08
