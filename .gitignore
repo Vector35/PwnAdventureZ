@@ -5,3 +5,4 @@ PwnAdventureZ.sav
 *.o
 *.sublime-workspace
 .DS_Store
+*.nl
