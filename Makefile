@@ -8,6 +8,7 @@ CHR = $(wildcard *.chr)
 PwnAdventureZ.nes: $(OBJS) flagemu.o mapper1.o Makefile mapper1.cfg PwnAdventureZ_prg.bin PwnAdventureZ_mapper2.nes
 	$(LD65) -C mapper1.cfg -o $@ $(OBJS) flagemu.o mapper1.o -vm
 	python usage.py
+	python tools/map2nl.py PwnAdventureZ.map
 
 PwnAdventureZ_prg.bin: $(OBJS) flagreal.o mapper1.o Makefile mapper1.cfg
 	$(LD65) -C mapper1.cfg -o PwnAdventureZ_physical.nes $(OBJS) flagreal.o mapper1.o -vm --mapfile PwnAdventureZ.map
@@ -16,6 +17,7 @@ PwnAdventureZ_prg.bin: $(OBJS) flagreal.o mapper1.o Makefile mapper1.cfg
 
 PwnAdventureZ_mapper2.nes: $(OBJS) flagemu.o mapper2.o Makefile mapper2.cfg PwnAdventureZ_mapper2_prg.bin
 	$(LD65) -C mapper2.cfg -o $@ $(OBJS) flagemu.o mapper2.o -vm
+	python tools/map2nl.py PwnAdventureZ_mapper2.map
 
 PwnAdventureZ_mapper2_prg.bin: $(OBJS) flagreal.o mapper2.o Makefile mapper2.cfg
 	$(LD65) -C mapper2.cfg -o PwnAdventureZ_mapper2_physical.nes $(OBJS) flagreal.o mapper2.o -vm --mapfile PwnAdventureZ_mapper2.map
