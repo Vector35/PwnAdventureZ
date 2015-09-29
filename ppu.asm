@@ -412,6 +412,7 @@ PROC load_palette
 loadloop:
 	lda (ptr), y
 	sta PPUDATA
+	sta active_palette, y
 	iny
 	cpy #$20
 	bne loadloop
@@ -451,11 +452,14 @@ PROC load_single_palette
 	tya
 	asl
 	asl
+	tax
 	sta PPUADDR
 	ldy #0
 loadloop:
 	lda (ptr), y
 	sta PPUDATA
+	sta active_palette, x
+	inx
 	iny
 	cpy #4
 	bne loadloop
@@ -481,12 +485,16 @@ PROC animate_palette
 	lda temp
 	sta ptr
 
+	txa
+	pha
 	tya
 	pha
 	lda arg0
 	jsr load_single_palette
 	pla
 	tay
+	pla
+	tax
 
 	rts
 .endproc
@@ -535,15 +543,10 @@ PROC fade_out
 
 	; Read existing palette to scratch area
 	LOAD_PTR scratch
-	lda PPUSTATUS
-	lda #$3f
-	sta PPUADDR
-	lda #0
-	sta PPUADDR
-	tay
+	ldy #0
 loadloop:
-	lda PPUDATA
-	sta (ptr), y
+	lda active_palette, y
+	sta scratch, y
 	iny
 	cpy #$20
 	bne loadloop
@@ -633,3 +636,16 @@ tileloop:
 
 	rts
 .endproc
+
+
+.bss
+
+VAR active_palette
+	.byte 0, 0, 0, 0
+	.byte 0, 0, 0, 0
+	.byte 0, 0, 0, 0
+	.byte 0, 0, 0, 0
+	.byte 0, 0, 0, 0
+	.byte 0, 0, 0, 0
+	.byte 0, 0, 0, 0
+	.byte 0, 0, 0, 0

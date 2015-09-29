@@ -7,8 +7,8 @@ PROC reset_mapper
 	lda #$80
 	sta $8000
 
-	; Init settings (8k CHR, 16k PRG, $8000 swap, horizontal)
-	lda #$0f
+	; Init settings (8k CHR, 16k PRG, $8000 swap, vertical)
+	lda #$0e
 	sta $8000
 	lsr
 	sta $8000
