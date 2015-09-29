@@ -44,8 +44,8 @@ def main():
 
 	ram = open(mapfilename[0:-4] + ".nes.ram.nl","wb")
 	bank = []
-		for index in xrange(8):
-		bank.append(open(mapfilename[0:-4] + ".nes."+index+".nl","wb"))
+	for index in xrange(8):
+		bank.append(open(mapfilename[0:-4] + ".nes."+str(index)+".nl","wb"))
 
 	for item in exports:
 		offset=int(item[0],16)
@@ -61,7 +61,7 @@ def main():
 		else:
 			output=bank[(offset & 0xff0000) >> 16]
 			offset = offset & 0xffff
-		output.write("$%04x#%s#" % (offset,name))
+		output.write("$%04x#%s#\n" % (offset,name))
 
 	ram.close()
 	for item in bank:
