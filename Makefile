@@ -46,4 +46,4 @@ clean:
 	rm -f PwnAdventureZ_mapper2.map
 	rm -f PwnAdventureZ_mapper2_physical.nes
 	rm -f PwnAdventureZ_mapper2_prg.bin
-	rm -f *.o
+	rm -f *.o *.nl
