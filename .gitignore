@@ -6,3 +6,4 @@ PwnAdventureZ.sav
 *.sublime-workspace
 .DS_Store
 *.nl
+*.deb
