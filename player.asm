@@ -160,13 +160,28 @@ normalmove:
 	cmp #INTERACT_NONE
 	beq nointeract
 
+	lda attack_held
+	bne startmove
+
 	jsr activate_interaction
-	jmp noactivate
+
+	lda #1
+	sta attack_held
+	jmp startmove
 
 nointeract:
-	jsr fire_weapon
+	jsr player_attack
+	jmp startmove
 
 noactivate:
+	lda #0
+	sta attack_held
+
+startmove:
+	lda attack_cooldown
+	beq nocooldown
+	dec attack_cooldown
+nocooldown:
 	lda temp_controller
 	and #JOY_UP
 	bne up
@@ -770,9 +785,8 @@ PROC set_interaction_pos
 
 PROC get_player_direction_bits
 	lda controller
-	beq nodir
-
 	and #JOY_LEFT | JOY_RIGHT | JOY_UP | JOY_DOWN
+	beq nodir
 	sta temp
 
 	lda controller
@@ -827,7 +841,17 @@ notup:
 .endproc
 
 
-PROC fire_weapon
+PROC player_attack
+	lda attack_cooldown
+	beq nocooldown
+	rts
+
+nocooldown:
+	lda attack_held
+	beq notheld
+	rts
+
+notheld:
 	lda player_x
 	clc
 	adc #8
@@ -843,11 +867,16 @@ PROC fire_weapon
 	jsr create_effect
 
 	cmp #$ff
-	bne failed
+	beq failed
 
 	sta cur_effect
 	jsr player_bullet_tick
 	jsr player_bullet_tick
+
+	lda #15
+	sta attack_cooldown
+	lda #1
+	sta attack_held
 
 failed:
 	rts
@@ -1023,6 +1052,11 @@ VAR possible_interaction_tile_y
 	.byte 0
 
 VAR player_health
+	.byte 0
+
+VAR attack_held
+	.byte 0
+VAR attack_cooldown
 	.byte 0
 
 
