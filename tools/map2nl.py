@@ -39,7 +39,8 @@ def main():
 	while (mapfile[index]!=''):
 		line = re.split(r"\s{1,}", mapfile[index].strip())
 		exports.append([line[1],line[0]])
-		exports.append([line[4],line[3]])
+		if len(line) > 3:
+			exports.append([line[4],line[3]])
 		index += 1
 
 	ram = open(mapfilename[0:-4] + ".nes.ram.nl","wb")
