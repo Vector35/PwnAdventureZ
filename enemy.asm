@@ -321,11 +321,192 @@ down:
 .endproc
 
 
+PROC get_enemy_tile
+	ldy cur_enemy
+
+	lda enemy_x, y
+	lsr
+	lsr
+	lsr
+	lsr
+	adc #0 ; Round to nearest
+	tax
+
+	lda enemy_y, y
+	lsr
+	lsr
+	lsr
+	lsr
+	adc #0 ; Round to nearest
+	tay
+
+	rts
+.endproc
+
+
 PROC walking_ai_tick
+	; Check to see if the enemy can see the player in a direct line of sight
+	jsr get_enemy_tile
+	stx arg0
+	sty arg1
+
+	jsr get_player_tile
+	stx arg2
+	sty arg3
+
+	ldx cur_enemy
+	lda enemy_direction
+	and #3
+	cmp #DIR_RIGHT
+	beq nolookleft
+
+	lda arg1
+	cmp arg3
+	bne nolookleft
+
+	lda arg0
+	cmp arg2
+	bcc nolookleft
+
+	lda arg0
+	sta arg4
+leftloop:
+	ldx arg4
+	cpx arg2
+	beq foundleft
+	ldy arg1
+	jsr read_collision_at
+	beq nolookleft
+	dec arg4
+	jmp leftloop
+
+foundleft:
+	ldx cur_enemy
+	lda player_x
+	sta enemy_walk_target, x
+	lda #DIR_LEFT
+	sta enemy_walk_direction, x
+	lda #0
+	sta enemy_idle_time, x
+	jmp moving
+
+nolookleft:
+	ldx cur_enemy
+	lda enemy_direction
+	and #3
+	cmp #DIR_LEFT
+	beq nolookright
+
+	lda arg1
+	cmp arg3
+	bne nolookright
+
+	lda arg0
+	cmp arg2
+	bcs nolookright
+
+	lda arg0
+	sta arg4
+rightloop:
+	ldx arg4
+	cpx arg2
+	beq foundright
+	ldy arg1
+	jsr read_collision_at
+	beq nolookright
+	inc arg4
+	jmp rightloop
+
+foundright:
+	ldx cur_enemy
+	lda player_x
+	sta enemy_walk_target, x
+	lda #DIR_RIGHT
+	sta enemy_walk_direction, x
+	lda #0
+	sta enemy_idle_time, x
+	jmp moving
+
+nolookright:
+	ldx cur_enemy
+	lda enemy_direction
+	and #3
+	cmp #DIR_DOWN
+	beq nolookup
+
+	lda arg0
+	cmp arg2
+	bne nolookup
+
+	lda arg1
+	cmp arg3
+	bcc nolookup
+
+	lda arg1
+	sta arg4
+uploop:
+	ldx arg0
+	ldy arg4
+	cpy arg3
+	beq foundup
+	jsr read_collision_at
+	beq nolookup
+	dec arg4
+	jmp uploop
+
+foundup:
+	ldx cur_enemy
+	lda player_y
+	sta enemy_walk_target, x
+	lda #DIR_UP
+	sta enemy_walk_direction, x
+	lda #0
+	sta enemy_idle_time, x
+	jmp moving
+
+nolookup:
+	ldx cur_enemy
+	lda enemy_direction
+	and #3
+	cmp #DIR_UP
+	beq checkforidle
+
+	lda arg0
+	cmp arg2
+	bne checkforidle
+
+	lda arg1
+	cmp arg3
+	bcs checkforidle
+
+	lda arg1
+	sta arg4
+downloop:
+	ldx arg0
+	ldy arg4
+	cpy arg3
+	beq founddown
+	jsr read_collision_at
+	beq checkforidle
+	inc arg4
+	jmp downloop
+
+founddown:
+	ldx cur_enemy
+	lda player_y
+	sta enemy_walk_target, x
+	lda #DIR_DOWN
+	sta enemy_walk_direction, x
+	lda #0
+	sta enemy_idle_time, x
+	jmp moving
+
+checkforidle:
 	ldx cur_enemy
 	lda enemy_idle_time, x
 	beq moving
 
+	; Enemy is idling, wait for the desired number of ticks
 	sec
 	sbc #1
 	sta enemy_idle_time, x
@@ -334,6 +515,7 @@ PROC walking_ai_tick
 	rts
 
 idledone:
+	; Idle time complete, choose a random target for walking
 	lda #0
 	ldx cur_enemy
 	sta enemy_moved, x
@@ -343,6 +525,7 @@ idledone:
 	cmp #0
 	beq horizontal
 
+	; Walk on Y axis
 	lda #(MAP_HEIGHT - 2) * 16
 	jsr rand_range
 	clc
@@ -362,6 +545,7 @@ up:
 	rts
 
 horizontal:
+	; Walk on X axis
 	lda #(MAP_WIDTH - 2) * 16
 	jsr rand_range
 	clc
@@ -381,6 +565,7 @@ left:
 	rts
 
 moving:
+	; Enemy is walking, check for reaching target
 	ldx cur_enemy
 	lda enemy_walk_direction, x
 	and #3
@@ -417,6 +602,7 @@ movedown:
 	jmp moveok
 
 moveok:
+	; Enemy has not reached target, try to move
 	jsr enemy_move
 	cmp #0
 	beq toidle
@@ -426,15 +612,18 @@ moveok:
 	rts
 
 toidle:
+	; Enemy couldn't move or is done moving, go back to idle state
 	ldx cur_enemy
 	lda enemy_moved, x
 	bne moved
 
+	; Did not move during this move attempt, reattempt immediately
 	lda #1
 	sta enemy_idle_time, x
 	rts
 
 moved:
+	; Enemy completed a move, idle for a random period
 	lda #60
 	jsr rand_range
 	clc
