@@ -768,7 +768,88 @@ PROC set_interaction_pos
 .endproc
 
 
+PROC get_player_direction_bits
+	lda controller
+	beq nodir
+
+	and #JOY_LEFT | JOY_RIGHT | JOY_UP | JOY_DOWN
+	sta temp
+
+	lda controller
+	and #JOY_LEFT | JOY_RIGHT
+	cmp #JOY_LEFT | JOY_RIGHT
+	bne notbothhoriz
+
+	lda temp
+	and #JOY_LEFT | JOY_UP | JOY_DOWN
+	sta temp
+
+notbothhoriz:
+	lda controller
+	and #JOY_UP | JOY_DOWN
+	cmp #JOY_UP | JOY_DOWN
+	bne notbothvert
+
+	lda temp
+	and #JOY_LEFT | JOY_RIGHT | JOY_UP
+	sta temp
+
+notbothvert:
+	lda temp
+	rts
+
+nodir:
+	lda player_direction
+	and #3
+	cmp #DIR_LEFT
+	bne notleft
+
+	lda #JOY_LEFT
+	rts
+
+notleft:
+	cmp #DIR_RIGHT
+	bne notright
+
+	lda #JOY_RIGHT
+	rts
+
+notright:
+	cmp #DIR_UP
+	bne notup
+
+	lda #JOY_UP
+	rts
+
+notup:
+	lda #JOY_DOWN
+	rts
+.endproc
+
+
 PROC fire_weapon
+	lda player_x
+	clc
+	adc #8
+	sta arg0
+	lda player_y
+	clc
+	adc #8
+	sta arg1
+	lda #EFFECT_PLAYER_BULLET
+	sta arg2
+	jsr get_player_direction_bits
+	sta arg3
+	jsr create_effect
+
+	cmp #$ff
+	bne failed
+
+	sta cur_effect
+	jsr player_bullet_tick
+	jsr player_bullet_tick
+
+failed:
 	rts
 .endproc
 
@@ -848,6 +929,55 @@ ok:
 dead:
 	lda #0
 	sta player_health
+	rts
+.endproc
+
+
+PROC bullet_hit_enemy
+	jsr enemy_die
+	jsr remove_effect
+	rts
+.endproc
+
+
+PROC player_bullet_tick
+	ldx cur_effect
+	lda effect_direction, x
+	and #JOY_LEFT
+	beq notleft
+
+	dec effect_x, x
+	dec effect_x, x
+	dec effect_x, x
+
+notleft:
+	lda effect_direction, x
+	and #JOY_RIGHT
+	beq notright
+
+	inc effect_x, x
+	inc effect_x, x
+	inc effect_x, x
+
+notright:
+	lda effect_direction, x
+	and #JOY_UP
+	beq notup
+
+	dec effect_y, x
+	dec effect_y, x
+	dec effect_y, x
+
+notup:
+	lda effect_direction, x
+	and #JOY_DOWN
+	beq notdown
+
+	inc effect_y, x
+	inc effect_y, x
+	inc effect_y, x
+
+notdown:
 	rts
 .endproc
 
@@ -968,6 +1098,14 @@ VAR interaction_descriptors
 	.word starting_chest_descriptor
 	.word blocky_urn 
 	.word blocky_bigdoor
+
+VAR player_bullet_descriptor
+	.word player_bullet_tick
+	.word nothing
+	.word bullet_hit_enemy
+	.word remove_effect
+	.byte SPRITE_TILE_BULLET, 0
+	.byte 2
 
 TILES unarmed_player_tiles, 2, "tiles/characters/player/unarmed.chr", 32
 TILES interact_tiles, 2, "tiles/interact.chr", 8

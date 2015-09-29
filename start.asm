@@ -218,6 +218,11 @@ loop:
 .endproc
 
 
+PROC nothing
+	rts
+.endproc
+
+
 .zeropage
 VAR ptr
 	.word 0

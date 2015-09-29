@@ -1,30 +1,39 @@
 .include "defines.inc"
 
-.define BIGDOOR_TILE $0bc
+.define CAVE_TILE     $080
+.define BIGDOOR_TILE  $0bc
 .define BIGDOOR_TILE2 $0c8
 .define BIGDOOR_TILE3 $0d4
 .define BIGDOOR_TILE4 $0e0
-.define URN_TILE     $0ec
+.define URN_TILE      $0ec
+
+.define TILE1 0
+.define TILE2 4
+.define TILE3 8
+
+.define CAVE_PALETTE    0
+.define BIGDOOR_PALETTE 1
+.define URN_PALETTE     2
 
 .code
 
 PROC gen_blocky_puzzle
-	LOAD_ALL_TILES $080, cave_border_tiles
+	LOAD_ALL_TILES CAVE_TILE, cave_border_tiles
 	LOAD_ALL_TILES BIGDOOR_TILE, bigdoor_tiles
 	LOAD_ALL_TILES URN_TILE, urn_tiles 
 	; Load cave palette
-	LOAD_PTR cave_palette
+	LOAD_PTR blocky_palette
 	jsr load_background_game_palette
 
 	jsr gen_map_opening_locations
 	; Generate the sides of the cave wall
-	lda #$80 + BORDER_CENTER
+	lda #CAVE_TILE + BORDER_CENTER + CAVE_PALETTE
 	jsr gen_left_wall_1
-	lda #$80 + BORDER_CENTER
+	lda #CAVE_TILE + BORDER_CENTER + CAVE_PALETTE
 	jsr gen_right_wall_1
-	lda #$80 + BORDER_CENTER
+	lda #CAVE_TILE + BORDER_CENTER + CAVE_PALETTE
 	jsr gen_top_wall_bigdoor
-	lda #$80 + BORDER_CENTER
+	lda #CAVE_TILE + BORDER_CENTER + CAVE_PALETTE
 	jsr gen_bot_wall_1
 
 	lda #0
@@ -49,7 +58,7 @@ PROC gen_blocky_puzzle
 
 	ldx #6
 	ldy #0
-	lda #BIGDOOR_TILE
+	lda #BIGDOOR_TILE + TILE1 + BIGDOOR_PALETTE
 	clc
 	adc blocky_door_state
 	sta interactive_tile_values + 2
@@ -57,7 +66,7 @@ PROC gen_blocky_puzzle
 	
 	ldx #7
 	ldy #0
-	lda #BIGDOOR_TILE + 4
+	lda #BIGDOOR_TILE + TILE2 + BIGDOOR_PALETTE
 	clc
 	adc blocky_door_state
 	sta interactive_tile_values + 3
@@ -65,13 +74,13 @@ PROC gen_blocky_puzzle
 
 	ldx #8
 	ldy #0
-	lda #BIGDOOR_TILE + 8
+	lda #BIGDOOR_TILE + TILE3 + BIGDOOR_PALETTE
 	clc
 	adc blocky_door_state
 	sta interactive_tile_values + 4
 	jsr write_gen_map
 
-	lda #$80
+	lda #CAVE_TILE
 	jsr process_border_sides
 
 	; Place the rows of urns and make them interactable
@@ -80,9 +89,9 @@ PROC gen_blocky_puzzle
 	lda #INTERACT_URN
 	sta interactive_tile_types + 1
 
-	lda #URN_TILE
+	lda #URN_TILE + TILE1 + URN_PALETTE
 	sta interactive_tile_values
-	lda #URN_TILE + 4
+	lda #URN_TILE + TILE2 + URN_PALETTE
 	sta interactive_tile_values + 1
 
 	ldy #2
@@ -108,10 +117,10 @@ loop_write_urn:
 	jsr is_urn_on
 	cmp #0
 	beq urn_off
-	lda #URN_TILE
+	lda #URN_TILE + TILE1 + URN_PALETTE
 	jmp write_urn
 urn_off:
-	lda #URN_TILE + 4
+	lda #URN_TILE + TILE2 + URN_PALETTE
 write_urn:
 	ldx arg2
 	ldy arg3
@@ -128,20 +137,20 @@ PROC gen_blocky_treasure
 	LOAD_ALL_TILES $0c0, treasure_tiles
 	LOAD_ALL_TILES $0e0, urn_tiles 
 	; Load cave palette
-	LOAD_PTR cave_palette
+	LOAD_PTR blocky_palette
 	jsr load_background_game_palette
 
 	; Generate the sides of the cave wall
-	lda #$80 + BORDER_CENTER
+	lda #CAVE_TILE + BORDER_CENTER + CAVE_PALETTE
 	jsr gen_left_wall_1
-	lda #$80 + BORDER_CENTER
+	lda #CAVE_TILE + BORDER_CENTER + CAVE_PALETTE
 	jsr gen_right_wall_1
-	lda #$80 + BORDER_CENTER
+	lda #CAVE_TILE + BORDER_CENTER + CAVE_PALETTE
 	jsr gen_top_wall_1
-	lda #$80 + BORDER_CENTER
+	lda #CAVE_TILE + BORDER_CENTER + CAVE_PALETTE
 	jsr gen_bot_wall_bigdoor
 
-	lda #$80
+	lda #CAVE_TILE
 	jsr process_border_sides
 
 
@@ -361,10 +370,10 @@ PROC urn_interact
 	jsr is_urn_on
 	cmp #0
 	beq urn_off
-	lda #URN_TILE
+	lda #URN_TILE + TILE1 + URN_PALETTE
 	jmp write_urn
 urn_off:
-	lda #URN_TILE + 4
+	lda #URN_TILE + TILE2 + URN_PALETTE
 write_urn:
 	ldx interaction_tile_x
 	ldy interaction_tile_y
@@ -452,22 +461,23 @@ PROC bigdoor_interact
 	jsr check_blocky_state
 	cmp #0
 	bne opendoor
+	;TODO spawn zombies
 	rts
 opendoor:
 	ldx #30
 	jsr wait_for_frame_count
 	ldy #0
 	ldx #6
-	lda #BIGDOOR_TILE2
+	lda #BIGDOOR_TILE2 + TILE1 + BIGDOOR_PALETTE
 	jsr write_large_tile
 	ldy #0
 	ldx #7
-	lda #BIGDOOR_TILE2 + 4
+	lda #BIGDOOR_TILE2 + TILE2 + BIGDOOR_PALETTE
 	jsr write_large_tile
 
 	ldy #0
 	ldx #8
-	lda #BIGDOOR_TILE2 + 8
+	lda #BIGDOOR_TILE2 + TILE3 + BIGDOOR_PALETTE
 	jsr write_large_tile
 
 	jsr prepare_for_rendering
@@ -476,16 +486,16 @@ opendoor:
 	jsr wait_for_frame_count
 	ldy #0
 	ldx #6
-	lda #BIGDOOR_TILE3
+	lda #BIGDOOR_TILE3 + TILE1 + BIGDOOR_PALETTE
 	jsr write_large_tile
 	ldy #0
 	ldx #7
-	lda #BIGDOOR_TILE3 + 4
+	lda #BIGDOOR_TILE3 + TILE2 + BIGDOOR_PALETTE
 	jsr write_large_tile
 
 	ldy #0
 	ldx #8
-	lda #BIGDOOR_TILE3 + 8
+	lda #BIGDOOR_TILE3 + TILE3 + BIGDOOR_PALETTE
 	jsr write_large_tile
 
 	jsr prepare_for_rendering
@@ -493,16 +503,16 @@ opendoor:
 	jsr wait_for_frame_count
 	ldy #0
 	ldx #6
-	lda #BIGDOOR_TILE4
+	lda #BIGDOOR_TILE4 + TILE1 + BIGDOOR_PALETTE
 	jsr write_large_tile
 	ldy #0
 	ldx #7
-	lda #BIGDOOR_TILE4 + 4
+	lda #BIGDOOR_TILE4 + TILE2 + BIGDOOR_PALETTE
 	jsr write_large_tile
 
 	ldy #0
 	ldx #8
-	lda #BIGDOOR_TILE4 + 8
+	lda #BIGDOOR_TILE4 + TILE3 + BIGDOOR_PALETTE
 	jsr write_large_tile
 
 	jsr prepare_for_rendering
@@ -549,6 +559,13 @@ VAR blocky_bigdoor
 ;VAR blocky_chest
 ;	.word blocky_chest_interactable
 ;	.word blodky_chest_interact
+
+VAR blocky_palette
+	.byte $0f, $07, $17, $27
+	.byte $0f, $1d, $3d, $2d
+	.byte $0f, $07, $17, $27
+	.byte $0f, $07, $17, $27
+
 
 TILES bigdoor_tiles, 2, "tiles/cave/bigdoor.chr", 48
 TILES treasure_tiles, 2, "tiles/cave/chest.chr", 8
