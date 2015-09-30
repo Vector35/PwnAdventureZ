@@ -120,6 +120,32 @@ slotfound:
 	lda (ptr), y
 	sta enemy_speed_value, x
 
+	lda difficulty
+	cmp #1
+	beq hard
+	cmp #2
+	beq veryhard
+	ldy #ENEMY_DESC_HEALTH
+	lda (ptr), y
+	sta enemy_health, x
+	jmp done
+
+hard:
+	ldy #ENEMY_DESC_HEALTH
+	lda (ptr), y
+	asl
+	sta enemy_health, x
+	jmp done
+
+veryhard:
+	ldy #ENEMY_DESC_HEALTH
+	lda (ptr), y
+	asl
+	clc
+	adc temp
+	sta enemy_health, x
+
+done:
 	rts
 .endproc
 
@@ -1088,7 +1114,7 @@ next:
 .endproc
 
 
-PROC enemy_die
+PROC remove_enemy
 	ldx cur_enemy
 	lda #ENEMY_NONE
 	sta enemy_type, x
@@ -1208,6 +1234,42 @@ done:
 .endproc
 
 
+PROC enemy_damage
+	sta temp
+	ldx cur_enemy
+	lda enemy_health, x
+	sec
+	sbc temp
+	beq dead
+	bcc dead
+	sta enemy_health, x
+	rts
+
+dead:
+	; Enemy is dead, call the die callback
+	lda #0
+	sta enemy_health, x
+
+	lda enemy_type, x
+	asl
+	tay
+	lda enemy_descriptors, y
+	sta ptr
+	lda enemy_descriptors + 1, y
+	sta ptr + 1
+
+	ldy #ENEMY_DESC_DIE
+	lda (ptr), y
+	sta temp
+	ldy #ENEMY_DESC_DIE + 1
+	lda (ptr), y
+	sta temp + 1
+	jsr call_temp
+
+	rts
+.endproc
+
+
 .zeropage
 
 VAR cur_enemy
@@ -1230,6 +1292,11 @@ VAR enemy_x
 	.endrepeat
 
 VAR enemy_y
+	.repeat ENEMY_MAX_COUNT
+	.byte 0
+	.endrepeat
+
+VAR enemy_health
 	.repeat ENEMY_MAX_COUNT
 	.byte 0
 	.endrepeat

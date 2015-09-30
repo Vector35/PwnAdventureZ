@@ -200,6 +200,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define ENEMY_DESC_PALETTE     7
 .define ENEMY_DESC_SPEED_MASK  8
 .define ENEMY_DESC_SPEED_VALUE 9
+.define ENEMY_DESC_HEALTH      10
 
 
 ; Interaction types
@@ -225,13 +226,17 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define SPRITE_TILE_NORMAL_FEMALE_ZOMBIE $40
 .define SPRITE_TILE_FAT_ZOMBIE           $60
 
-.define SPRITE_TILE_BULLET        $f6
+.define SPRITE_TILE_BULLET        $f2
+.define SPRITE_TILE_BULLET_HIT    $f4
+.define SPRITE_TILE_BULLET_DAMAGE $f6
 .define SPRITE_TILE_INTERACT      $f8
 
 
 ; Effects
-.define EFFECT_PLAYER_BULLET 0
-.define EFFECT_NONE          $ff
+.define EFFECT_PLAYER_BULLET        0
+.define EFFECT_PLAYER_BULLET_DAMAGE 1
+.define EFFECT_PLAYER_BULLET_HIT    2
+.define EFFECT_NONE                 $ff
 
 .define EFFECT_MAX_COUNT     16
 
@@ -242,6 +247,8 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define EFFECT_DESC_TILE           8
 .define EFFECT_DESC_LARGE          9
 .define EFFECT_DESC_PALETTE        10
+.define EFFECT_DESC_COLLIDE_WIDTH  11
+.define EFFECT_DESC_COLLIDE_HEIGHT 12
 
 
 ; Save state header

@@ -854,11 +854,11 @@ nocooldown:
 notheld:
 	lda player_x
 	clc
-	adc #8
+	adc #7
 	sta arg0
 	lda player_y
 	clc
-	adc #8
+	adc #7
 	sta arg1
 	lda #EFFECT_PLAYER_BULLET
 	sta arg2
@@ -963,8 +963,39 @@ dead:
 
 
 PROC bullet_hit_enemy
-	jsr enemy_die
-	jsr remove_effect
+	lda #10
+	jsr enemy_damage
+
+	jsr player_bullet_tick
+
+	ldx cur_effect
+	dec effect_x, x
+	dec effect_x, x
+	dec effect_x, x
+	dec effect_y, x
+	dec effect_y, x
+	dec effect_y, x
+	lda #EFFECT_PLAYER_BULLET_DAMAGE
+	sta effect_type, x
+	lda #SPRITE_TILE_BULLET_DAMAGE
+	sta effect_tile, x
+	lda #0
+	sta effect_time, x
+
+	rts
+.endproc
+
+
+PROC bullet_hit_world
+	ldx cur_effect
+	dec effect_x, x
+	dec effect_y, x
+	lda #EFFECT_PLAYER_BULLET_HIT
+	sta effect_type, x
+	lda #SPRITE_TILE_BULLET_HIT
+	sta effect_tile, x
+	lda #0
+	sta effect_time, x
 	rts
 .endproc
 
@@ -1007,6 +1038,18 @@ notup:
 	inc effect_y, x
 
 notdown:
+	rts
+.endproc
+
+
+PROC player_bullet_hit_tick
+	ldx cur_effect
+	inc effect_time, x
+	lda effect_time, x
+	cmp #8
+	bne done
+	jsr remove_effect
+done:
 	rts
 .endproc
 
@@ -1138,9 +1181,28 @@ VAR player_bullet_descriptor
 	.word player_bullet_tick
 	.word nothing
 	.word bullet_hit_enemy
-	.word remove_effect
+	.word bullet_hit_world
 	.byte SPRITE_TILE_BULLET, 0
 	.byte 2
+	.byte 3, 3
+
+VAR player_bullet_hit_descriptor
+	.word player_bullet_hit_tick
+	.word nothing
+	.word nothing
+	.word nothing
+	.byte SPRITE_TILE_BULLET_HIT, 0
+	.byte 2
+	.byte 0, 0
+
+VAR player_bullet_damage_descriptor
+	.word player_bullet_hit_tick
+	.word nothing
+	.word nothing
+	.word nothing
+	.byte SPRITE_TILE_BULLET_DAMAGE, 0
+	.byte 3
+	.byte 0, 0
 
 TILES unarmed_player_tiles, 2, "tiles/characters/player/unarmed.chr", 32
 TILES interact_tiles, 2, "tiles/interact.chr", 8

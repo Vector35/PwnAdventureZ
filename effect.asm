@@ -25,8 +25,10 @@ loop:
 	ldx cur_effect
 	lda effect_type, x
 	cmp #EFFECT_NONE
-	beq next
+	bne valid
+	jmp next
 
+valid:
 	; Call the effect's tick function
 	lda effect_type, x
 	asl
@@ -44,13 +46,195 @@ loop:
 	sta temp + 1
 	jsr call_temp
 
+	; Ensure effect is still valid
+	ldx cur_effect
+	lda effect_type, x
+	cmp #EFFECT_NONE
+	bne collidepos
+	jmp next
+
+collidepos:
+	; Compute collision check position
+	lda effect_type, x
+	asl
+	tay
+	lda effect_descriptors, y
+	sta ptr
+	lda effect_descriptors + 1, y
+	sta ptr + 1
+
+	lda effect_direction, x
+	and #JOY_RIGHT
+	bne colliderightpos
+	lda effect_x, x
+	sta effect_collide_x
+	jmp checkvertpos
+colliderightpos:
+	ldy #EFFECT_DESC_COLLIDE_WIDTH
+	lda (ptr), y
+	clc
+	adc effect_x, x
+	sta effect_collide_x
+
+checkvertpos:
+	lda effect_direction, x
+	and #JOY_DOWN
+	bne collidedownpos
+	lda effect_y, x
+	sta effect_collide_y
+	jmp checkcollide
+collidedownpos:
+	ldy #EFFECT_DESC_COLLIDE_HEIGHT
+	lda (ptr), y
+	clc
+	adc effect_y, x
+	sta effect_collide_y
+
+	; Check for enemy collision
+checkcollide:
+	lda #0
+	sta cur_enemy
+
+enemyloop:
+	ldx cur_enemy
+	lda enemy_type, x
+	cmp #ENEMY_NONE
+	beq nextenemy
+
+	lda enemy_x, x
+	sec
+	sbc effect_collide_x
+	cmp #$f0
+	bcs xoverlapenemy
+	jmp nextenemy
+
+xoverlapenemy:
+	lda enemy_y, x
+	sec
+	sbc effect_collide_y
+	cmp #$f0
+	bcs yoverlapenemy
+	jmp nextenemy
+
+yoverlapenemy:
+	; Call the enemy collide function
+	ldx cur_effect
+	lda effect_type, x
+	asl
+	tay
+	lda effect_descriptors, y
+	sta ptr
+	lda effect_descriptors + 1, y
+	sta ptr + 1
+
+	ldy #EFFECT_DESC_ENEMY_COLLIDE
+	lda (ptr), y
+	sta temp
+	ldy #EFFECT_DESC_ENEMY_COLLIDE + 1
+	lda (ptr), y
+	sta temp + 1
+	jsr call_temp
+
+	; Ensure effect is still valid after callback
+	ldx cur_effect
+	lda effect_type, x
+	cmp #EFFECT_NONE
+	bne nextenemy
+	jmp next
+
+nextenemy:
+	ldx cur_enemy
+	inx
+	stx cur_enemy
+	cpx #ENEMY_MAX_COUNT
+	bne enemyloop
+
+	; Check for player collision
+	lda player_x
+	sec
+	sbc effect_collide_x
+	cmp #$f0
+	bcs xoverlapplayer
+	jmp noplayercollide
+
+xoverlapplayer:
+	lda player_y
+	sec
+	sbc effect_collide_y
+	cmp #$f0
+	bcs yoverlapplayer
+	jmp noplayercollide
+
+yoverlapplayer:
+	; Call the player collide function
+	ldx cur_effect
+	lda effect_type, x
+	asl
+	tay
+	lda effect_descriptors, y
+	sta ptr
+	lda effect_descriptors + 1, y
+	sta ptr + 1
+
+	ldy #EFFECT_DESC_PLAYER_COLLIDE
+	lda (ptr), y
+	sta temp
+	ldy #EFFECT_DESC_PLAYER_COLLIDE + 1
+	lda (ptr), y
+	sta temp + 1
+	jsr call_temp
+
+	; Ensure effect is still valid after callback
+	ldx cur_effect
+	lda effect_type, x
+	cmp #EFFECT_NONE
+	bne noplayercollide
+	jmp next
+
+	; Check for world collision
+noplayercollide:
+	lda effect_collide_x
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+	lda effect_collide_y
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+	jsr read_collision_at
+	bne next
+
+	; World collision detected, issue callback
+	ldx cur_effect
+	lda effect_type, x
+	asl
+	tay
+	lda effect_descriptors, y
+	sta ptr
+	lda effect_descriptors + 1, y
+	sta ptr + 1
+
+	ldy #EFFECT_DESC_WORLD_COLLIDE
+	lda (ptr), y
+	sta temp
+	ldy #EFFECT_DESC_WORLD_COLLIDE + 1
+	lda (ptr), y
+	sta temp + 1
+	jsr call_temp
+
 next:
 	ldx cur_effect
 	inx
 	stx cur_effect
 	cpx #EFFECT_MAX_COUNT
-	bne loop
+	beq done
+	jmp loop
 
+done:
 	rts
 .endproc
 
@@ -277,6 +461,11 @@ VAR next_effect_spawn_index
 VAR effect_sprite_rotation
 	.byte 0
 
+VAR effect_collide_x
+	.byte 0
+VAR effect_collide_y
+	.byte 0
+
 VAR effect_type
 	.repeat EFFECT_MAX_COUNT
 	.byte 0
@@ -312,6 +501,8 @@ VAR effect_time
 
 VAR effect_descriptors
 	.word player_bullet_descriptor
+	.word player_bullet_damage_descriptor
+	.word player_bullet_hit_descriptor
 
 
-TILES bullet_tiles, 2, "tiles/effects/bullet.chr", 2
+TILES bullet_tiles, 2, "tiles/effects/bullet.chr", 6

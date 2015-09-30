@@ -32,19 +32,21 @@ PROC fat_zombie_explode
 
 VAR normal_male_zombie_descriptor
 	.word walking_ai_tick
-	.word enemy_die
+	.word remove_enemy
 	.word normal_zombie_collide
 	.byte SPRITE_TILE_NORMAL_MALE_ZOMBIE
 	.byte 1
 	.byte 1, 0
+	.byte 20
 
 VAR normal_female_zombie_descriptor
 	.word walking_ai_tick
-	.word enemy_die
+	.word remove_enemy
 	.word normal_zombie_collide
 	.byte SPRITE_TILE_NORMAL_FEMALE_ZOMBIE
 	.byte 1
 	.byte 1, 0
+	.byte 20
 
 VAR fat_zombie_descriptor
 	.word walking_ai_tick
@@ -53,6 +55,7 @@ VAR fat_zombie_descriptor
 	.byte SPRITE_TILE_FAT_ZOMBIE
 	.byte 1
 	.byte 1, 0
+	.byte 30
 
 VAR zombie_palette
 	.byte $0f, $18, $28, $08
