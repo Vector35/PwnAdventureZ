@@ -56,12 +56,12 @@ next:
 
 
 PROC update_effect_sprites
-	; NES only supports 8 sprites per scan line, so rotate priority of enemy sprites
+	; NES only supports 8 sprites per scan line, so rotate priority of effect sprites
 	; to ensure all of them get screen time.  This will create the classic flicker
 	; effect when there is a lot going on.
 	lda effect_sprite_rotation
 	clc
-	adc #17
+	adc #7
 	sta effect_sprite_rotation
 
 	ldx #0

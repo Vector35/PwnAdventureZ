@@ -151,7 +151,7 @@ clearloop:
 	sta $6700, x
 	inx
 	bne clearloop
-	LOAD_PTR $6000
+	LOAD_PTR $6160
 	jsr clear_save_header
 	jsr disable_save_ram
 	rts
@@ -171,7 +171,7 @@ clearloop:
 	sta $6d00, x
 	inx
 	bne clearloop
-	LOAD_PTR $6020
+	LOAD_PTR $6180
 	jsr clear_save_header
 	jsr disable_save_ram
 	rts
@@ -191,7 +191,7 @@ clearloop:
 	sta $7300, x
 	inx
 	bne clearloop
-	LOAD_PTR $6040
+	LOAD_PTR $61a0
 	jsr clear_save_header
 	jsr disable_save_ram
 	rts
@@ -211,7 +211,7 @@ clearloop:
 	sta $7900, x
 	inx
 	bne clearloop
-	LOAD_PTR $6060
+	LOAD_PTR $61c0
 	jsr clear_save_header
 	jsr disable_save_ram
 	rts
@@ -231,7 +231,7 @@ clearloop:
 	sta $7f00, x
 	inx
 	bne clearloop
-	LOAD_PTR $6080
+	LOAD_PTR $61e0
 	jsr clear_save_header
 	jsr disable_save_ram
 	rts
@@ -304,7 +304,7 @@ saveloop:
 	inx
 	bne saveloop
 
-	LOAD_PTR $6000
+	LOAD_PTR $6160
 	jsr write_save_header
 
 	jsr disable_save_ram
@@ -333,7 +333,7 @@ saveloop:
 	inx
 	bne saveloop
 
-	LOAD_PTR $6020
+	LOAD_PTR $6180
 	jsr write_save_header
 
 	jsr disable_save_ram
@@ -362,7 +362,7 @@ saveloop:
 	inx
 	bne saveloop
 
-	LOAD_PTR $6040
+	LOAD_PTR $61a0
 	jsr write_save_header
 
 	jsr disable_save_ram
@@ -391,7 +391,7 @@ saveloop:
 	inx
 	bne saveloop
 
-	LOAD_PTR $6060
+	LOAD_PTR $61c0
 	jsr write_save_header
 
 	jsr disable_save_ram
@@ -420,7 +420,7 @@ saveloop:
 	inx
 	bne saveloop
 
-	LOAD_PTR $6080
+	LOAD_PTR $61e0
 	jsr write_save_header
 
 	jsr disable_save_ram
@@ -634,16 +634,16 @@ PROC is_save_slot_valid
 	asl
 	asl
 	tax
-	lda $6000, x
+	lda $6160, x
 	cmp #'P'
 	bne notvalid
-	lda $6001, x
+	lda $6161, x
 	cmp #'w'
 	bne notvalid
-	lda $6002, x
+	lda $6162, x
 	cmp #'n'
 	bne notvalid
-	lda $6003, x
+	lda $6163, x
 	cmp #'Z'
 
 notvalid:
