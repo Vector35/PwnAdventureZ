@@ -246,8 +246,6 @@ VAR rendering_enabled
 VAR ppu_settings
 	.byte 0
 
-
-.bss
 VAR vblank_count
 	.byte 0
 

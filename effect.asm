@@ -450,7 +450,7 @@ nowrap:
 .endproc
 
 
-.bss
+.segment "TEMP"
 
 VAR cur_effect
 	.byte 0

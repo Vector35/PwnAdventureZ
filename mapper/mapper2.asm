@@ -54,6 +54,11 @@ PROC is_save_slot_valid
 .endproc
 
 
+PROC validate_saves
+	rts
+.endproc
+
+
 .data
 VAR bankswitch_table
 	.byte 0, 1, 2, 3, 4, 5, 6, 7

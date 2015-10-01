@@ -257,6 +257,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define SAVE_HEADER_DIFFICULTY  $12
 .define SAVE_HEADER_KEY_COUNT   $13
 .define SAVE_HEADER_TIME_PLAYED $14
+.define SAVE_HEADER_CHECKSUM    $1e
 
 
 ; Globally accessible zero page variables
@@ -264,17 +265,14 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .global ptr ; For manipulating pointers
 .global temp ; 2 byte temporary
 .global arg0, arg1, arg2, arg3, arg4, arg5
+.global vblank_count
 
 .global rendering_enabled
 .global ppu_settings
 
 .global controller
 
-.global player_x, player_y, player_direction, player_anim_frame
-.global player_damage_flash_time, player_palette
-.global player_left_tile, player_right_tile, player_up_tile, player_down_tile
-.global interaction_type, interaction_sprite_x, interaction_sprite_y, interaction_tile_x, interaction_tile_y
-.global possible_interaction_tile_x, possible_interaction_tile_y
+.global player_x, player_y
 .global player_health
 
 .global cur_enemy

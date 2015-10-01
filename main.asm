@@ -4,41 +4,8 @@
 
 PROC main
 	; First check the save RAM and clear any invalid saves
-	lda #0
-	jsr is_save_slot_valid
-	beq slot0valid
-	lda #0
-	jsr clear_slot
+	jsr validate_saves
 
-slot0valid:
-	lda #1
-	jsr is_save_slot_valid
-	beq slot1valid
-	lda #1
-	jsr clear_slot
-
-slot1valid:
-	lda #2
-	jsr is_save_slot_valid
-	beq slot2valid
-	lda #2
-	jsr clear_slot
-
-slot2valid:
-	lda #3
-	jsr is_save_slot_valid
-	beq slot3valid
-	lda #3
-	jsr clear_slot
-
-slot3valid:
-	lda #4
-	jsr is_save_slot_valid
-	beq slot4valid
-	lda #4
-	jsr clear_slot
-
-slot4valid:
 	jsr title
 
 	jsr has_save_ram
@@ -49,6 +16,16 @@ slot4valid:
 	; Ensure the entire RAM, including the scratch area below the stack, is in a
 	; known state to prevent all possibility of cross-save contamination
 	jsr zero_unused_stack_page
+
+	; Clear temporary RAM
+	ldx #0
+	lda #0
+cleartemp:
+	sta $0500, x
+	sta $0600, x
+	sta $0700, x
+	inx
+	bne cleartemp
 
 	lda start_new_game
 	cmp #0
@@ -542,11 +519,14 @@ VAR time_played
 VAR key_count
 	.byte 0
 
-VAR new_game_difficulty
-	.byte 0
-
 VAR death_count
 	.byte 0, 0, 0
+
+
+.segment "TEMP"
+
+VAR new_game_difficulty
+	.byte 0
 
 VAR selection
 	.byte 0

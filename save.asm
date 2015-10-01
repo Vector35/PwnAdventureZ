@@ -16,26 +16,26 @@ PROC save_select
 	; Draw UI box for save select
 	lda #3
 	sta arg0
-	lda #6
+	lda #8
 	sta arg1
 	lda #27
 	sta arg2
-	lda #21
+	lda #19
 	sta arg3
 	jsr draw_large_box
 
 	LOAD_PTR save_select_title
 	ldx #8
-	ldy #6
+	ldy #8
 	jsr write_string
 
 	lda #2
 	sta arg0
-	lda #3
+	lda #4
 	sta arg1
 	lda #14
 	sta arg2
-	lda #11
+	lda #10
 	sta arg3
 	lda #0
 	sta arg4
@@ -43,11 +43,11 @@ PROC save_select
 
 	lda #3
 	sta arg0
-	lda #4
+	lda #5
 	sta arg1
 	lda #4
 	sta arg2
-	lda #8
+	lda #7
 	sta arg3
 	lda #3
 	sta arg4
@@ -55,11 +55,11 @@ PROC save_select
 
 	lda #5
 	sta arg0
-	lda #4
+	lda #5
 	sta arg1
 	lda #11
 	sta arg2
-	lda #8
+	lda #7
 	sta arg3
 	lda #1
 	sta arg4
@@ -92,7 +92,7 @@ gameloop:
 	lda arg0
 	asl
 	clc
-	adc #8
+	adc #10
 	tay
 	jsr write_string
 
@@ -107,7 +107,7 @@ gameloop:
 	lda arg0
 	asl
 	clc
-	adc #8
+	adc #10
 	tay
 	jsr write_string
 
@@ -125,9 +125,9 @@ validsave:
 	asl
 	tay
 
-	lda $6160 + SAVE_HEADER_DIFFICULTY, y
+	lda $62a0 + SAVE_HEADER_DIFFICULTY, y
 	sta difficulty
-	lda $6160 + SAVE_HEADER_KEY_COUNT, y
+	lda $62a0 + SAVE_HEADER_KEY_COUNT, y
 	sta key_count
 
 	tya
@@ -135,7 +135,7 @@ validsave:
 
 	ldx #0
 nameloop:
-	lda $6160 + SAVE_HEADER_NAME, y
+	lda $62a0 + SAVE_HEADER_NAME, y
 	sta name, x
 	inx
 	iny
@@ -146,7 +146,7 @@ nameloop:
 	tay
 	ldx #0
 timeloop:
-	lda $6160 + SAVE_HEADER_TIME_PLAYED, y
+	lda $62a0 + SAVE_HEADER_TIME_PLAYED, y
 	sta time_played, x
 	inx
 	iny
@@ -161,7 +161,7 @@ timeloop:
 	lda arg0
 	asl
 	clc
-	adc #8
+	adc #10
 	tay
 	jsr write_string	
 
@@ -177,7 +177,7 @@ timeloop:
 	lda arg0
 	asl
 	clc
-	adc #9
+	adc #11
 	tay
 	lda #7
 	jsr write_tiles
@@ -194,7 +194,7 @@ timeloop:
 	lda arg0
 	asl
 	clc
-	adc #9
+	adc #11
 	tay
 	lda #2
 	jsr write_tiles
@@ -364,7 +364,7 @@ minuteloop:
 	lda arg0
 	asl
 	clc
-	adc #9
+	adc #11
 	tay
 	lda #3
 	jsr write_tiles
@@ -373,14 +373,14 @@ nextslot:
 	ldy arg0
 	iny
 	sty arg0
-	cpy #5
+	cpy #3
 	beq savedone
 	jmp gameloop
 
 savedone:
 	LOAD_PTR delete_str
 	ldx #9
-	ldy #19
+	ldy #17
 	jsr write_string
 
 	; Use 8x8 sprites on first CHR page
@@ -422,7 +422,7 @@ up:
 	stx active_save_slot
 	cpx #$ff
 	bne movedone
-	lda #5
+	lda #3
 	sta active_save_slot
 	jmp movedone
 
@@ -432,7 +432,7 @@ down:
 	ldx active_save_slot
 	inx
 	stx active_save_slot
-	cpx #6
+	cpx #4
 	bne movedone
 	lda #0
 	sta active_save_slot
@@ -450,7 +450,7 @@ waitfordepress:
 
 activate:
 	lda active_save_slot
-	cmp #5
+	cmp #3
 	bne activateslot
 
 	; Delete mode was selected, toggle delete mode
@@ -470,7 +470,7 @@ activate:
 	jsr wait_for_vblank
 	LOAD_PTR cancel_delete_str
 	ldx #9
-	ldy #19
+	ldy #17
 	jsr write_string
 	jsr prepare_for_rendering
 	jmp waitfordepress
@@ -487,7 +487,7 @@ exitdeletemode:
 	jsr wait_for_vblank
 	LOAD_PTR delete_str
 	ldx #9
-	ldy #19
+	ldy #17
 	jsr write_string
 	jsr prepare_for_rendering
 	jmp waitfordepress
@@ -507,7 +507,7 @@ activateslot:
 	lda active_save_slot
 	asl
 	clc
-	adc #8
+	adc #10
 	tay
 	jsr write_string
 	jsr prepare_for_rendering
@@ -518,7 +518,7 @@ activateslot:
 	lda active_save_slot
 	asl
 	clc
-	adc #9
+	adc #11
 	tay
 	jsr write_string
 	jsr prepare_for_rendering
@@ -554,16 +554,16 @@ newgame:
 
 PROC get_y_for_save_slot
 	lda active_save_slot
-	cmp #5
+	cmp #3
 	beq delete
 	asl
 	clc
-	adc #8
+	adc #10
 	tay
 	rts
 
 delete:
-	ldy #19
+	ldy #17
 	rts
 .endproc
 
@@ -1071,7 +1071,7 @@ copyloop:
 .endproc
 
 
-.bss
+.segment "TEMP"
 VAR delete_mode
 	.byte 0
 
@@ -1105,8 +1105,6 @@ VAR slot_str
 	.byte "1: ", 0
 	.byte "2: ", 0
 	.byte "3: ", 0
-	.byte "4: ", 0
-	.byte "5: ", 0
 
 VAR new_game_str
 	.byte $2a, $2a, " NEW GAME ", $2a, $2a, 0

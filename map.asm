@@ -2009,7 +2009,7 @@ notravelright:
 .endproc
 
 
-.bss
+.segment "TEMP"
 VAR game_palette
 	.byte 0, 0, 0, 0
 	.byte 0, 0, 0, 0

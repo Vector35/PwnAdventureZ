@@ -417,14 +417,16 @@ PROC starting_chest_interact
 
 
 .bss
+VAR starting_chest_opened
+	.byte 0
+
+
+.segment "TEMP"
 VAR border_tile_base
 	.byte 0
 VAR border_tile_interior
 	.byte 0
 VAR border_tile_wall
-	.byte 0
-
-VAR starting_chest_opened
 	.byte 0
 
 

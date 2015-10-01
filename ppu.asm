@@ -638,7 +638,7 @@ tileloop:
 .endproc
 
 
-.bss
+.segment "TEMP"
 
 VAR active_palette
 	.byte 0, 0, 0, 0

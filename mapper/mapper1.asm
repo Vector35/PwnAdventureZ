@@ -143,15 +143,22 @@ PROC clear_slot_0
 	ldx #0
 	lda #0
 clearloop:
-	sta $6200, x
 	sta $6300, x
 	sta $6400, x
 	sta $6500, x
-	sta $6600, x
-	sta $6700, x
+	sta $6d00, x
+	sta $6e00, x
+	sta $6f00, x
+	sta $7700, x
+	sta $7800, x
+	sta $7900, x
 	inx
 	bne clearloop
-	LOAD_PTR $6160
+	LOAD_PTR $62a0
+	jsr clear_save_header
+	LOAD_PTR $6ca0
+	jsr clear_save_header
+	LOAD_PTR $76a0
 	jsr clear_save_header
 	jsr disable_save_ram
 	rts
@@ -163,15 +170,22 @@ PROC clear_slot_1
 	ldx #0
 	lda #0
 clearloop:
+	sta $6600, x
+	sta $6700, x
 	sta $6800, x
-	sta $6900, x
-	sta $6a00, x
-	sta $6b00, x
-	sta $6c00, x
-	sta $6d00, x
+	sta $7000, x
+	sta $7100, x
+	sta $7200, x
+	sta $7a00, x
+	sta $7b00, x
+	sta $7c00, x
 	inx
 	bne clearloop
-	LOAD_PTR $6180
+	LOAD_PTR $62c0
+	jsr clear_save_header
+	LOAD_PTR $6cc0
+	jsr clear_save_header
+	LOAD_PTR $76c0
 	jsr clear_save_header
 	jsr disable_save_ram
 	rts
@@ -183,57 +197,81 @@ PROC clear_slot_2
 	ldx #0
 	lda #0
 clearloop:
-	sta $6e00, x
-	sta $6f00, x
-	sta $7000, x
-	sta $7100, x
-	sta $7200, x
+	sta $6900, x
+	sta $6a00, x
+	sta $6b00, x
 	sta $7300, x
-	inx
-	bne clearloop
-	LOAD_PTR $61a0
-	jsr clear_save_header
-	jsr disable_save_ram
-	rts
-.endproc
-
-
-PROC clear_slot_3
-	jsr enable_save_ram
-	ldx #0
-	lda #0
-clearloop:
 	sta $7400, x
 	sta $7500, x
-	sta $7600, x
-	sta $7700, x
-	sta $7800, x
-	sta $7900, x
-	inx
-	bne clearloop
-	LOAD_PTR $61c0
-	jsr clear_save_header
-	jsr disable_save_ram
-	rts
-.endproc
-
-
-PROC clear_slot_4
-	jsr enable_save_ram
-	ldx #0
-	lda #0
-clearloop:
-	sta $7a00, x
-	sta $7b00, x
-	sta $7c00, x
 	sta $7d00, x
 	sta $7e00, x
 	sta $7f00, x
 	inx
 	bne clearloop
-	LOAD_PTR $61e0
+	LOAD_PTR $62e0
+	jsr clear_save_header
+	LOAD_PTR $6ce0
+	jsr clear_save_header
+	LOAD_PTR $76e0
 	jsr clear_save_header
 	jsr disable_save_ram
+	rts
+.endproc
+
+
+PROC update_checksum
+	eor checksum
+	sta checksum
+
+	ldx #0
+loop:
+	lda checksum
+	and #1
+	bne one
+
+	clc
+	ror checksum + 1
+	ror checksum
+	jmp next
+
+one:
+	clc
+	ror checksum + 1
+	ror checksum
+	lda checksum
+	eor #1
+	sta checksum
+	lda checksum + 1
+	eor #$a0
+	sta checksum + 1
+
+next:
+	inx
+	cpx #8
+	bne loop
+
+	rts
+.endproc
+
+
+PROC update_header_checksum
+	ldy #0
+updateloop:
+	lda (ptr), y
+	jsr update_checksum
+	iny
+	cpy #SAVE_HEADER_CHECKSUM
+	bne updateloop
+	rts
+.endproc
+
+
+PROC write_header_checksum
+	lda checksum
+	sta (ptr), y
+	iny
+	lda checksum + 1
+	sta (ptr), y
 	rts
 .endproc
 
@@ -286,26 +324,63 @@ timeloop:
 PROC save_ram_to_slot_0
 	jsr enable_save_ram
 
-	ldx #0
-saveloop:
-	lda $0000, x
-	sta $6200, x
-	; Skip stack and sprite pages
-	lda $0300, x
-	sta $6300, x
-	lda $0400, x
-	sta $6400, x
-	lda $0500, x
-	sta $6500, x
-	lda $0600, x
-	sta $6600, x
-	lda $0700, x
-	sta $6700, x
-	inx
-	bne saveloop
+	lda #0
+	sta checksum
+	sta checksum + 1
+	ldy #0
+saveloop1:
+	lda $0000, y
+	sta $6300, y
+	jsr update_checksum
+	lda $0300, y
+	sta $6400, y
+	jsr update_checksum
+	lda $0400, y
+	sta $6500, y
+	jsr update_checksum
+	iny
+	bne saveloop1
 
-	LOAD_PTR $6160
+	LOAD_PTR $62a0
 	jsr write_save_header
+	jsr update_header_checksum
+	jsr write_header_checksum
+
+	lda #0
+	sta checksum
+	sta checksum + 1
+	ldy #0
+saveloop2:
+	lda $0000, y
+	sta $6d00, y
+	lda $0300, y
+	sta $6e00, y
+	lda $0400, y
+	sta $6f00, y
+	iny
+	bne saveloop2
+
+	LOAD_PTR $6ca0
+	jsr write_save_header
+	jsr write_header_checksum
+
+	lda #0
+	sta checksum
+	sta checksum + 1
+	ldy #0
+saveloop3:
+	lda $0000, y
+	sta $7700, y
+	lda $0300, y
+	sta $7800, y
+	lda $0400, y
+	sta $7900, y
+	iny
+	bne saveloop3
+
+	LOAD_PTR $76a0
+	jsr write_save_header
+	jsr write_header_checksum
 
 	jsr disable_save_ram
 	rts
@@ -315,26 +390,63 @@ saveloop:
 PROC save_ram_to_slot_1
 	jsr enable_save_ram
 
-	ldx #0
-saveloop:
-	lda $0000, x
-	sta $6800, x
-	; Skip stack and sprite pages
-	lda $0300, x
-	sta $6900, x
-	lda $0400, x
-	sta $6a00, x
-	lda $0500, x
-	sta $6b00, x
-	lda $0600, x
-	sta $6c00, x
-	lda $0700, x
-	sta $6d00, x
-	inx
-	bne saveloop
+	lda #0
+	sta checksum
+	sta checksum + 1
+	ldy #0
+saveloop1:
+	lda $0000, y
+	sta $6600, y
+	jsr update_checksum
+	lda $0300, y
+	sta $6700, y
+	jsr update_checksum
+	lda $0400, y
+	sta $6800, y
+	jsr update_checksum
+	iny
+	bne saveloop1
 
-	LOAD_PTR $6180
+	LOAD_PTR $62c0
 	jsr write_save_header
+	jsr update_header_checksum
+	jsr write_header_checksum
+
+	lda #0
+	sta checksum
+	sta checksum + 1
+	ldy #0
+saveloop2:
+	lda $0000, y
+	sta $7000, y
+	lda $0300, y
+	sta $7100, y
+	lda $0400, y
+	sta $7200, y
+	iny
+	bne saveloop2
+
+	LOAD_PTR $6cc0
+	jsr write_save_header
+	jsr write_header_checksum
+
+	lda #0
+	sta checksum
+	sta checksum + 1
+	ldy #0
+saveloop3:
+	lda $0000, y
+	sta $7a00, y
+	lda $0300, y
+	sta $7b00, y
+	lda $0400, y
+	sta $7c00, y
+	iny
+	bne saveloop3
+
+	LOAD_PTR $76c0
+	jsr write_save_header
+	jsr write_header_checksum
 
 	jsr disable_save_ram
 	rts
@@ -344,84 +456,64 @@ saveloop:
 PROC save_ram_to_slot_2
 	jsr enable_save_ram
 
-	ldx #0
-saveloop:
-	lda $0000, x
-	sta $6e00, x
-	; Skip stack and sprite pages
-	lda $0300, x
-	sta $6f00, x
-	lda $0400, x
-	sta $7000, x
-	lda $0500, x
-	sta $7100, x
-	lda $0600, x
-	sta $7200, x
-	lda $0700, x
-	sta $7300, x
-	inx
-	bne saveloop
 
-	LOAD_PTR $61a0
+	lda #0
+	sta checksum
+	sta checksum + 1
+	ldy #0
+saveloop1:
+	lda $0000, y
+	sta $6900, y
+	jsr update_checksum
+	lda $0300, y
+	sta $6a00, y
+	jsr update_checksum
+	lda $0400, y
+	sta $6b00, y
+	jsr update_checksum
+	iny
+	bne saveloop1
+
+	LOAD_PTR $62e0
 	jsr write_save_header
+	jsr update_header_checksum
+	jsr write_header_checksum
 
-	jsr disable_save_ram
-	rts
-.endproc
+	lda #0
+	sta checksum
+	sta checksum + 1
+	ldy #0
+saveloop2:
+	lda $0000, y
+	sta $7300, y
+	lda $0300, y
+	sta $7400, y
+	lda $0400, y
+	sta $7500, y
+	iny
+	bne saveloop2
 
-
-PROC save_ram_to_slot_3
-	jsr enable_save_ram
-
-	ldx #0
-saveloop:
-	lda $0000, x
-	sta $7400, x
-	; Skip stack and sprite pages
-	lda $0300, x
-	sta $7500, x
-	lda $0400, x
-	sta $7600, x
-	lda $0500, x
-	sta $7700, x
-	lda $0600, x
-	sta $7800, x
-	lda $0700, x
-	sta $7900, x
-	inx
-	bne saveloop
-
-	LOAD_PTR $61c0
+	LOAD_PTR $6ce0
 	jsr write_save_header
+	jsr write_header_checksum
 
-	jsr disable_save_ram
-	rts
-.endproc
+	lda #0
+	sta checksum
+	sta checksum + 1
+	ldy #0
+saveloop3:
+	lda $0000, y
+	sta $7d00, y
+	lda $0300, y
+	sta $7e00, y
+	lda $0400, y
+	sta $7f00, y
+	iny
+	bne saveloop3
 
-
-PROC save_ram_to_slot_4
-	jsr enable_save_ram
-
-	ldx #0
-saveloop:
-	lda $0000, x
-	sta $7a00, x
-	; Skip stack and sprite pages
-	lda $0300, x
-	sta $7b00, x
-	lda $0400, x
-	sta $7c00, x
-	lda $0500, x
-	sta $7d00, x
-	lda $0600, x
-	sta $7e00, x
-	lda $0700, x
-	sta $7f00, x
-	inx
-	bne saveloop
-
-	LOAD_PTR $61e0
+	LOAD_PTR $76e0
 	jsr write_save_header
+	jsr write_header_checksum
 
 	jsr disable_save_ram
 	rts
@@ -433,19 +525,12 @@ PROC restore_ram_from_slot_0
 
 	ldx #0
 saveloop:
-	lda $6200, x
-	sta $0000, x
-	; Skip stack and sprite pages
 	lda $6300, x
-	sta $0300, x
+	sta $0000, x
 	lda $6400, x
-	sta $0400, x
+	sta $0300, x
 	lda $6500, x
-	sta $0500, x
-	lda $6600, x
-	sta $0600, x
-	lda $6700, x
-	sta $0700, x
+	sta $0400, x
 	inx
 	bne saveloop
 
@@ -459,19 +544,12 @@ PROC restore_ram_from_slot_1
 
 	ldx #0
 saveloop:
-	lda $6800, x
+	lda $6600, x
 	sta $0000, x
-	; Skip stack and sprite pages
-	lda $6900, x
+	lda $6700, x
 	sta $0300, x
-	lda $6a00, x
+	lda $6800, x
 	sta $0400, x
-	lda $6b00, x
-	sta $0500, x
-	lda $6c00, x
-	sta $0600, x
-	lda $6d00, x
-	sta $0700, x
 	inx
 	bne saveloop
 
@@ -485,71 +563,12 @@ PROC restore_ram_from_slot_2
 
 	ldx #0
 saveloop:
-	lda $6e00, x
+	lda $6900, x
 	sta $0000, x
-	; Skip stack and sprite pages
-	lda $6f00, x
+	lda $6a00, x
 	sta $0300, x
-	lda $7000, x
+	lda $6b00, x
 	sta $0400, x
-	lda $7100, x
-	sta $0500, x
-	lda $7200, x
-	sta $0600, x
-	lda $7300, x
-	sta $0700, x
-	inx
-	bne saveloop
-
-	jsr disable_save_ram
-	rts
-.endproc
-
-
-PROC restore_ram_from_slot_3
-	jsr enable_save_ram
-
-	ldx #0
-saveloop:
-	lda $7400, x
-	sta $0000, x
-	; Skip stack and sprite pages
-	lda $7500, x
-	sta $0300, x
-	lda $7600, x
-	sta $0400, x
-	lda $7700, x
-	sta $0500, x
-	lda $7800, x
-	sta $0600, x
-	lda $7900, x
-	sta $0700, x
-	inx
-	bne saveloop
-
-	jsr disable_save_ram
-	rts
-.endproc
-
-
-PROC restore_ram_from_slot_4
-	jsr enable_save_ram
-
-	ldx #0
-saveloop:
-	lda $7a00, x
-	sta $0000, x
-	; Skip stack and sprite pages
-	lda $7b00, x
-	sta $0300, x
-	lda $7c00, x
-	sta $0400, x
-	lda $7d00, x
-	sta $0500, x
-	lda $7e00, x
-	sta $0600, x
-	lda $7f00, x
-	sta $0700, x
 	inx
 	bne saveloop
 
@@ -563,19 +582,11 @@ PROC clear_slot
 	beq slot1
 	cmp #2
 	beq slot2
-	cmp #3
-	beq slot3
-	cmp #4
-	beq slot4
 	jmp clear_slot_0
 slot1:
 	jmp clear_slot_1
 slot2:
 	jmp clear_slot_2
-slot3:
-	jmp clear_slot_3
-slot4:
-	jmp clear_slot_4
 .endproc
 
 
@@ -584,19 +595,11 @@ PROC save_ram_to_slot
 	beq slot1
 	cmp #2
 	beq slot2
-	cmp #3
-	beq slot3
-	cmp #4
-	beq slot4
 	jmp save_ram_to_slot_0
 slot1:
 	jmp save_ram_to_slot_1
 slot2:
 	jmp save_ram_to_slot_2
-slot3:
-	jmp save_ram_to_slot_3
-slot4:
-	jmp save_ram_to_slot_4
 .endproc
 
 
@@ -605,19 +608,11 @@ PROC restore_ram_from_slot
 	beq slot1
 	cmp #2
 	beq slot2
-	cmp #3
-	beq slot3
-	cmp #4
-	beq slot4
 	jmp restore_ram_from_slot_0
 slot1:
 	jmp restore_ram_from_slot_1
 slot2:
 	jmp restore_ram_from_slot_2
-slot3:
-	jmp restore_ram_from_slot_3
-slot4:
-	jmp restore_ram_from_slot_4
 .endproc
 
 
@@ -634,22 +629,666 @@ PROC is_save_slot_valid
 	asl
 	asl
 	tax
-	lda $6160, x
+	lda $62a0, x
 	cmp #'P'
 	bne notvalid
-	lda $6161, x
+	lda $62a1, x
 	cmp #'w'
 	bne notvalid
-	lda $6162, x
+	lda $62a2, x
 	cmp #'n'
 	bne notvalid
-	lda $6163, x
+	lda $62a3, x
 	cmp #'Z'
 
 notvalid:
 	php
 	jsr disable_save_ram
 	plp
+	rts
+.endproc
+
+
+PROC validate_saves
+	; Check primary copy of save slot 0 for accuracy
+	jsr enable_save_ram
+
+	lda $62a0
+	cmp #'P'
+	bne save0aheadernotvalid
+	lda $62a1
+	cmp #'w'
+	bne save0aheadernotvalid
+	lda $62a2
+	cmp #'n'
+	bne save0aheadernotvalid
+	lda $62a3
+	cmp #'Z'
+	bne save0aheadernotvalid
+	jmp save0aheadervalid
+
+save0aheadernotvalid:
+	jmp save0anotvalid
+
+save0aheadervalid:
+	lda #0
+	sta checksum
+	sta checksum + 1
+	ldy #0
+checksumloop0a:
+	lda $6300, y
+	jsr update_checksum
+	lda $6400, y
+	jsr update_checksum
+	lda $6500, y
+	jsr update_checksum
+	iny
+	bne checksumloop0a
+	LOAD_PTR $62a0
+	jsr update_header_checksum
+
+	lda checksum
+	cmp $62a0 + SAVE_HEADER_CHECKSUM
+	bne save0anotvalid
+	lda checksum + 1
+	cmp $62a0 + SAVE_HEADER_CHECKSUM + 1
+	bne save0anotvalid
+
+	; First save is valid, copy to backup locations to ensure they are valid as well
+	ldy #0
+copyloop0a:
+	lda $6300, y
+	sta $6d00, y
+	sta $7700, y
+	lda $6400, y
+	sta $6e00, y
+	sta $7800, y
+	lda $6500, y
+	sta $6f00, y
+	sta $7900, y
+	iny
+	bne copyloop0a
+
+	ldy #0
+headerloop0a:
+	lda $62a0, y
+	sta $6ca0, y
+	sta $76a0, y
+	iny
+	cpy #$20
+	bne headerloop0a
+
+	jmp checksave1
+
+save0anotvalid:
+	; Check second copy of save slot 0 for accuracy
+	lda $6ca0
+	cmp #'P'
+	bne save0bheadernotvalid
+	lda $6ca1
+	cmp #'w'
+	bne save0bheadernotvalid
+	lda $6ca2
+	cmp #'n'
+	bne save0bheadernotvalid
+	lda $6ca3
+	cmp #'Z'
+	bne save0bheadernotvalid
+	jmp save0bheadervalid
+
+save0bheadernotvalid:
+	jmp save0bnotvalid
+
+save0bheadervalid:
+	lda #0
+	sta checksum
+	sta checksum + 1
+	ldy #0
+checksumloop0b:
+	lda $6d00, y
+	jsr update_checksum
+	lda $6e00, y
+	jsr update_checksum
+	lda $6f00, y
+	jsr update_checksum
+	iny
+	bne checksumloop0b
+	LOAD_PTR $6ca0
+	jsr update_header_checksum
+
+	lda checksum
+	cmp $6ca0 + SAVE_HEADER_CHECKSUM
+	bne save0bnotvalid
+	lda checksum + 1
+	cmp $6ca0 + SAVE_HEADER_CHECKSUM + 1
+	bne save0bnotvalid
+
+	; Second save is valid, copy to backup locations to ensure they are valid as well
+	ldy #0
+copyloop0b:
+	lda $6d00, y
+	sta $6300, y
+	sta $7700, y
+	lda $6e00, y
+	sta $6400, y
+	sta $7800, y
+	lda $6f00, y
+	sta $6500, y
+	sta $7900, y
+	iny
+	bne copyloop0b
+
+	ldy #0
+headerloop0b:
+	lda $6ca0, y
+	sta $62a0, y
+	sta $76a0, y
+	iny
+	cpy #$20
+	bne headerloop0b
+
+	jmp checksave1
+
+save0bnotvalid:
+	; Check third copy of save slot 0 for accuracy
+	lda $76a0
+	cmp #'P'
+	bne save0cheadernotvalid
+	lda $76a1
+	cmp #'w'
+	bne save0cheadernotvalid
+	lda $76a2
+	cmp #'n'
+	bne save0cheadernotvalid
+	lda $76a3
+	cmp #'Z'
+	bne save0cheadernotvalid
+	jmp save0cheadervalid
+
+save0cheadernotvalid:
+	jmp save0cnotvalid
+
+save0cheadervalid:
+	lda #0
+	sta checksum
+	sta checksum + 1
+	ldy #0
+checksumloop0c:
+	lda $7700, y
+	jsr update_checksum
+	lda $7800, y
+	jsr update_checksum
+	lda $7900, y
+	jsr update_checksum
+	iny
+	bne checksumloop0c
+	LOAD_PTR $76a0
+	jsr update_header_checksum
+
+	lda checksum
+	cmp $76a0 + SAVE_HEADER_CHECKSUM
+	bne save0cnotvalid
+	lda checksum + 1
+	cmp $76a0 + SAVE_HEADER_CHECKSUM + 1
+	bne save0cnotvalid
+
+	; Third save is valid, copy to backup locations to ensure they are valid as well
+	ldy #0
+copyloop0c:
+	lda $7700, y
+	sta $6300, y
+	sta $6d00, y
+	lda $7800, y
+	sta $6400, y
+	sta $6e00, y
+	lda $7900, y
+	sta $6500, y
+	sta $6f00, y
+	iny
+	bne copyloop0c
+
+	ldy #0
+headerloop0c:
+	lda $76a0, y
+	sta $62a0, y
+	sta $6ca0, y
+	iny
+	cpy #$20
+	bne headerloop0c
+
+	jmp checksave1
+
+save0cnotvalid:
+	; No valid saves for slot 0, clear it
+	jsr clear_slot_0
+	jsr enable_save_ram
+
+checksave1:
+	; Check primary copy of save slot 1 for accuracy
+	lda $62c0
+	cmp #'P'
+	bne save1aheadernotvalid
+	lda $62c1
+	cmp #'w'
+	bne save1aheadernotvalid
+	lda $62c2
+	cmp #'n'
+	bne save1aheadernotvalid
+	lda $62c3
+	cmp #'Z'
+	bne save1aheadernotvalid
+	jmp save1aheadervalid
+
+save1aheadernotvalid:
+	jmp save1anotvalid
+
+save1aheadervalid:
+	lda #0
+	sta checksum
+	sta checksum + 1
+	ldy #0
+checksumloop1a:
+	lda $6600, y
+	jsr update_checksum
+	lda $6700, y
+	jsr update_checksum
+	lda $6800, y
+	jsr update_checksum
+	iny
+	bne checksumloop1a
+	LOAD_PTR $62c0
+	jsr update_header_checksum
+
+	lda checksum
+	cmp $62c0 + SAVE_HEADER_CHECKSUM
+	bne save1anotvalid
+	lda checksum + 1
+	cmp $62c0 + SAVE_HEADER_CHECKSUM + 1
+	bne save1anotvalid
+
+	; First save is valid, copy to backup locations to ensure they are valid as well
+	ldy #0
+copyloop1a:
+	lda $6600, y
+	sta $7000, y
+	sta $7a00, y
+	lda $6700, y
+	sta $7100, y
+	sta $7b00, y
+	lda $6800, y
+	sta $7200, y
+	sta $7c00, y
+	iny
+	bne copyloop1a
+
+	ldy #0
+headerloop1a:
+	lda $62c0, y
+	sta $6cc0, y
+	sta $76c0, y
+	iny
+	cpy #$20
+	bne headerloop1a
+
+	jmp checksave2
+
+save1anotvalid:
+	; Check second copy of save slot 1 for accuracy
+	lda $6cc0
+	cmp #'P'
+	bne save1bheadernotvalid
+	lda $6cc1
+	cmp #'w'
+	bne save1bheadernotvalid
+	lda $6cc2
+	cmp #'n'
+	bne save1bheadernotvalid
+	lda $6cc3
+	cmp #'Z'
+	bne save1bheadernotvalid
+	jmp save1bheadervalid
+
+save1bheadernotvalid:
+	jmp save1bnotvalid
+
+save1bheadervalid:
+	lda #0
+	sta checksum
+	sta checksum + 1
+	ldy #0
+checksumloop1b:
+	lda $7000, y
+	jsr update_checksum
+	lda $7100, y
+	jsr update_checksum
+	lda $7200, y
+	jsr update_checksum
+	iny
+	bne checksumloop1b
+	LOAD_PTR $6cc0
+	jsr update_header_checksum
+
+	lda checksum
+	cmp $6cc0 + SAVE_HEADER_CHECKSUM
+	bne save1bnotvalid
+	lda checksum + 1
+	cmp $6cc0 + SAVE_HEADER_CHECKSUM + 1
+	bne save1bnotvalid
+
+	; Second save is valid, copy to backup locations to ensure they are valid as well
+	ldy #0
+copyloop1b:
+	lda $7000, y
+	sta $6600, y
+	sta $7a00, y
+	lda $7100, y
+	sta $6700, y
+	sta $7b00, y
+	lda $7200, y
+	sta $6800, y
+	sta $7c00, y
+	iny
+	bne copyloop1b
+
+	ldy #0
+headerloop1b:
+	lda $6cc0, y
+	sta $62c0, y
+	sta $76c0, y
+	iny
+	cpy #$20
+	bne headerloop1b
+
+	jmp checksave2
+
+save1bnotvalid:
+	; Check third copy of save slot 1 for accuracy
+	lda $76c0
+	cmp #'P'
+	bne save1cheadernotvalid
+	lda $76c1
+	cmp #'w'
+	bne save1cheadernotvalid
+	lda $76c2
+	cmp #'n'
+	bne save1cheadernotvalid
+	lda $76c3
+	cmp #'Z'
+	bne save1cheadernotvalid
+	jmp save1cheadervalid
+
+save1cheadernotvalid:
+	jmp save1cnotvalid
+
+save1cheadervalid:
+	lda #0
+	sta checksum
+	sta checksum + 1
+	ldy #0
+checksumloop1c:
+	lda $7a00, y
+	jsr update_checksum
+	lda $7b00, y
+	jsr update_checksum
+	lda $7c00, y
+	jsr update_checksum
+	iny
+	bne checksumloop1c
+	LOAD_PTR $76c0
+	jsr update_header_checksum
+
+	lda checksum
+	cmp $76c0 + SAVE_HEADER_CHECKSUM
+	bne save1cnotvalid
+	lda checksum + 1
+	cmp $76c0 + SAVE_HEADER_CHECKSUM + 1
+	bne save1cnotvalid
+
+	; Third save is valid, copy to backup locations to ensure they are valid as well
+	ldy #0
+copyloop1c:
+	lda $7a00, y
+	sta $6600, y
+	sta $7000, y
+	lda $7b00, y
+	sta $6700, y
+	sta $7100, y
+	lda $7c00, y
+	sta $6800, y
+	sta $7200, y
+	iny
+	bne copyloop1c
+
+	ldy #0
+headerloop1c:
+	lda $76c0, y
+	sta $62c0, y
+	sta $6cc0, y
+	iny
+	cpy #$20
+	bne headerloop1c
+
+	jmp checksave2
+
+save1cnotvalid:
+	; No valid saves for slot 1, clear it
+	jsr clear_slot_1
+	jsr enable_save_ram
+
+checksave2:
+	; Check primary copy of save slot 2 for accuracy
+	lda $62e0
+	cmp #'P'
+	bne save2aheadernotvalid
+	lda $62e1
+	cmp #'w'
+	bne save2aheadernotvalid
+	lda $62e2
+	cmp #'n'
+	bne save2aheadernotvalid
+	lda $62e3
+	cmp #'Z'
+	bne save2aheadernotvalid
+	jmp save2aheadervalid
+
+save2aheadernotvalid:
+	jmp save2anotvalid
+
+save2aheadervalid:
+	lda #0
+	sta checksum
+	sta checksum + 1
+	ldy #0
+checksumloop2a:
+	lda $6900, y
+	jsr update_checksum
+	lda $6a00, y
+	jsr update_checksum
+	lda $6b00, y
+	jsr update_checksum
+	iny
+	bne checksumloop2a
+	LOAD_PTR $62e0
+	jsr update_header_checksum
+
+	lda checksum
+	cmp $62e0 + SAVE_HEADER_CHECKSUM
+	bne save2anotvalid
+	lda checksum + 1
+	cmp $62e0 + SAVE_HEADER_CHECKSUM + 1
+	bne save2anotvalid
+
+	; First save is valid, copy to backup locations to ensure they are valid as well
+	ldy #0
+copyloop2a:
+	lda $6900, y
+	sta $7300, y
+	sta $7d00, y
+	lda $6a00, y
+	sta $7400, y
+	sta $7e00, y
+	lda $6b00, y
+	sta $7500, y
+	sta $7f00, y
+	iny
+	bne copyloop2a
+
+	ldy #0
+headerloop2a:
+	lda $62e0, y
+	sta $6ce0, y
+	sta $76e0, y
+	iny
+	cpy #$20
+	bne headerloop2a
+
+	jmp done
+
+save2anotvalid:
+	; Check second copy of save slot 2 for accuracy
+	lda $6ce0
+	cmp #'P'
+	bne save2bheadernotvalid
+	lda $6ce1
+	cmp #'w'
+	bne save2bheadernotvalid
+	lda $6ce2
+	cmp #'n'
+	bne save2bheadernotvalid
+	lda $6ce3
+	cmp #'Z'
+	bne save2bheadernotvalid
+	jmp save2bheadervalid
+
+save2bheadernotvalid:
+	jmp save2bnotvalid
+
+save2bheadervalid:
+	lda #0
+	sta checksum
+	sta checksum + 1
+	ldy #0
+checksumloop2b:
+	lda $7300, y
+	jsr update_checksum
+	lda $7400, y
+	jsr update_checksum
+	lda $7500, y
+	jsr update_checksum
+	iny
+	bne checksumloop2b
+	LOAD_PTR $6ce0
+	jsr update_header_checksum
+
+	lda checksum
+	cmp $6ce0 + SAVE_HEADER_CHECKSUM
+	bne save2bnotvalid
+	lda checksum + 1
+	cmp $6ce0 + SAVE_HEADER_CHECKSUM + 1
+	bne save2bnotvalid
+
+	; Second save is valid, copy to backup locations to ensure they are valid as well
+	ldy #0
+copyloop2b:
+	lda $7300, y
+	sta $6900, y
+	sta $7d00, y
+	lda $7400, y
+	sta $6a00, y
+	sta $7e00, y
+	lda $7500, y
+	sta $6b00, y
+	sta $7f00, y
+	iny
+	bne copyloop2b
+
+	ldy #0
+headerloop2b:
+	lda $6ce0, y
+	sta $62e0, y
+	sta $76e0, y
+	iny
+	cpy #$20
+	bne headerloop2b
+
+	jmp done
+
+save2bnotvalid:
+	; Check third copy of save slot 2 for accuracy
+	lda $76e0
+	cmp #'P'
+	bne save2cheadernotvalid
+	lda $76e1
+	cmp #'w'
+	bne save2cheadernotvalid
+	lda $76e2
+	cmp #'n'
+	bne save2cheadernotvalid
+	lda $76e3
+	cmp #'Z'
+	bne save2cheadernotvalid
+	jmp save2cheadervalid
+
+save2cheadernotvalid:
+	jmp save2cnotvalid
+
+save2cheadervalid:
+	lda #0
+	sta checksum
+	sta checksum + 1
+	ldy #0
+checksumloop2c:
+	lda $7d00, y
+	jsr update_checksum
+	lda $7e00, y
+	jsr update_checksum
+	lda $7f00, y
+	jsr update_checksum
+	iny
+	bne checksumloop2c
+	LOAD_PTR $76e0
+	jsr update_header_checksum
+
+	lda checksum
+	cmp $76e0 + SAVE_HEADER_CHECKSUM
+	bne save2cnotvalid
+	lda checksum + 1
+	cmp $76e0 + SAVE_HEADER_CHECKSUM + 1
+	bne save2cnotvalid
+
+	; Third save is valid, copy to backup locations to ensure they are valid as well
+	ldy #0
+copyloop2c:
+	lda $7d00, y
+	sta $6900, y
+	sta $7300, y
+	lda $7e00, y
+	sta $6a00, y
+	sta $7400, y
+	lda $7f00, y
+	sta $6b00, y
+	sta $7500, y
+	iny
+	bne copyloop2c
+
+	ldy #0
+headerloop2c:
+	lda $76e0, y
+	sta $62e0, y
+	sta $6ce0, y
+	iny
+	cpy #$20
+	bne headerloop2c
+
+	jmp done
+
+save2cnotvalid:
+	; No valid saves for slot 2, clear it
+	jsr clear_slot_2
+	jsr enable_save_ram
+
+done:
+	jsr disable_save_ram
 	rts
 .endproc
 
@@ -663,6 +1302,11 @@ notvalid:
 	.byte $01 ; 8kb PRG RAM
 	.byte 0 ; NTSC
 	.byte 0 ; Program RAM present
+
+
+.segment "TEMP"
+VAR checksum
+	.word 0
 
 
 .segment "SRAM"
