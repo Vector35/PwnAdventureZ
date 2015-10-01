@@ -84,6 +84,10 @@ lakeborderset:
 	LOAD_ALL_TILES BORDER_TILES, forest_lake_border_tiles
 	LOAD_PTR forest_lake_border_palette
 	jsr load_game_palette_1
+	lda #BORDER_TILES
+	sta water_tile_start
+	lda #BORDER_TILES + 56
+	sta water_tile_end
 	jmp borderloaded
 
 borderloaded:

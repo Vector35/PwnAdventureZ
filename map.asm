@@ -153,6 +153,62 @@ bitloopend:
 .endproc
 
 
+PROC read_projectile_collision_at
+	tya
+	asl
+	sta temp
+	txa
+	lsr
+	lsr
+	lsr
+	ora temp
+	tay
+
+	txa
+	and #7
+	tax
+	lda #$80
+bitloop:
+	cpx #0
+	beq bitloopend
+	lsr
+	dex
+	bne bitloop
+bitloopend:
+
+	and projectile_collision, y
+	rts
+.endproc
+
+
+PROC read_water_collision_at
+	tya
+	asl
+	sta temp
+	txa
+	lsr
+	lsr
+	lsr
+	ora temp
+	tay
+
+	txa
+	and #7
+	tax
+	lda #$80
+bitloop:
+	cpx #0
+	beq bitloopend
+	lsr
+	dex
+	bne bitloop
+bitloopend:
+
+	and water_collision, y
+	rts
+.endproc
+
+
 PROC read_collision_left
 	lda player_x
 	lsr
@@ -1162,6 +1218,10 @@ interactloop:
 	bne interactloop
 	sta interaction_type
 
+	lda #$ff
+	sta water_tile_start
+	sta water_tile_end
+
 	; Clear enemy list
 	ldx #0
 	lda #ENEMY_NONE
@@ -1190,6 +1250,7 @@ initenemyloop:
 	lda #0
 zeroloop:
 	sta collision, x
+	sta projectile_collision, x
 	inx
 	cpx #32
 	bne zeroloop
@@ -1213,12 +1274,27 @@ checktraversable:
 	iny
 	cpy #8
 	bne checktraversable
-	jmp nextcollision
+	jmp nottraversable
 
 traversable:
 	lda temp + 1
 	ora collision, x
 	sta collision, x
+	lda temp + 1
+	ora projectile_collision, x
+	sta projectile_collision, x
+	jmp nextcollision
+
+nottraversable:
+	lda temp
+	cmp water_tile_start
+	bcc nextcollision
+	cmp water_tile_end
+	bcs nextcollision
+
+	lda temp + 1
+	ora projectile_collision, x
+	sta projectile_collision, x
 
 nextcollision:
 	inc arg0
@@ -1231,6 +1307,20 @@ nextcollision:
 	inx
 	cpx #MAP_HEIGHT * 2
 	bne collisionloop
+
+	; Ensure column 15 (which is not visible) is never marked as traversable
+	ldy #0
+lastcolloop:
+	lda collision + 1, y
+	and #$fe
+	sta collision + 1, y
+	lda projectile_collision + 1, y
+	and #$fe
+	sta projectile_collision + 1, y
+	iny
+	iny
+	cpy #MAP_HEIGHT * 2
+	bne lastcolloop
 
 	jsr prepare_spawn
 
@@ -1366,6 +1456,59 @@ nextspawn:
 	inx
 	cpx #MAP_HEIGHT * 2
 	bne spawnableloop
+
+	; Zero water collision memory
+	ldx #0
+	lda #0
+zerowaterloop:
+	sta water_collision, x
+	inx
+	cpx #32
+	bne zerowaterloop
+
+	; Compute water data
+	ldx #0
+	stx arg0
+	lda #$80
+	sta temp
+waterloop:
+	ldy arg0
+	lda map_gen_buf, y
+	and #$fc
+	cmp water_tile_start
+	bcc nextwater
+	cmp water_tile_end
+	bcs nextwater
+
+	lda temp
+	ora water_collision, x
+	sta water_collision, x
+
+nextwater:
+	inc arg0
+	lda temp
+	lsr
+	sta temp
+	bne waterloop
+	lda #$80
+	sta temp
+	inx
+	cpx #MAP_HEIGHT * 2
+	bne waterloop
+
+	; Ensure column 15 (which is not visible) is never marked as valid
+	ldy #0
+lastcolloop:
+	lda spawnable + 1, y
+	and #$fe
+	sta spawnable + 1, y
+	lda water_collision + 1, y
+	and #$fe
+	sta water_collision + 1, y
+	iny
+	iny
+	cpy #MAP_HEIGHT * 2
+	bne lastcolloop
 
 	lda #1
 	sta spawn_ready
@@ -2077,8 +2220,18 @@ VAR traversable_tiles
 	.byte 0, 0, 0, 0, 0, 0, 0, 0
 VAR spawnable_tiles
 	.byte 0, 0, 0, 0
+VAR water_tile_start
+	.byte 0
+VAR water_tile_end
+	.byte 0
 
 VAR collision
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+VAR projectile_collision
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+VAR water_collision
 	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 

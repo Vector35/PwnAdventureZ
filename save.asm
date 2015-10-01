@@ -67,11 +67,11 @@ PROC save_select
 
 	lda #4
 	sta arg0
-	lda #9
+	lda #8
 	sta arg1
 	lda #11
 	sta arg2
-	lda #9
+	lda #8
 	sta arg3
 	lda #2
 	sta arg4

@@ -536,7 +536,13 @@ VAR selection
 VAR controller
 	.byte 0
 
+VAR inventory_count
+	.byte 0
+
 VAR inventory
+	.repeat INVENTORY_SIZE
+	.byte 0, 0
+	.endrepeat
 
 VAR map_screen_generators
 	.repeat MAP_TYPE_COUNT

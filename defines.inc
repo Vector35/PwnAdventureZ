@@ -260,6 +260,41 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define SAVE_HEADER_CHECKSUM    $1e
 
 
+; Inventory
+.define INVENTORY_SIZE     29
+
+.define ITEM_AXE           0
+.define ITEM_SWORD         1
+.define ITEM_PISTOL        2
+.define ITEM_SMG           3
+.define ITEM_LMG           4
+.define ITEM_AK            5
+.define ITEM_SHOTGUN       6
+.define ITEM_SNIPER        7
+.define ITEM_HAND_CANNON   8
+.define ITEM_ROCKET        9
+.define ITEM_FLAMETHROWER  10
+.define ITEM_GRENADE       11
+.define ITEM_BANDAGE       12
+.define ITEM_HEALTH_KIT    13
+.define ITEM_FUEL          14
+.define ITEM_STICKS        15
+.define ITEM_CLOTH         16
+.define ITEM_SHIRT         17
+.define ITEM_PANTS         18
+.define ITEM_METAL         19
+.define ITEM_GEM           20
+.define ITEM_GUNPOWDER     21
+.define ITEM_CAMPFIRE      22
+.define ITEM_SNEAKERS      23
+.define ITEM_WIZARD_HAT    24
+.define ITEM_ARMOR         25
+.define ITEM_TINFOIL_HAT   26
+.define ITEM_GHILLIE_SUIT  27
+.define ITEM_COFFEE        28
+.define ITEM_WINE          29
+
+
 ; Globally accessible zero page variables
 .zeropage
 .global ptr ; For manipulating pointers
@@ -277,6 +312,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 
 .global cur_enemy
 
-.global inventory, map_screen_generators, cur_screen_x, cur_screen_y
+.global inventory, inventory_count
+.global map_screen_generators, cur_screen_x, cur_screen_y
 .global spawn_screen_x, spawn_screen_y, spawn_pos_x, spawn_pos_y
 .global active_save_slot
