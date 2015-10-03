@@ -158,6 +158,58 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define BORDER_INNER_BOT_LEFT     $30
 .define BORDER_INNER_BOT_RIGHT    $34
 .define BORDER_INNER_SINGLE       $38
+.define BORDER_SINGLE_LEFT        $3c ; Not present in most sets
+.define BORDER_SINGLE_RIGHT       $40 ; Not present in most sets
+.define BORDER_SINGLE_UP          $44 ; Not present in most sets
+.define BORDER_SINGLE_DOWN        $48 ; Not present in most sets
+.define BORDER_UL_DR              $4c ; Not present in most sets
+.define BORDER_UR_DL              $50 ; Not present in most sets
+.define BORDER_UP_LEFT            $54 ; Not present in most sets
+.define BORDER_UP_RIGHT           $58 ; Not present in most sets
+.define BORDER_UP_BOTH            $5c ; Not present in most sets
+.define BORDER_DOWN_LEFT          $60 ; Not present in most sets
+.define BORDER_DOWN_RIGHT         $64 ; Not present in most sets
+.define BORDER_DOWN_BOTH          $68 ; Not present in most sets
+.define BORDER_LEFT_UP            $6c ; Not present in most sets
+.define BORDER_LEFT_DOWN          $70 ; Not present in most sets
+.define BORDER_LEFT_BOTH          $74 ; Not present in most sets
+.define BORDER_RIGHT_UP           $78 ; Not present in most sets
+.define BORDER_RIGHT_DOWN         $7c ; Not present in most sets
+.define BORDER_RIGHT_BOTH         $80 ; Not present in most sets
+
+.define SMALL_BORDER_OUTER_TOP_LEFT     $00
+.define SMALL_BORDER_OUTER_TOP_CENTER   $01
+.define SMALL_BORDER_OUTER_TOP_RIGHT    $02
+.define SMALL_BORDER_OUTER_CENTER_LEFT  $03
+.define SMALL_BORDER_INTERIOR           $04
+.define SMALL_BORDER_OUTER_CENTER_RIGHT $05
+.define SMALL_BORDER_OUTER_BOT_LEFT     $06
+.define SMALL_BORDER_OUTER_BOT_CENTER   $07
+.define SMALL_BORDER_OUTER_BOT_RIGHT    $08
+.define SMALL_BORDER_INNER_TOP_LEFT     $09
+.define SMALL_BORDER_INNER_TOP_RIGHT    $0a
+.define SMALL_BORDER_CENTER             $0b
+.define SMALL_BORDER_INNER_BOT_LEFT     $0c
+.define SMALL_BORDER_INNER_BOT_RIGHT    $0d
+.define SMALL_BORDER_INNER_SINGLE       $0e
+.define SMALL_BORDER_SINGLE_LEFT        $0f
+.define SMALL_BORDER_SINGLE_RIGHT       $10
+.define SMALL_BORDER_SINGLE_UP          $11
+.define SMALL_BORDER_SINGLE_DOWN        $12
+.define SMALL_BORDER_UL_DR              $13
+.define SMALL_BORDER_UR_DL              $14
+.define SMALL_BORDER_UP_LEFT            $15
+.define SMALL_BORDER_UP_RIGHT           $16
+.define SMALL_BORDER_UP_BOTH            $17
+.define SMALL_BORDER_DOWN_LEFT          $18
+.define SMALL_BORDER_DOWN_RIGHT         $19
+.define SMALL_BORDER_DOWN_BOTH          $1a
+.define SMALL_BORDER_LEFT_UP            $1b
+.define SMALL_BORDER_LEFT_DOWN          $1c
+.define SMALL_BORDER_LEFT_BOTH          $1d
+.define SMALL_BORDER_RIGHT_UP           $1e
+.define SMALL_BORDER_RIGHT_DOWN         $1f
+.define SMALL_BORDER_RIGHT_BOTH         $20
 
 
 ; Forest tile set
@@ -172,6 +224,18 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define SAVE_TILE_KEY_COUNT   $0e
 .define SAVE_TILE_NUMBERS     $15
 .define SAVE_TILE_COLON       $1f
+
+
+; Minimap tile set
+.define MINIMAP_TILE_BACKGROUND    $001
+.define MINIMAP_TILE_FOREST        $00a
+.define MINIMAP_TILE_CAVE_ENTRANCE $00c
+.define MINIMAP_TILE_ROCK          $00d
+.define MINIMAP_TILE_BASE          $02e
+.define MINIMAP_TILE_TOWN          $03d
+.define MINIMAP_TILE_ARROWS        $03f
+.define MINIMAP_TILE_LAKE          $05c
+.define MINIMAP_TILE_INDICATORS    $07d
 
 
 ; Movement directions
@@ -257,6 +321,42 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define SAVE_HEADER_DIFFICULTY  $12
 .define SAVE_HEADER_KEY_COUNT   $13
 .define SAVE_HEADER_TIME_PLAYED $14
+.define SAVE_HEADER_CHECKSUM    $1e
+
+
+; Inventory
+.define INVENTORY_SIZE     29
+
+.define ITEM_AXE           0
+.define ITEM_SWORD         1
+.define ITEM_PISTOL        2
+.define ITEM_SMG           3
+.define ITEM_LMG           4
+.define ITEM_AK            5
+.define ITEM_SHOTGUN       6
+.define ITEM_SNIPER        7
+.define ITEM_HAND_CANNON   8
+.define ITEM_ROCKET        9
+.define ITEM_FLAMETHROWER  10
+.define ITEM_GRENADE       11
+.define ITEM_BANDAGE       12
+.define ITEM_HEALTH_KIT    13
+.define ITEM_FUEL          14
+.define ITEM_STICKS        15
+.define ITEM_CLOTH         16
+.define ITEM_SHIRT         17
+.define ITEM_PANTS         18
+.define ITEM_METAL         19
+.define ITEM_GEM           20
+.define ITEM_GUNPOWDER     21
+.define ITEM_CAMPFIRE      22
+.define ITEM_SNEAKERS      23
+.define ITEM_WIZARD_HAT    24
+.define ITEM_ARMOR         25
+.define ITEM_TINFOIL_HAT   26
+.define ITEM_GHILLIE_SUIT  27
+.define ITEM_COFFEE        28
+.define ITEM_WINE          29
 
 
 ; Globally accessible zero page variables
@@ -264,21 +364,21 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .global ptr ; For manipulating pointers
 .global temp ; 2 byte temporary
 .global arg0, arg1, arg2, arg3, arg4, arg5
+.global vblank_count
 
 .global rendering_enabled
 .global ppu_settings
 
 .global controller
 
-.global player_x, player_y, player_direction, player_anim_frame
-.global player_damage_flash_time, player_palette
-.global player_left_tile, player_right_tile, player_up_tile, player_down_tile
-.global interaction_type, interaction_sprite_x, interaction_sprite_y, interaction_tile_x, interaction_tile_y
-.global possible_interaction_tile_x, possible_interaction_tile_y
+.global player_x, player_y
 .global player_health
 
 .global cur_enemy
 
-.global inventory, map_screen_generators, cur_screen_x, cur_screen_y
+.global inventory, inventory_count
+.global map_screen_generators, cur_screen_x, cur_screen_y, map_ptr, map_visited_ptr
 .global spawn_screen_x, spawn_screen_y, spawn_pos_x, spawn_pos_y
 .global active_save_slot
+
+.global secret_code

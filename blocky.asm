@@ -569,6 +569,8 @@ VAR blocky_state
 VAR blocky_door_state
 	.byte 0
 
+.segment "TEMP"
+
 VAR traces
 	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	.byte 0, 0, 0, 0, 0, 0, 0, 0

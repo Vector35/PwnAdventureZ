@@ -112,7 +112,7 @@ PROC set_ppu_addr_to_coord
 	lsr
 	lsr
 	lsr
-	and #3
+	and #$f
 	ora #$20
 	sta PPUADDR
 
@@ -297,7 +297,12 @@ PROC set_tile_palette
 	lda PPUSTATUS
 
 	; Compute address of palette for this tile and set the PPU address to it
-	lda #$23
+	tya
+	lsr
+	lsr
+	and #$0c
+	ora #$23
+	sta ptr + 1
 	sta PPUADDR
 
 	tya
@@ -318,7 +323,7 @@ PROC set_tile_palette
 	lda PPUDATA
 	lda PPUDATA
 	sta temp
-	lda #$23
+	lda ptr + 1
 	sta PPUADDR
 	lda ptr
 	sta PPUADDR
@@ -638,7 +643,7 @@ tileloop:
 .endproc
 
 
-.bss
+.segment "TEMP"
 
 VAR active_palette
 	.byte 0, 0, 0, 0
@@ -649,3 +654,6 @@ VAR active_palette
 	.byte 0, 0, 0, 0
 	.byte 0, 0, 0, 0
 	.byte 0, 0, 0, 0
+
+VAR disable_sprites
+	.byte 0

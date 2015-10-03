@@ -1276,7 +1276,7 @@ VAR cur_enemy
 	.byte 0
 
 
-.bss
+.segment "TEMP"
 
 VAR enemy_sprite_rotation
 	.byte 0

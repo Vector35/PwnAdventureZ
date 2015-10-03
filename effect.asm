@@ -205,7 +205,7 @@ noplayercollide:
 	lsr
 	lsr
 	tay
-	jsr read_collision_at
+	jsr read_projectile_collision_at
 	bne next
 
 	; World collision detected, issue callback
@@ -450,7 +450,7 @@ nowrap:
 .endproc
 
 
-.bss
+.segment "TEMP"
 
 VAR cur_effect
 	.byte 0

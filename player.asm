@@ -1059,6 +1059,22 @@ VAR player_x
 	.byte 0
 VAR player_y
 	.byte 0
+
+VAR player_health
+	.byte 0
+
+
+.segment "TEMP"
+VAR temp_direction
+	.byte 0
+VAR temp_controller
+	.byte 0
+
+VAR interactive_tile_types
+	.byte 0, 0, 0, 0, 0, 0
+VAR interactive_tile_values
+	.byte 0, 0, 0, 0, 0, 0
+
 VAR player_direction
 	.byte 0
 VAR player_anim_frame
@@ -1094,25 +1110,10 @@ VAR possible_interaction_tile_x
 VAR possible_interaction_tile_y
 	.byte 0
 
-VAR player_health
-	.byte 0
-
 VAR attack_held
 	.byte 0
 VAR attack_cooldown
 	.byte 0
-
-
-.bss
-VAR temp_direction
-	.byte 0
-VAR temp_controller
-	.byte 0
-
-VAR interactive_tile_types
-	.byte 0, 0, 0, 0, 0, 0
-VAR interactive_tile_values
-	.byte 0, 0, 0, 0, 0, 0
 
 
 .data

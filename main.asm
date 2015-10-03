@@ -4,41 +4,8 @@
 
 PROC main
 	; First check the save RAM and clear any invalid saves
-	lda #0
-	jsr is_save_slot_valid
-	beq slot0valid
-	lda #0
-	jsr clear_slot
+	jsr validate_saves
 
-slot0valid:
-	lda #1
-	jsr is_save_slot_valid
-	beq slot1valid
-	lda #1
-	jsr clear_slot
-
-slot1valid:
-	lda #2
-	jsr is_save_slot_valid
-	beq slot2valid
-	lda #2
-	jsr clear_slot
-
-slot2valid:
-	lda #3
-	jsr is_save_slot_valid
-	beq slot3valid
-	lda #3
-	jsr clear_slot
-
-slot3valid:
-	lda #4
-	jsr is_save_slot_valid
-	beq slot4valid
-	lda #4
-	jsr clear_slot
-
-slot4valid:
 	jsr title
 
 	jsr has_save_ram
@@ -49,6 +16,16 @@ slot4valid:
 	; Ensure the entire RAM, including the scratch area below the stack, is in a
 	; known state to prevent all possibility of cross-save contamination
 	jsr zero_unused_stack_page
+
+	; Clear temporary RAM
+	ldx #0
+	lda #0
+cleartemp:
+	sta $0500, x
+	sta $0600, x
+	sta $0700, x
+	inx
+	bne cleartemp
 
 	lda start_new_game
 	cmp #0
@@ -64,6 +41,11 @@ resume:
 
 
 PROC game_loop
+	jsr has_save_ram
+	beq prepare
+
+	jsr generate_minimap_cache
+
 prepare:
 	jsr generate_map
 	jsr init_player_sprites
@@ -88,6 +70,14 @@ notdead:
 	; Get latest controller state and look for movement
 	jsr update_controller
 
+	lda controller
+	and #JOY_START
+	beq nopause
+
+	jsr minimap
+	jmp vblank
+
+nopause:
 	lda knockback_time
 	beq normalmove
 
@@ -122,6 +112,8 @@ PROC new_game
 	; Zero out all memory except the stack page to get the game into a known state
 	lda active_save_slot
 	sta scratch
+	lda secret_code
+	sta scratch + 1
 
 	ldx #0
 	lda #0
@@ -138,6 +130,8 @@ clearloop:
 
 	lda scratch
 	sta active_save_slot
+	lda scratch + 1
+	sta secret_code
 
 	jsr zero_unused_stack_page
 
@@ -191,6 +185,8 @@ nameclearloop:
 	; Secret name entered for hard difficulty, set it and restart name entry
 	lda #1
 	sta new_game_difficulty
+	lda #0
+	sta secret_code
 	jmp nameloop
 
 nothard:
@@ -231,6 +227,8 @@ nothard:
 	; Secret name entered for hardest difficulty, set it and restart name entry
 	lda #2
 	sta new_game_difficulty
+	lda #0
+	sta secret_code
 	jmp nameloop
 
 namedone:
@@ -542,11 +540,14 @@ VAR time_played
 VAR key_count
 	.byte 0
 
-VAR new_game_difficulty
-	.byte 0
-
 VAR death_count
 	.byte 0, 0, 0
+
+
+.segment "TEMP"
+
+VAR new_game_difficulty
+	.byte 0
 
 VAR selection
 	.byte 0
@@ -556,7 +557,13 @@ VAR selection
 VAR controller
 	.byte 0
 
+VAR inventory_count
+	.byte 0
+
 VAR inventory
+	.repeat INVENTORY_SIZE
+	.byte 0, 0
+	.endrepeat
 
 VAR map_screen_generators
 	.repeat MAP_TYPE_COUNT
@@ -567,6 +574,10 @@ VAR cur_screen_x
 	.byte 0
 VAR cur_screen_y
 	.byte 0
+VAR map_ptr
+	.word 0
+VAR map_visited_ptr
+	.word 0
 
 VAR spawn_screen_x
 	.byte 0
@@ -578,4 +589,7 @@ VAR spawn_pos_y
 	.byte 0
 
 VAR active_save_slot
+	.byte 0
+
+VAR secret_code
 	.byte 0

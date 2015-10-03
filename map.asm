@@ -15,10 +15,32 @@ genloop:
 	lda #1
 	sta cur_screen_x
 	sta spawn_screen_x
-	lda #16
+	lda #17
 	sta cur_screen_y
 	sta spawn_screen_y
 
+	lda #<normal_overworld_map
+	sta map_ptr
+	lda #>normal_overworld_map
+	sta map_ptr + 1
+
+	lda #<overworld_visited
+	sta map_visited_ptr
+	lda #>overworld_visited
+	sta map_visited_ptr + 1
+
+	lda secret_code
+	beq nocode
+
+	lda #$ff
+	ldx #0
+revealmaploop:
+	sta overworld_visited, x
+	inx
+	cpx #88
+	bne revealmaploop
+
+nocode:
 	rts
 .endproc
 
@@ -149,6 +171,62 @@ bitloop:
 bitloopend:
 
 	and collision, y
+	rts
+.endproc
+
+
+PROC read_projectile_collision_at
+	tya
+	asl
+	sta temp
+	txa
+	lsr
+	lsr
+	lsr
+	ora temp
+	tay
+
+	txa
+	and #7
+	tax
+	lda #$80
+bitloop:
+	cpx #0
+	beq bitloopend
+	lsr
+	dex
+	bne bitloop
+bitloopend:
+
+	and projectile_collision, y
+	rts
+.endproc
+
+
+PROC read_water_collision_at
+	tya
+	asl
+	sta temp
+	txa
+	lsr
+	lsr
+	lsr
+	ora temp
+	tay
+
+	txa
+	and #7
+	tax
+	lda #$80
+bitloop:
+	cpx #0
+	beq bitloopend
+	lsr
+	dex
+	bne bitloop
+bitloopend:
+
+	and water_collision, y
 	rts
 .endproc
 
@@ -1054,10 +1132,10 @@ PROC read_overworld_map
 	txa
 	ora temp
 	clc
-	adc #<map
+	adc map_ptr
 	sta ptr
 	lda ptr + 1
-	adc #>map
+	adc map_ptr + 1
 	sta ptr + 1
 
 	ldy #0
@@ -1129,8 +1207,80 @@ PROC write_gen_map
 .endproc
 
 
+PROC mark_visited
+	tya
+	asl
+	asl
+	sta temp
+	txa
+	lsr
+	lsr
+	lsr
+	clc
+	adc temp
+	tay
+
+	txa
+	and #7
+	tax
+
+	lda (map_visited_ptr), y
+	ora toggle_mask, x
+	sta (map_visited_ptr), y
+	rts
+.endproc
+
+
 PROC generate_map
 	jsr prepare_map_gen
+
+	ldx cur_screen_x
+	dex
+	ldy cur_screen_y
+	dey
+	jsr mark_visited
+
+	ldx cur_screen_x
+	ldy cur_screen_y
+	dey
+	jsr mark_visited
+
+	ldx cur_screen_x
+	inx
+	ldy cur_screen_y
+	dey
+	jsr mark_visited
+
+	ldx cur_screen_x
+	dex
+	ldy cur_screen_y
+	jsr mark_visited
+
+	ldx cur_screen_x
+	ldy cur_screen_y
+	jsr mark_visited
+
+	ldx cur_screen_x
+	inx
+	ldy cur_screen_y
+	jsr mark_visited
+
+	ldx cur_screen_x
+	dex
+	ldy cur_screen_y
+	iny
+	jsr mark_visited
+
+	ldx cur_screen_x
+	ldy cur_screen_y
+	iny
+	jsr mark_visited
+
+	ldx cur_screen_x
+	inx
+	ldy cur_screen_y
+	iny
+	jsr mark_visited
 
 	; Initialize traversable tile list
 	ldx #0
@@ -1162,6 +1312,10 @@ interactloop:
 	bne interactloop
 	sta interaction_type
 
+	lda #$ff
+	sta water_tile_start
+	sta water_tile_end
+
 	; Clear enemy list
 	ldx #0
 	lda #ENEMY_NONE
@@ -1190,6 +1344,7 @@ initenemyloop:
 	lda #0
 zeroloop:
 	sta collision, x
+	sta projectile_collision, x
 	inx
 	cpx #32
 	bne zeroloop
@@ -1213,12 +1368,27 @@ checktraversable:
 	iny
 	cpy #8
 	bne checktraversable
-	jmp nextcollision
+	jmp nottraversable
 
 traversable:
 	lda temp + 1
 	ora collision, x
 	sta collision, x
+	lda temp + 1
+	ora projectile_collision, x
+	sta projectile_collision, x
+	jmp nextcollision
+
+nottraversable:
+	lda temp
+	cmp water_tile_start
+	bcc nextcollision
+	cmp water_tile_end
+	bcs nextcollision
+
+	lda temp + 1
+	ora projectile_collision, x
+	sta projectile_collision, x
 
 nextcollision:
 	inc arg0
@@ -1231,6 +1401,20 @@ nextcollision:
 	inx
 	cpx #MAP_HEIGHT * 2
 	bne collisionloop
+
+	; Ensure column 15 (which is not visible) is never marked as traversable
+	ldy #0
+lastcolloop:
+	lda collision + 1, y
+	and #$fe
+	sta collision + 1, y
+	lda projectile_collision + 1, y
+	and #$fe
+	sta projectile_collision + 1, y
+	iny
+	iny
+	cpy #MAP_HEIGHT * 2
+	bne lastcolloop
 
 	jsr prepare_spawn
 
@@ -1366,6 +1550,59 @@ nextspawn:
 	inx
 	cpx #MAP_HEIGHT * 2
 	bne spawnableloop
+
+	; Zero water collision memory
+	ldx #0
+	lda #0
+zerowaterloop:
+	sta water_collision, x
+	inx
+	cpx #32
+	bne zerowaterloop
+
+	; Compute water data
+	ldx #0
+	stx arg0
+	lda #$80
+	sta temp
+waterloop:
+	ldy arg0
+	lda map_gen_buf, y
+	and #$fc
+	cmp water_tile_start
+	bcc nextwater
+	cmp water_tile_end
+	bcs nextwater
+
+	lda temp
+	ora water_collision, x
+	sta water_collision, x
+
+nextwater:
+	inc arg0
+	lda temp
+	lsr
+	sta temp
+	bne waterloop
+	lda #$80
+	sta temp
+	inx
+	cpx #MAP_HEIGHT * 2
+	bne waterloop
+
+	; Ensure column 15 (which is not visible) is never marked as valid
+	ldy #0
+lastcolloop:
+	lda spawnable + 1, y
+	and #$fe
+	sta spawnable + 1, y
+	lda water_collision + 1, y
+	and #$fe
+	sta water_collision + 1, y
+	iny
+	iny
+	cpy #MAP_HEIGHT * 2
+	bne lastcolloop
 
 	lda #1
 	sta spawn_ready
@@ -2009,7 +2246,7 @@ notravelright:
 .endproc
 
 
-.bss
+.segment "TEMP"
 VAR game_palette
 	.byte 0, 0, 0, 0
 	.byte 0, 0, 0, 0
@@ -2077,8 +2314,18 @@ VAR traversable_tiles
 	.byte 0, 0, 0, 0, 0, 0, 0, 0
 VAR spawnable_tiles
 	.byte 0, 0, 0, 0
+VAR water_tile_start
+	.byte 0
+VAR water_tile_end
+	.byte 0
 
 VAR collision
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+VAR projectile_collision
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+VAR water_collision
 	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
@@ -2092,6 +2339,16 @@ VAR entrance_x
 	.byte 0
 VAR entrance_y
 	.byte 0
+
+
+.bss
+VAR overworld_visited
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0
 
 
 .data
@@ -2121,52 +2378,48 @@ VAR initial_map_generators
 	.word gen_blocky_treasure 
 	.word gen_blocky_puzzle
 
-VAR map
+VAR normal_overworld_map
 	.byte $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $4b, $c1, $c1, $c1, $43, $03, $43, $43, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $c1, $c1, $c1, $c1, $82, $82, $42, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $4c, $c1, $03, $83, $c3, $43, $83, $c3, $c1, $c1, $c1, $c1, $c1, $c1, $42
+	.byte $c1, $4c, $c1, $c1, $83, $c3, $43, $83, $c3, $c1, $c1, $c1, $c1, $c1, $c1, $42
 	.byte $c1, $c1, $c1, $c1, $c1, $c1, $02, $c2, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $82, $42, $43, $03, $83, $c3, $c1, $c1, $c1, $c1, $03, $43, $c1, $c1, $42
+	.byte $c1, $82, $42, $c1, $03, $83, $c3, $c1, $c1, $c1, $c1, $03, $43, $c1, $c1, $42
 	.byte $c1, $c1, $02, $82, $42, $c1, $42, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $c1, $03, $83, $c3, $c1, $c1, $c1, $c1, $c1, $03, $83, $83, $03, $03, $03
+	.byte $c1, $83, $03, $83, $c3, $c1, $c1, $c1, $c1, $c1, $03, $83, $83, $03, $03, $03
 	.byte $43, $c1, $42, $82, $02, $82, $c2, $02, $42, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $c1, $43, $03, $43, $c1, $c1, $c1, $03, $03, $c3, $03, $43, $03, $03, $43
 	.byte $43, $c1, $42, $c1, $c2, $c1, $c1, $c2, $42, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $c1, $43, $83, $83, $43, $c1, $03, $03, $c3, $c7, $43, $43, $03, $83, $03
-	.byte $43, $c1, $82, $82, $82, $02, $02, $82, $c2, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $43, $c1, $82, $02, $82, $82, $82, $82, $c2, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $03, $43, $03, $43, $03, $03, $03, $c3, $c7, $c7, $c3, $43, $83, $03, $03
-	.byte $43, $c1, $c1, $c1, $c1, $c2, $42, $c1, $42, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $43, $c1, $c1, $42, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $03, $c3, $03, $03, $03, $c3, $43, $c7, $c7, $c7, $83, $03, $43, $03, $03
-	.byte $03, $43, $c1, $02, $82, $02, $c2, $02, $c2, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $03, $03, $03, $03, $03, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $03, $03, $83, $83, $03, $03, $43, $c7, $c7, $c7, $c7, $43, $43, $03, $43
-	.byte $03, $43, $c1, $42, $c1, $82, $82, $c2, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $03, $03, $03, $83, $83, $83, $03, $03, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $43, $03, $04, $44, $83, $03, $03, $43, $c7, $c7, $c7, $03, $43, $03, $03
-	.byte $83, $03, $03, $43, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $03, $03, $43, $03, $03, $43, $03, $03, $03, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $03, $43, $06, $04, $c6, $83, $03, $03, $43, $03, $03, $c3, $43, $03, $03
-	.byte $03, $43, $03, $83, $83, $83, $03, $43, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $83, $43, $84, $84, $04, $84, $04, $03, $43, $43, $83, $03, $43, $03, $43
-	.byte $03, $43, $43, $03, $03, $43, $03, $03, $43, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $c3, $43, $c3, $c3, $43, $c5, $03, $43, $03, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $c1, $83, $43, $84, $84, $04, $84, $04, $03, $43, $43, $83, $03, $43, $03, $83
+	.byte $c3, $83, $83, $83, $c3, $03, $03, $03, $43, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $03, $43, $46, $45, $04, $86, $c4, $03, $03, $03, $43, $83, $c3, $03, $03
-	.byte $c3, $43, $c3, $c3, $43, $c5, $03, $83, $c3, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $83, $03, $84, $84, $84, $03, $03, $43, $03, $03, $43, $03, $03, $03, $83
-	.byte $c3, $83, $83, $83, $c3, $03, $03, $03, $c3, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $c1, $83, $43, $03, $03, $83, $83, $03, $03, $83, $03, $03, $03, $03, $03
-	.byte $03, $03, $03, $83, $83, $03, $03, $c3, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $80, $42, $43, $03, $c3, $c7, $c7, $03, $03, $03, $84, $44, $03, $43, $c3
-	.byte $43, $83, $c3, $8a, $4a, $03, $43, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $c1, $83, $03, $43, $c7, $c7, $c7, $03, $43, $03, $43, $c5, $83, $c3, $03
-	.byte $43, $8a, $8a, $0a, $4a, $43, $43, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $c1, $c1, $83, $43, $c7, $c7, $03, $03, $83, $43, $03, $03, $83, $03, $43
-	.byte $43, $0a, $8a, $ca, $4a, $03, $c3, $02, $42, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $c1, $c1, $c1, $03, $43, $03, $83, $03, $03, $03, $83, $43, $c1, $83, $43
-	.byte $43, $4a, $88, $89, $ca, $03, $43, $42, $42, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $c1, $c1, $c1, $83, $83, $c3, $c1, $83, $03, $03, $03, $c3, $c1, $c1, $03
-	.byte $83, $83, $c3, $03, $83, $83, $c3, $c2, $42, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $83, $83, $c3, $c1, $c1, $c1, $83
-	.byte $83, $03, $83, $03, $43, $02, $02, $82, $c2, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $83, $c3, $8a, $4a, $03, $43, $03, $83, $c3, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $c1, $83, $03, $84, $84, $84, $03, $03, $43, $03, $03, $43, $03, $03, $03, $43
+	.byte $8a, $8a, $0a, $4a, $03, $c3, $03, $03, $c3, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $c1, $c1, $83, $83, $03, $03, $83, $83, $03, $03, $83, $03, $03, $03, $43, $43
+	.byte $0a, $8a, $ca, $4a, $03, $83, $03, $c3, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $c1, $c1, $c1, $c1, $03, $c3, $c7, $c7, $03, $03, $03, $84, $44, $03, $43, $43
+	.byte $4a, $88, $89, $ca, $03, $03, $43, $02, $42, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $c1, $80, $42, $c1, $43, $c7, $c7, $c7, $03, $43, $03, $43, $c5, $83, $03, $03
+	.byte $03, $83, $03, $83, $83, $c3, $43, $42, $42, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $c1, $c1, $83, $03, $43, $c7, $c7, $03, $03, $83, $43, $03, $03, $83, $03, $03
+	.byte $83, $03, $43, $c1, $c1, $c1, $c1, $c2, $42, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $c1, $c1, $c1, $83, $03, $43, $03, $83, $03, $03, $03, $83, $43, $c1, $83, $43
+	.byte $03, $c3, $43, $c1, $02, $82, $02, $82, $c2, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $c1, $c1, $c1, $c1, $83, $83, $c3, $c1, $83, $83, $83, $c3, $c1, $c1, $c1, $83
+	.byte $83, $83, $83, $83, $83, $c3, $82, $82, $c2, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $83, $83, $83, $83, $c3, $82, $82, $c2, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c2

@@ -246,8 +246,6 @@ VAR rendering_enabled
 VAR ppu_settings
 	.byte 0
 
-
-.bss
 VAR vblank_count
 	.byte 0
 
@@ -271,6 +269,8 @@ VAR scratch ; 32 bytes of temporary space
 
 
 .segment "VECTORS"
+VAR version_hash
+	.word 0, 0
 
 	.word nmi
 	.word start
