@@ -3,12 +3,12 @@
 <title>Pwn Adventure Z Map Editor</title>
 <script langauge='javascript'>
 data = []
-for (var i = 0; i < 32 * 24; i++)
+for (var i = 0; i < 32 * 22; i++)
 	data[i] = 0xc1;
 
 function update_data() {
 	result = "\t.byte ";
-	for (var i = 0; i < 32 * 24; i++) {
+	for (var i = 0; i < 32 * 22; i++) {
 		if ((i > 0) && ((i % 16) == 0))
 			result += "\n\t.byte ";
 		else if (i > 0)
@@ -23,7 +23,7 @@ function update_data() {
 
 function load_map() {
 	text = document.getElementById('data').value;
-	for (var i = 0; i < 32 * 24; i++) {
+	for (var i = 0; i < 32 * 22; i++) {
 		text = text.substr(text.indexOf("$") + 1);
 		data[i] = parseInt(text.substr(0, 2), 16);
 		if ((i % 32) < 26)
@@ -69,7 +69,7 @@ function init() {
 
 	var table = document.createElement('table');
 	data_img = [];
-	for (var y = 0; y < 24; y++) {
+	for (var y = 0; y < 22; y++) {
 		var row = document.createElement('tr');
 		for (var x = 0; x < 26; x++) {
 			var col = document.createElement('td');

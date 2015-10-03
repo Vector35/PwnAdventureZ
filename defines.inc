@@ -158,6 +158,58 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define BORDER_INNER_BOT_LEFT     $30
 .define BORDER_INNER_BOT_RIGHT    $34
 .define BORDER_INNER_SINGLE       $38
+.define BORDER_SINGLE_LEFT        $3c ; Not present in most sets
+.define BORDER_SINGLE_RIGHT       $40 ; Not present in most sets
+.define BORDER_SINGLE_UP          $44 ; Not present in most sets
+.define BORDER_SINGLE_DOWN        $48 ; Not present in most sets
+.define BORDER_UL_DR              $4c ; Not present in most sets
+.define BORDER_UR_DL              $50 ; Not present in most sets
+.define BORDER_UP_LEFT            $54 ; Not present in most sets
+.define BORDER_UP_RIGHT           $58 ; Not present in most sets
+.define BORDER_UP_BOTH            $5c ; Not present in most sets
+.define BORDER_DOWN_LEFT          $60 ; Not present in most sets
+.define BORDER_DOWN_RIGHT         $64 ; Not present in most sets
+.define BORDER_DOWN_BOTH          $68 ; Not present in most sets
+.define BORDER_LEFT_UP            $6c ; Not present in most sets
+.define BORDER_LEFT_DOWN          $70 ; Not present in most sets
+.define BORDER_LEFT_BOTH          $74 ; Not present in most sets
+.define BORDER_RIGHT_UP           $78 ; Not present in most sets
+.define BORDER_RIGHT_DOWN         $7c ; Not present in most sets
+.define BORDER_RIGHT_BOTH         $80 ; Not present in most sets
+
+.define SMALL_BORDER_OUTER_TOP_LEFT     $00
+.define SMALL_BORDER_OUTER_TOP_CENTER   $01
+.define SMALL_BORDER_OUTER_TOP_RIGHT    $02
+.define SMALL_BORDER_OUTER_CENTER_LEFT  $03
+.define SMALL_BORDER_INTERIOR           $04
+.define SMALL_BORDER_OUTER_CENTER_RIGHT $05
+.define SMALL_BORDER_OUTER_BOT_LEFT     $06
+.define SMALL_BORDER_OUTER_BOT_CENTER   $07
+.define SMALL_BORDER_OUTER_BOT_RIGHT    $08
+.define SMALL_BORDER_INNER_TOP_LEFT     $09
+.define SMALL_BORDER_INNER_TOP_RIGHT    $0a
+.define SMALL_BORDER_CENTER             $0b
+.define SMALL_BORDER_INNER_BOT_LEFT     $0c
+.define SMALL_BORDER_INNER_BOT_RIGHT    $0d
+.define SMALL_BORDER_INNER_SINGLE       $0e
+.define SMALL_BORDER_SINGLE_LEFT        $0f
+.define SMALL_BORDER_SINGLE_RIGHT       $10
+.define SMALL_BORDER_SINGLE_UP          $11
+.define SMALL_BORDER_SINGLE_DOWN        $12
+.define SMALL_BORDER_UL_DR              $13
+.define SMALL_BORDER_UR_DL              $14
+.define SMALL_BORDER_UP_LEFT            $15
+.define SMALL_BORDER_UP_RIGHT           $16
+.define SMALL_BORDER_UP_BOTH            $17
+.define SMALL_BORDER_DOWN_LEFT          $18
+.define SMALL_BORDER_DOWN_RIGHT         $19
+.define SMALL_BORDER_DOWN_BOTH          $1a
+.define SMALL_BORDER_LEFT_UP            $1b
+.define SMALL_BORDER_LEFT_DOWN          $1c
+.define SMALL_BORDER_LEFT_BOTH          $1d
+.define SMALL_BORDER_RIGHT_UP           $1e
+.define SMALL_BORDER_RIGHT_DOWN         $1f
+.define SMALL_BORDER_RIGHT_BOTH         $20
 
 
 ; Forest tile set
@@ -313,6 +365,6 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .global cur_enemy
 
 .global inventory, inventory_count
-.global map_screen_generators, cur_screen_x, cur_screen_y
+.global map_screen_generators, cur_screen_x, cur_screen_y, map_ptr, map_visited_ptr
 .global spawn_screen_x, spawn_screen_y, spawn_pos_x, spawn_pos_y
 .global active_save_slot

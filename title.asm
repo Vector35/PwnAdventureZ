@@ -48,7 +48,7 @@ vectordone:
 	jsr clear_screen
 
 	; Copy tiles into video memory
-	LOAD_ALL_TILES $000 + TILE_UI, ui_tiles
+	LOAD_ALL_TILES $000 + TILE_UI, title_tiles
 	LOAD_ALL_TILES $100 + TILE_Z, z_tiles
 
 	; Draw UI box around logo
@@ -284,5 +284,6 @@ alt_str_palettes:
 
 
 TILES ui_tiles, 1, "tiles/ui.chr", 92
+TILES title_tiles, 1, "tiles/title/title.chr", 92
 TILES vector35_tiles, 1, "tiles/title/vector35.chr", 14
 TILES z_tiles, 1, "tiles/title/z.chr", 20

@@ -65,6 +65,14 @@ notdead:
 	; Get latest controller state and look for movement
 	jsr update_controller
 
+	lda controller
+	and #JOY_START
+	beq nopause
+
+	jsr minimap
+	jmp vblank
+
+nopause:
 	lda knockback_time
 	beq normalmove
 
@@ -553,6 +561,10 @@ VAR cur_screen_x
 	.byte 0
 VAR cur_screen_y
 	.byte 0
+VAR map_ptr
+	.word 0
+VAR map_visited_ptr
+	.word 0
 
 VAR spawn_screen_x
 	.byte 0
