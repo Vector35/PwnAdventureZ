@@ -443,7 +443,7 @@ VAR starting_chest_descriptor
 
 
 TILES cave_border_tiles, 2, "tiles/cave/border.chr", 60
-TILES chest_tiles, 2, "tiles/cave/chest.chr", 8
+TILES chest_tiles, 2, "tiles/cave/chest2.chr", 8
 
 ; Place a lookup table for determining which tile to use based on the 8 surrounding tiles.  This
 ; is represented with a bit field, with $80 representing the top left and $01 representing the

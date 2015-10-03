@@ -600,5 +600,5 @@ VAR blocky_palette
 
 
 TILES bigdoor_tiles, 2, "tiles/cave/bigdoor.chr", 48
-TILES treasure_tiles, 2, "tiles/cave/chest.chr", 8
+TILES treasure_tiles, 2, "tiles/cave/chest2.chr", 8
 TILES urn_tiles, 2, "tiles/cave/urn.chr", 16
