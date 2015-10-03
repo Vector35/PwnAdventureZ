@@ -107,6 +107,8 @@ PROC new_game
 	; Zero out all memory except the stack page to get the game into a known state
 	lda active_save_slot
 	sta scratch
+	lda secret_code
+	sta scratch + 1
 
 	ldx #0
 	lda #0
@@ -123,6 +125,8 @@ clearloop:
 
 	lda scratch
 	sta active_save_slot
+	lda scratch + 1
+	sta secret_code
 
 	jsr zero_unused_stack_page
 
@@ -176,6 +180,8 @@ nameclearloop:
 	; Secret name entered for hard difficulty, set it and restart name entry
 	lda #1
 	sta new_game_difficulty
+	lda #0
+	sta secret_code
 	jmp nameloop
 
 nothard:
@@ -216,6 +222,8 @@ nothard:
 	; Secret name entered for hardest difficulty, set it and restart name entry
 	lda #2
 	sta new_game_difficulty
+	lda #0
+	sta secret_code
 	jmp nameloop
 
 namedone:
@@ -576,4 +584,7 @@ VAR spawn_pos_y
 	.byte 0
 
 VAR active_save_slot
+	.byte 0
+
+VAR secret_code
 	.byte 0

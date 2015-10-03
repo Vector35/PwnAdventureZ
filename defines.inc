@@ -368,3 +368,5 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .global map_screen_generators, cur_screen_x, cur_screen_y, map_ptr, map_visited_ptr
 .global spawn_screen_x, spawn_screen_y, spawn_pos_x, spawn_pos_y
 .global active_save_slot
+
+.global secret_code

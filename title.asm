@@ -137,29 +137,88 @@ zloop:
 	LOAD_PTR title_palette
 	jsr fade_in
 
-	ldx #0
-	ldy #0
+	lda #0
+	sta arg0
+	sta arg1
 menuloop:
-	txa
-	pha
-	tya
-	pha
-
 	jsr update_controller
 	and #JOY_START
 	bne start
 
-	jsr wait_for_vblank
+	lda controller
+	beq nopress
 
-	; Perform palette animation
-	pla
-	tay
-	pla
-	tax
+	ldx #0
+buttonmoveloop:
+	lda button_presses + 1, x
+	sta button_presses, x
+	inx
+	cpx #9
+	bne buttonmoveloop
+	lda controller
+	sta button_presses + 9
+
+	lda button_presses
+	cmp #JOY_UP
+	bne waitfordepress
+	lda button_presses + 1
+	cmp #JOY_UP
+	bne waitfordepress
+	lda button_presses + 2
+	cmp #JOY_DOWN
+	bne waitfordepress
+	lda button_presses + 3
+	cmp #JOY_DOWN
+	bne waitfordepress
+	lda button_presses + 4
+	cmp #JOY_LEFT
+	bne waitfordepress
+	lda button_presses + 5
+	cmp #JOY_RIGHT
+	bne waitfordepress
+	lda button_presses + 6
+	cmp #JOY_LEFT
+	bne waitfordepress
+	lda button_presses + 7
+	cmp #JOY_RIGHT
+	bne waitfordepress
+	lda button_presses + 8
+	cmp #JOY_B
+	bne waitfordepress
+	lda button_presses + 9
+	cmp #JOY_A
+	bne waitfordepress
+
+	lda #1
+	sta secret_code
+
+waitfordepress:
+	jsr wait_for_vblank
+	jsr title_palette_anim
+	jsr update_controller
+	lda controller
+	bne waitfordepress
+
+nopress:
+	jsr wait_for_vblank
+	jsr title_palette_anim
+	jmp menuloop
+
+start:
+	jsr fade_out
+
+	rts
+
+.endproc
+
+
+PROC title_palette_anim
+	ldx arg0
+	ldy arg1
 
 	inx
 	cpx #8
-	bne menuloop
+	bne done
 	ldx #0
 
 	LOAD_PTR flashing_text_palette_anim
@@ -168,17 +227,17 @@ menuloop:
 	jsr animate_palette
 	jsr prepare_for_rendering
 
-	jmp menuloop
-
-start:
-	pla
-	pla
-
-	jsr fade_out
-
+done:
+	stx arg0
+	sty arg1
 	rts
-
 .endproc
+
+
+.segment "TEMP"
+
+VAR button_presses
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 
 .data

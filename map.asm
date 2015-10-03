@@ -29,6 +29,18 @@ genloop:
 	lda #>overworld_visited
 	sta map_visited_ptr + 1
 
+	lda secret_code
+	beq nocode
+
+	lda #$ff
+	ldx #0
+revealmaploop:
+	sta overworld_visited, x
+	inx
+	cpx #88
+	bne revealmaploop
+
+nocode:
 	rts
 .endproc
 
