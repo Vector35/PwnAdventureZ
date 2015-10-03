@@ -68,7 +68,7 @@ VAR bankswitch_table
 	.byte "NES", $1a
 	.byte 8 ; 128kb program ROM
 	.byte 0 ; CHR-RAM
-	.byte $20 ; Mapper 2 (UNROM)
+	.byte $21 ; Mapper 2 (UNROM)
 	.byte 0
 	.byte 0
 	.byte 0 ; NTSC
