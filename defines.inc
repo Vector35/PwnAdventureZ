@@ -371,7 +371,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 
 .global controller
 
-.global player_x, player_y
+.global player_x, player_y, player_entry_x, player_entry_y
 .global player_health
 
 .global cur_enemy

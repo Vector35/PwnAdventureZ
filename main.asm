@@ -41,16 +41,31 @@ resume:
 
 
 PROC game_loop
+	; When loading game, set player location to where the player entered the room, to
+	; avoid spawning in the middle of a group of enemies
+	lda player_entry_x
+	sta player_x
+	lda player_entry_y
+	sta player_y
+
 	jsr has_save_ram
 	beq prepare
 
 	jsr generate_minimap_cache
 
 prepare:
+	; Save player location as the entry location for this map
+	lda player_x
+	sta player_entry_x
+	lda player_y
+	sta player_entry_y
+
 	jsr generate_map
 	jsr init_player_sprites
 	jsr init_zombie_sprites
 	jsr init_effect_sprites
+
+	jsr save_enemies
 
 	jsr save
 
@@ -240,10 +255,10 @@ namedone:
 
 	; Set player spawn position
 	lda #112
-	sta player_x
+	sta player_entry_x
 	sta spawn_pos_x
 	lda #112
-	sta player_y
+	sta player_entry_y
 	sta spawn_pos_y
 	lda #DIR_DOWN
 	sta player_direction

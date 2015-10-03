@@ -1118,6 +1118,9 @@ PROC remove_enemy
 	ldx cur_enemy
 	lda #ENEMY_NONE
 	sta enemy_type, x
+
+	jsr save_enemies
+
 	rts
 .endproc
 
@@ -1270,10 +1273,141 @@ dead:
 .endproc
 
 
+PROC save_enemies
+	ldx #0
+findloop:
+	lda saved_enemy_screen_x, x
+	cmp cur_screen_x
+	bne findnext
+	lda saved_enemy_screen_y, x
+	cmp cur_screen_y
+	beq found
+findnext:
+	inx
+	cpx #8
+	bne findloop
+	jmp newscreen
+
+found:
+	lda saved_enemy_screen_x
+	sta saved_enemy_screen_x, x
+	lda saved_enemy_screen_y
+	sta saved_enemy_screen_y, x
+	txa
+	asl
+	asl
+	asl
+	tax
+	ldy #0
+swaploop:
+	lda saved_enemy_types, y
+	sta saved_enemy_types, x
+	inx
+	iny
+	cpy #8
+	bne swaploop
+	jmp save
+
+newscreen:
+	ldx #7
+moveloop:
+	lda saved_enemy_screen_x - 1, x
+	sta saved_enemy_screen_x, x
+	lda saved_enemy_screen_y - 1, x
+	sta saved_enemy_screen_y, x
+	dex
+	bne moveloop
+
+	ldx #63
+moveloop2:
+	lda saved_enemy_types - 8, x
+	sta saved_enemy_types, x
+	dex
+	cpx #7
+	bne moveloop2
+
+save:
+	lda cur_screen_x
+	sta saved_enemy_screen_x
+	lda cur_screen_y
+	sta saved_enemy_screen_y
+	ldx #0
+saveloop:
+	lda enemy_type, x
+	sta saved_enemy_types, x
+	inx
+	cpx #8
+	bne saveloop
+
+	rts
+.endproc
+
+
+PROC restore_enemies
+	ldx #0
+findloop:
+	lda saved_enemy_screen_x, x
+	cmp cur_screen_x
+	bne findnext
+	lda saved_enemy_screen_y, x
+	cmp cur_screen_y
+	beq found
+findnext:
+	inx
+	cpx #8
+	bne findloop
+	lda #0
+	rts
+
+found:
+	txa
+	asl
+	asl
+	asl
+	tax
+	ldy #0
+
+spawnloop:
+	txa
+	pha
+	tya
+	pha
+
+	lda saved_enemy_types, x
+	jsr spawn_starting_enemy
+
+	pla
+	tay
+	pla
+	tax
+	inx
+	iny
+	cpy #8
+	bne spawnloop
+
+	lda #1
+	rts
+.endproc
+
+
 .zeropage
 
 VAR cur_enemy
 	.byte 0
+
+VAR saved_enemy_screen_x
+	.byte 0, 0, 0, 0, 0, 0, 0, 0
+VAR saved_enemy_screen_y
+	.byte 0, 0, 0, 0, 0, 0, 0, 0
+VAR saved_enemy_types
+	.byte 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0
 
 
 .segment "TEMP"

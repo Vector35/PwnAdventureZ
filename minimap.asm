@@ -313,6 +313,7 @@ done:
 	rts
 
 quit:
+	jsr save
 	jmp start
 .endproc
 

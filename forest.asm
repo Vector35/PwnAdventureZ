@@ -310,6 +310,8 @@ nextblank:
 
 	; Create enemies
 	jsr prepare_spawn
+	jsr restore_enemies
+	bne restoredspawn
 
 	lda difficulty
 	cmp #1
@@ -354,6 +356,7 @@ spawnloop:
 	dex
 	bne spawnloop
 
+restoredspawn:
 	rts
 .endproc
 

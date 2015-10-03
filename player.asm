@@ -1059,6 +1059,10 @@ VAR player_x
 	.byte 0
 VAR player_y
 	.byte 0
+VAR player_entry_x
+	.byte 0
+VAR player_entry_y
+	.byte 0
 
 VAR player_health
 	.byte 0
