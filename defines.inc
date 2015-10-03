@@ -226,6 +226,18 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define SAVE_TILE_COLON       $1f
 
 
+; Minimap tile set
+.define MINIMAP_TILE_BACKGROUND    $001
+.define MINIMAP_TILE_FOREST        $00a
+.define MINIMAP_TILE_CAVE_ENTRANCE $00c
+.define MINIMAP_TILE_ROCK          $00d
+.define MINIMAP_TILE_BASE          $02e
+.define MINIMAP_TILE_TOWN          $03d
+.define MINIMAP_TILE_ARROWS        $03f
+.define MINIMAP_TILE_LAKE          $05c
+.define MINIMAP_TILE_INDICATORS    $07d
+
+
 ; Movement directions
 .define DIR_UP        0
 .define DIR_LEFT      1

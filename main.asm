@@ -41,6 +41,11 @@ resume:
 
 
 PROC game_loop
+	jsr has_save_ram
+	beq prepare
+
+	jsr generate_minimap_cache
+
 prepare:
 	jsr generate_map
 	jsr init_player_sprites

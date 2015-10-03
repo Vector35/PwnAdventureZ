@@ -154,7 +154,7 @@ clearloop:
 	sta $7900, x
 	inx
 	bne clearloop
-	LOAD_PTR $62a0
+	LOAD_PTR $6c00
 	jsr clear_save_header
 	LOAD_PTR $6ca0
 	jsr clear_save_header
@@ -181,7 +181,7 @@ clearloop:
 	sta $7c00, x
 	inx
 	bne clearloop
-	LOAD_PTR $62c0
+	LOAD_PTR $6c20
 	jsr clear_save_header
 	LOAD_PTR $6cc0
 	jsr clear_save_header
@@ -208,7 +208,7 @@ clearloop:
 	sta $7f00, x
 	inx
 	bne clearloop
-	LOAD_PTR $62e0
+	LOAD_PTR $6c40
 	jsr clear_save_header
 	LOAD_PTR $6ce0
 	jsr clear_save_header
@@ -351,7 +351,7 @@ saveloop1:
 	iny
 	bne saveloop1
 
-	LOAD_PTR $62a0
+	LOAD_PTR $6c00
 	jsr write_save_header
 	jsr update_header_checksum
 	jsr write_header_checksum
@@ -427,7 +427,7 @@ saveloop1:
 	iny
 	bne saveloop1
 
-	LOAD_PTR $62c0
+	LOAD_PTR $6c20
 	jsr write_save_header
 	jsr update_header_checksum
 	jsr write_header_checksum
@@ -504,7 +504,7 @@ saveloop1:
 	iny
 	bne saveloop1
 
-	LOAD_PTR $62e0
+	LOAD_PTR $6c40
 	jsr write_save_header
 	jsr update_header_checksum
 	jsr write_header_checksum
@@ -647,8 +647,6 @@ slot2:
 
 
 PROC is_save_slot_valid
-	; Check offset $100 in save slot (which corresponds to the stack area, which is not
-	; copied during save)
 	pha
 	jsr enable_save_ram
 	pla
@@ -659,16 +657,16 @@ PROC is_save_slot_valid
 	asl
 	asl
 	tax
-	lda $62a0, x
+	lda $6c00, x
 	cmp #'P'
 	bne notvalid
-	lda $62a1, x
+	lda $6c01, x
 	cmp #'w'
 	bne notvalid
-	lda $62a2, x
+	lda $6c02, x
 	cmp #'n'
 	bne notvalid
-	lda $62a3, x
+	lda $6c03, x
 	cmp #'Z'
 
 notvalid:
@@ -683,16 +681,16 @@ PROC validate_saves
 	; Check primary copy of save slot 0 for accuracy
 	jsr enable_save_ram
 
-	lda $62a0
+	lda $6c00
 	cmp #'P'
 	bne save0aheadernotvalid
-	lda $62a1
+	lda $6c01
 	cmp #'w'
 	bne save0aheadernotvalid
-	lda $62a2
+	lda $6c02
 	cmp #'n'
 	bne save0aheadernotvalid
-	lda $62a3
+	lda $6c03
 	cmp #'Z'
 	bne save0aheadernotvalid
 	jmp save0aheadervalid
@@ -724,14 +722,14 @@ checksumloop0a:
 	jsr update_checksum
 	iny
 	bne checksumloop0a
-	LOAD_PTR $62a0
+	LOAD_PTR $6c00
 	jsr update_header_checksum
 
 	lda checksum
-	cmp $62a0 + SAVE_HEADER_CHECKSUM
+	cmp $6c00 + SAVE_HEADER_CHECKSUM
 	bne save0anotvalid
 	lda checksum + 1
-	cmp $62a0 + SAVE_HEADER_CHECKSUM + 1
+	cmp $6c00 + SAVE_HEADER_CHECKSUM + 1
 	bne save0anotvalid
 
 	; First save is valid, copy to backup locations to ensure they are valid as well
@@ -751,7 +749,7 @@ copyloop0a:
 
 	ldy #0
 headerloop0a:
-	lda $62a0, y
+	lda $6c00, y
 	sta $6ca0, y
 	sta $76a0, y
 	iny
@@ -831,7 +829,7 @@ copyloop0b:
 	ldy #0
 headerloop0b:
 	lda $6ca0, y
-	sta $62a0, y
+	sta $6c00, y
 	sta $76a0, y
 	iny
 	cpy #$20
@@ -910,7 +908,7 @@ copyloop0c:
 	ldy #0
 headerloop0c:
 	lda $76a0, y
-	sta $62a0, y
+	sta $6c00, y
 	sta $6ca0, y
 	iny
 	cpy #$20
@@ -925,16 +923,16 @@ save0cnotvalid:
 
 checksave1:
 	; Check primary copy of save slot 1 for accuracy
-	lda $62c0
+	lda $6c20
 	cmp #'P'
 	bne save1aheadernotvalid
-	lda $62c1
+	lda $6c21
 	cmp #'w'
 	bne save1aheadernotvalid
-	lda $62c2
+	lda $6c22
 	cmp #'n'
 	bne save1aheadernotvalid
-	lda $62c3
+	lda $6c23
 	cmp #'Z'
 	bne save1aheadernotvalid
 	jmp save1aheadervalid
@@ -966,14 +964,14 @@ checksumloop1a:
 	jsr update_checksum
 	iny
 	bne checksumloop1a
-	LOAD_PTR $62c0
+	LOAD_PTR $6c20
 	jsr update_header_checksum
 
 	lda checksum
-	cmp $62c0 + SAVE_HEADER_CHECKSUM
+	cmp $6c20 + SAVE_HEADER_CHECKSUM
 	bne save1anotvalid
 	lda checksum + 1
-	cmp $62c0 + SAVE_HEADER_CHECKSUM + 1
+	cmp $6c20 + SAVE_HEADER_CHECKSUM + 1
 	bne save1anotvalid
 
 	; First save is valid, copy to backup locations to ensure they are valid as well
@@ -993,7 +991,7 @@ copyloop1a:
 
 	ldy #0
 headerloop1a:
-	lda $62c0, y
+	lda $6c20, y
 	sta $6cc0, y
 	sta $76c0, y
 	iny
@@ -1073,7 +1071,7 @@ copyloop1b:
 	ldy #0
 headerloop1b:
 	lda $6cc0, y
-	sta $62c0, y
+	sta $6c20, y
 	sta $76c0, y
 	iny
 	cpy #$20
@@ -1152,7 +1150,7 @@ copyloop1c:
 	ldy #0
 headerloop1c:
 	lda $76c0, y
-	sta $62c0, y
+	sta $6c20, y
 	sta $6cc0, y
 	iny
 	cpy #$20
@@ -1167,16 +1165,16 @@ save1cnotvalid:
 
 checksave2:
 	; Check primary copy of save slot 2 for accuracy
-	lda $62e0
+	lda $6c40
 	cmp #'P'
 	bne save2aheadernotvalid
-	lda $62e1
+	lda $6c41
 	cmp #'w'
 	bne save2aheadernotvalid
-	lda $62e2
+	lda $6c42
 	cmp #'n'
 	bne save2aheadernotvalid
-	lda $62e3
+	lda $6c43
 	cmp #'Z'
 	bne save2aheadernotvalid
 	jmp save2aheadervalid
@@ -1208,14 +1206,14 @@ checksumloop2a:
 	jsr update_checksum
 	iny
 	bne checksumloop2a
-	LOAD_PTR $62e0
+	LOAD_PTR $6c40
 	jsr update_header_checksum
 
 	lda checksum
-	cmp $62e0 + SAVE_HEADER_CHECKSUM
+	cmp $6c40 + SAVE_HEADER_CHECKSUM
 	bne save2anotvalid
 	lda checksum + 1
-	cmp $62e0 + SAVE_HEADER_CHECKSUM + 1
+	cmp $6c40 + SAVE_HEADER_CHECKSUM + 1
 	bne save2anotvalid
 
 	; First save is valid, copy to backup locations to ensure they are valid as well
@@ -1235,7 +1233,7 @@ copyloop2a:
 
 	ldy #0
 headerloop2a:
-	lda $62e0, y
+	lda $6c40, y
 	sta $6ce0, y
 	sta $76e0, y
 	iny
@@ -1315,7 +1313,7 @@ copyloop2b:
 	ldy #0
 headerloop2b:
 	lda $6ce0, y
-	sta $62e0, y
+	sta $6c40, y
 	sta $76e0, y
 	iny
 	cpy #$20
@@ -1394,7 +1392,7 @@ copyloop2c:
 	ldy #0
 headerloop2c:
 	lda $76e0, y
-	sta $62e0, y
+	sta $6c40, y
 	sta $6ce0, y
 	iny
 	cpy #$20
@@ -1408,6 +1406,325 @@ save2cnotvalid:
 	jsr enable_save_ram
 
 done:
+	jsr disable_save_ram
+	rts
+.endproc
+
+
+PROC generate_minimap_cache
+	jsr enable_save_ram
+
+	lda #0
+	sta arg1
+genyloop:
+	lda #0
+	sta arg0
+genxloop:
+	ldx arg0
+	ldy arg1
+	jsr read_overworld_map
+
+	and #$3f
+	jsr get_minimap_tile_for_type
+
+	ldx arg0
+	ldy arg1
+	jsr write_minimap_cache
+
+	ldx arg0
+	inx
+	stx arg0
+	cpx #26
+	beq xwrap
+	jmp genxloop
+xwrap:
+	ldy arg1
+	iny
+	sty arg1
+	cpy #22
+	beq gendone
+	jmp genyloop
+
+gendone:
+	; Draw contoured edges for rocks, lakes, and bases
+	jsr process_minimap_border_sides
+
+	; Generate cave entrance tiles
+	lda #0
+	sta arg1
+caveyloop:
+	lda #0
+	sta arg0
+cavexloop:
+	ldx arg0
+	ldy arg1
+	jsr read_overworld_map
+
+	cmp #MAP_CAVE_INTERIOR
+	beq cave
+	cmp #MAP_CAVE_INTERIOR + $40
+	beq cave
+	jmp nextcave
+
+cave:
+	ldx arg0
+	ldy arg1
+	iny
+	jsr read_overworld_map
+	and #$3f
+	cmp #MAP_FOREST
+	bne nextcave
+
+	lda #MINIMAP_TILE_CAVE_ENTRANCE
+	ldx arg0
+	ldy arg1
+	jsr write_minimap_cache
+
+nextcave:
+	ldx arg0
+	inx
+	stx arg0
+	cpx #26
+	beq xwrapcave
+	jmp cavexloop
+xwrapcave:
+	ldy arg1
+	iny
+	sty arg1
+	cpy #22
+	beq cavedone
+	jmp caveyloop
+
+cavedone:
+	jsr disable_save_ram
+	rts
+.endproc
+
+
+PROC process_minimap_border_sides
+	; Convert borders into the correct tile to account for surroundings.  This will
+	; give them a contour along the edges.
+	ldy #0
+yloop:
+	ldx #0
+xloop:
+	jsr process_minimap_border_sides_for_tile
+	inx
+	cpx #26
+	bne xloop
+	iny
+	cpy #22
+	bne yloop
+	rts
+.endproc
+
+
+PROC process_minimap_border_sides_for_tile
+	txa
+	sta arg0
+	tya
+	sta arg1
+
+	; If the tile is empty space, don't touch it
+	jsr read_minimap_cache
+	cmp #MINIMAP_TILE_ROCK + SMALL_BORDER_CENTER
+	beq checkrock
+	cmp #MINIMAP_TILE_LAKE + SMALL_BORDER_CENTER
+	beq checklake
+	cmp #MINIMAP_TILE_BASE + SMALL_BORDER_CENTER
+	beq checkbase
+	jmp done
+
+checkrock:
+	lda #MINIMAP_TILE_ROCK
+	sta border_tile_base
+	lda #MINIMAP_TILE_ROCK + SMALL_BORDER_INTERIOR
+	sta border_tile_interior
+	jmp solid
+checklake:
+	lda #MINIMAP_TILE_LAKE
+	sta border_tile_base
+	lda #MINIMAP_TILE_LAKE + SMALL_BORDER_INTERIOR
+	sta border_tile_interior
+	jmp solid
+checkbase:
+	lda #MINIMAP_TILE_BASE
+	sta border_tile_base
+	lda #MINIMAP_TILE_BASE + SMALL_BORDER_INTERIOR
+	sta border_tile_interior
+	jmp solid
+
+solid:
+	; Create a bit mask based on the 8 surrounding tiles, where the bit is set
+	; if the tile is a border wall or outside the map
+	lda #0
+	sta arg4
+	lda #$80
+	sta arg5
+
+	lda #$ff
+	sta arg3
+yloop:
+	lda #$ff
+	sta arg2
+xloop:
+	; Skip center as we already know it is solid, and we have only 8 bits
+	lda arg2
+	cmp #0
+	bne notcenter
+	lda arg3
+	cmp #0
+	bne notcenter
+	jmp skip
+
+notcenter:
+	; Compute X and check for bounds
+	lda arg0
+	clc
+	adc arg2
+	cmp #$ff
+	beq out
+	cmp #26
+	beq out
+	tax
+
+	; Compute Y and check for bounds
+	lda arg1
+	clc
+	adc arg3
+	cmp #$ff
+	beq out
+	cmp #22
+	beq out
+	tay
+
+	; Read map and check for a border wall
+	jsr read_minimap_cache
+	cmp border_tile_base
+	bcc next
+	cmp border_tile_interior
+	beq next
+
+out:
+	; Solid, mark the bit
+	lda arg4
+	ora arg5
+	sta arg4
+
+next:
+	; Move to next bit
+	lda arg5
+	lsr
+	sta arg5
+
+skip:
+	; Go to next tile
+	ldx arg2
+	inx
+	stx arg2
+	cpx #2
+	bne xloop
+
+	ldy arg3
+	iny
+	sty arg3
+	cpy #2
+	bne yloop
+
+	; The bit mask has been generated, look it up in the table to get the proper tile
+	ldy arg4
+	lda border_tile_for_sides, y
+	lsr
+	lsr
+	clc
+	adc border_tile_base
+
+	; Write the new tile to the map
+	ldx arg0
+	ldy arg1
+	jsr write_minimap_cache
+
+done:
+	lda arg0
+	tax
+	lda arg1
+	tay
+	rts
+.endproc
+
+
+PROC get_minimap_cache_ptr
+	tya
+	lsr
+	lsr
+	lsr
+	clc
+	adc #>minimap_cache
+	sta temp + 1
+
+	tya
+	asl
+	asl
+	asl
+	asl
+	asl
+	sta temp
+	txa
+	clc
+	adc temp
+	adc #<minimap_cache
+	sta temp
+	lda temp + 1
+	adc #0
+	sta temp + 1
+
+	rts
+.endproc
+
+
+PROC read_minimap_cache
+	jsr get_minimap_cache_ptr
+	ldy #0
+	lda (temp), y
+	rts
+.endproc
+
+
+PROC write_minimap_cache
+	pha
+	jsr get_minimap_cache_ptr
+	ldy #0
+	pla
+	sta (temp), y
+	rts
+.endproc
+
+
+PROC render_minimap
+	jsr enable_save_ram
+
+	lda #0
+	sta arg1
+	LOAD_PTR minimap_cache
+
+loop:
+	ldx #2
+	lda arg1
+	clc
+	adc #32 + 2
+	tay
+	lda #26
+	jsr write_tiles
+
+	ldy #6
+	jsr add_y_to_ptr
+
+	ldy arg1
+	iny
+	sty arg1
+	cpy #22
+	bne loop
+
 	jsr disable_save_ram
 	rts
 .endproc
@@ -1430,3 +1747,7 @@ VAR checksum
 
 
 .segment "SRAM"
+VAR minimap_cache
+	.repeat $2c0
+	.byte 0
+	.endrepeat

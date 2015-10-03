@@ -125,9 +125,9 @@ validsave:
 	asl
 	tay
 
-	lda $62a0 + SAVE_HEADER_DIFFICULTY, y
+	lda $6c00 + SAVE_HEADER_DIFFICULTY, y
 	sta difficulty
-	lda $62a0 + SAVE_HEADER_KEY_COUNT, y
+	lda $6c00 + SAVE_HEADER_KEY_COUNT, y
 	sta key_count
 
 	tya
@@ -135,7 +135,7 @@ validsave:
 
 	ldx #0
 nameloop:
-	lda $62a0 + SAVE_HEADER_NAME, y
+	lda $6c00 + SAVE_HEADER_NAME, y
 	sta name, x
 	inx
 	iny
@@ -146,7 +146,7 @@ nameloop:
 	tay
 	ldx #0
 timeloop:
-	lda $62a0 + SAVE_HEADER_TIME_PLAYED, y
+	lda $6c00 + SAVE_HEADER_TIME_PLAYED, y
 	sta time_played, x
 	inx
 	iny
