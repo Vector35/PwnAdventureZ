@@ -269,6 +269,8 @@ VAR scratch ; 32 bytes of temporary space
 
 
 .segment "VECTORS"
+VAR version_hash
+	.word 0, 0
 
 	.word nmi
 	.word start

@@ -327,6 +327,16 @@ PROC save_ram_to_slot_0
 	lda #0
 	sta checksum
 	sta checksum + 1
+
+	lda version_hash
+	jsr update_checksum
+	lda version_hash + 1
+	jsr update_checksum
+	lda version_hash + 2
+	jsr update_checksum
+	lda version_hash + 3
+	jsr update_checksum
+
 	ldy #0
 saveloop1:
 	lda $0000, y
@@ -393,6 +403,16 @@ PROC save_ram_to_slot_1
 	lda #0
 	sta checksum
 	sta checksum + 1
+
+	lda version_hash
+	jsr update_checksum
+	lda version_hash + 1
+	jsr update_checksum
+	lda version_hash + 2
+	jsr update_checksum
+	lda version_hash + 3
+	jsr update_checksum
+
 	ldy #0
 saveloop1:
 	lda $0000, y
@@ -460,6 +480,16 @@ PROC save_ram_to_slot_2
 	lda #0
 	sta checksum
 	sta checksum + 1
+
+	lda version_hash
+	jsr update_checksum
+	lda version_hash + 1
+	jsr update_checksum
+	lda version_hash + 2
+	jsr update_checksum
+	lda version_hash + 3
+	jsr update_checksum
+
 	ldy #0
 saveloop1:
 	lda $0000, y
@@ -674,6 +704,16 @@ save0aheadervalid:
 	lda #0
 	sta checksum
 	sta checksum + 1
+
+	lda version_hash
+	jsr update_checksum
+	lda version_hash + 1
+	jsr update_checksum
+	lda version_hash + 2
+	jsr update_checksum
+	lda version_hash + 3
+	jsr update_checksum
+
 	ldy #0
 checksumloop0a:
 	lda $6300, y
@@ -743,6 +783,16 @@ save0bheadervalid:
 	lda #0
 	sta checksum
 	sta checksum + 1
+
+	lda version_hash
+	jsr update_checksum
+	lda version_hash + 1
+	jsr update_checksum
+	lda version_hash + 2
+	jsr update_checksum
+	lda version_hash + 3
+	jsr update_checksum
+
 	ldy #0
 checksumloop0b:
 	lda $6d00, y
@@ -812,6 +862,16 @@ save0cheadervalid:
 	lda #0
 	sta checksum
 	sta checksum + 1
+
+	lda version_hash
+	jsr update_checksum
+	lda version_hash + 1
+	jsr update_checksum
+	lda version_hash + 2
+	jsr update_checksum
+	lda version_hash + 3
+	jsr update_checksum
+
 	ldy #0
 checksumloop0c:
 	lda $7700, y
@@ -886,6 +946,16 @@ save1aheadervalid:
 	lda #0
 	sta checksum
 	sta checksum + 1
+
+	lda version_hash
+	jsr update_checksum
+	lda version_hash + 1
+	jsr update_checksum
+	lda version_hash + 2
+	jsr update_checksum
+	lda version_hash + 3
+	jsr update_checksum
+
 	ldy #0
 checksumloop1a:
 	lda $6600, y
@@ -955,6 +1025,16 @@ save1bheadervalid:
 	lda #0
 	sta checksum
 	sta checksum + 1
+
+	lda version_hash
+	jsr update_checksum
+	lda version_hash + 1
+	jsr update_checksum
+	lda version_hash + 2
+	jsr update_checksum
+	lda version_hash + 3
+	jsr update_checksum
+
 	ldy #0
 checksumloop1b:
 	lda $7000, y
@@ -1024,6 +1104,16 @@ save1cheadervalid:
 	lda #0
 	sta checksum
 	sta checksum + 1
+
+	lda version_hash
+	jsr update_checksum
+	lda version_hash + 1
+	jsr update_checksum
+	lda version_hash + 2
+	jsr update_checksum
+	lda version_hash + 3
+	jsr update_checksum
+
 	ldy #0
 checksumloop1c:
 	lda $7a00, y
@@ -1098,6 +1188,16 @@ save2aheadervalid:
 	lda #0
 	sta checksum
 	sta checksum + 1
+
+	lda version_hash
+	jsr update_checksum
+	lda version_hash + 1
+	jsr update_checksum
+	lda version_hash + 2
+	jsr update_checksum
+	lda version_hash + 3
+	jsr update_checksum
+
 	ldy #0
 checksumloop2a:
 	lda $6900, y
@@ -1167,6 +1267,16 @@ save2bheadervalid:
 	lda #0
 	sta checksum
 	sta checksum + 1
+
+	lda version_hash
+	jsr update_checksum
+	lda version_hash + 1
+	jsr update_checksum
+	lda version_hash + 2
+	jsr update_checksum
+	lda version_hash + 3
+	jsr update_checksum
+
 	ldy #0
 checksumloop2b:
 	lda $7300, y
@@ -1236,6 +1346,16 @@ save2cheadervalid:
 	lda #0
 	sta checksum
 	sta checksum + 1
+
+	lda version_hash
+	jsr update_checksum
+	lda version_hash + 1
+	jsr update_checksum
+	lda version_hash + 2
+	jsr update_checksum
+	lda version_hash + 3
+	jsr update_checksum
+
 	ldy #0
 checksumloop2c:
 	lda $7d00, y
