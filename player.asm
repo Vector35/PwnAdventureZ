@@ -12,9 +12,19 @@ PROC init_player_sprites
 	beq dark
 	cmp #MAP_CAVE_INTERIOR
 	beq dark
+	cmp #MAP_STARTING_CAVE
+	beq dark
 	cmp #MAP_BLOCKY_PUZZLE
 	beq dark
 	cmp #MAP_BLOCKY_TREASURE
+	beq dark
+	cmp #MAP_BLOCKY_CAVE
+	beq dark
+	cmp #MAP_LOST_CAVE
+	beq dark
+	cmp #MAP_MINE_ENTRANCE
+	beq dark
+	cmp #MAP_MINE_DOWN
 	beq dark
 
 	LOAD_PTR light_player_palette
@@ -596,12 +606,21 @@ transitiondown:
 	jsr read_overworld_cur
 	and #$3f
 	cmp #MAP_CAVE_INTERIOR
+	beq possiblecaveexit
+	cmp #MAP_STARTING_CAVE
+	beq possiblecaveexit
+	cmp #MAP_LOST_CAVE
+	beq possiblecaveexit
+	cmp #MAP_MINE_ENTRANCE
+	beq possiblecaveexit
+	cmp #MAP_BLOCKY_CAVE
 	bne notcaveexit
 
+possiblecaveexit:
 	jsr read_overworld_down
 	and #$3f
-	cmp #MAP_FOREST
-	bne notcaveexit
+	jsr is_map_type_forest
+	beq notcaveexit
 
 	; Exiting cave, place player at cave entrance
 	inc cur_screen_y

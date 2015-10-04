@@ -10,7 +10,7 @@ PROC save_select
 	jsr clear_screen
 	jsr clear_tiles
 
-	LOAD_ALL_TILES TILE_UI, ui_tiles
+	LOAD_ALL_TILES TILE_UI, title_tiles
 	LOAD_ALL_TILES TILE_SAVE, save_tiles
 
 	; Draw UI box for save select
@@ -613,7 +613,7 @@ PROC enter_name
 	lda #PPUCTRL_ENABLE_NMI | PPUCTRL_SPRITE_PATTERN | PPUCTRL_NAMETABLE_2C00
 	sta ppu_settings
 
-	LOAD_ALL_TILES TILE_UI, ui_tiles
+	LOAD_ALL_TILES TILE_UI, title_tiles
 	LOAD_ALL_TILES TILE_BLOCK, block_tile
 
 	; Draw UI box for name entry

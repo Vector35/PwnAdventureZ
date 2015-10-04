@@ -342,7 +342,6 @@ alt_str_palettes:
 	.byte $0f, $0f, $0f, $0f
 
 
-TILES ui_tiles, 1, "tiles/ui.chr", 92
 TILES title_tiles, 1, "tiles/title/title.chr", 92
 TILES vector35_tiles, 1, "tiles/title/vector35.chr", 14
 TILES z_tiles, 1, "tiles/title/z.chr", 20

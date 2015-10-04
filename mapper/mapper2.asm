@@ -115,6 +115,22 @@ cavexloop:
 	beq cave
 	cmp #MAP_CAVE_INTERIOR + $40
 	beq cave
+	cmp #MAP_STARTING_CAVE
+	beq cave
+	cmp #MAP_STARTING_CAVE + $40
+	beq cave
+	cmp #MAP_BLOCKY_CAVE
+	beq cave
+	cmp #MAP_BLOCKY_CAVE + $40
+	beq cave
+	cmp #MAP_LOST_CAVE
+	beq cave
+	cmp #MAP_LOST_CAVE + $40
+	beq cave
+	cmp #MAP_MINE_ENTRANCE
+	beq cave
+	cmp #MAP_MINE_ENTRANCE + $40
+	beq cave
 	jmp nextcave
 
 cave:
@@ -123,8 +139,8 @@ cave:
 	iny
 	jsr read_overworld_map
 	and #$3f
-	cmp #MAP_FOREST
-	bne nextcave
+	jsr is_map_type_forest
+	beq nextcave
 
 	lda #MINIMAP_TILE_CAVE_ENTRANCE
 	ldx arg0

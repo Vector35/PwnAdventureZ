@@ -40,6 +40,12 @@ opened:
 .endproc
 
 
+PROC gen_starting_cave
+	jsr gen_cave_common
+	rts
+.endproc
+
+
 PROC gen_cave_interior
 	jsr gen_cave_common
 	rts

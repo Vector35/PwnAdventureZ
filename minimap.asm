@@ -307,6 +307,8 @@ done:
 	jsr update_effect_sprites
 
 	LOAD_ALL_TILES $000, ui_tiles
+	jsr init_status_tiles
+
 	LOAD_PTR saved_palette
 	jsr fade_in
 	lda #0
@@ -371,8 +373,24 @@ PROC get_minimap_tile_for_type
 	beq rock
 	cmp #MAP_BLOCKY_PUZZLE
 	beq rock
+	cmp #MAP_BLOCKY_CAVE
+	beq rock
+	cmp #MAP_STARTING_CAVE
+	beq rock
+	cmp #MAP_LOST_CAVE
+	beq rock
+	cmp #MAP_MINE_ENTRANCE
+	beq rock
+	cmp #MAP_MINE_DOWN
+	beq rock
 
 	cmp #MAP_FOREST
+	beq forest
+	cmp #MAP_DEAD_WOOD
+	beq forest
+	cmp #MAP_UNBEARABLE
+	beq forest
+	cmp #MAP_START_FOREST
 	beq forest
 
 	cmp #MAP_HOUSE

@@ -104,6 +104,7 @@ function init() {
 	create_single_tile(row, "Boundary", "boundary", 0xc1);
 	create_single_tile(row, "Lake", "lake", 0xc7);
 	create_tile_set(row, "Start", "start", 0x00);
+	create_tile_set(row, "Starting cave", "startcave", 0x0e);
 	create_tile_set(row, "Cave", "cave", 0x02);
 	create_tile_set(row, "Forest", "forest", 0x03);
 
@@ -120,6 +121,16 @@ function init() {
 	create_tile_set(row, "Base", "base", 0x0a);
 	create_tile_set(row, "Blocky treasure", "blockytreasure", 0xb);
 	create_tile_set(row, "Blocky puzzle", "blockypuzzle", 0xc);
+	create_tile_set(row, "Blocky cave", "blockycave", 0xd);
+
+	var row = document.createElement('tr');
+	table.appendChild(row);
+	create_tile_set(row, "Lost Cave", "lostcave", 0x0f);
+	create_tile_set(row, "Mine entrance", "mineenter", 0x10);
+	create_tile_set(row, "Mine down", "minedown", 0x11);
+	create_tile_set(row, "Dead Wood", "deadwood", 0x12);
+	create_tile_set(row, "Unbearable", "bear", 0x13);
+	create_tile_set(row, "Starting forest", "startforest", 0x14);
 }
 
 active = 0xc1;

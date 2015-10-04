@@ -8,6 +8,22 @@
 
 .code
 
+PROC is_map_type_forest
+	cmp #MAP_FOREST
+	beq forest
+	cmp #MAP_DEAD_WOOD
+	beq forest
+	cmp #MAP_UNBEARABLE
+	beq forest
+	cmp #MAP_START_FOREST
+	beq forest
+	lda #0
+	rts
+forest:
+	lda #1
+	rts
+.endproc
+
 PROC gen_forest
 	; Load forest tiles
 	LOAD_ALL_TILES FOREST_TILES, forest_tiles
@@ -27,28 +43,41 @@ PROC gen_forest
 	; Determine which kind of border (if there is one) needs to be generated
 	jsr read_overworld_up
 	and #$3f
-	cmp #MAP_FOREST
-	bne bordertypedone
+	sta temp
+	jsr is_map_type_forest
+	beq bordertypedone
 
 	jsr read_overworld_down
 	and #$3f
-	cmp #MAP_FOREST
-	bne bordertypedone
+	sta temp
+	jsr is_map_type_forest
+	beq bordertypedone
 
 	jsr read_overworld_left
 	and #$3f
-	cmp #MAP_FOREST
-	bne bordertypedone
+	sta temp
+	jsr is_map_type_forest
+	beq bordertypedone
 
 	jsr read_overworld_right
 	and #$3f
+	sta temp
 
 bordertypedone:
+	lda temp
 	sta border_type
 
 	cmp #MAP_BOUNDARY
 	beq rockborderset
 	cmp #MAP_CAVE_INTERIOR
+	beq caveborderset
+	cmp #MAP_STARTING_CAVE
+	beq caveborderset
+	cmp #MAP_BLOCKY_CAVE
+	beq caveborderset
+	cmp #MAP_LOST_CAVE
+	beq caveborderset
+	cmp #MAP_MINE_ENTRANCE
 	beq caveborderset
 	cmp #MAP_LAKE
 	beq lakeborderset
@@ -63,7 +92,16 @@ caveborderset:
 	jsr read_overworld_up
 	and #$3f
 	cmp #MAP_CAVE_INTERIOR
+	beq topcave
+	cmp #MAP_STARTING_CAVE
+	beq topcave
+	cmp #MAP_LOST_CAVE
+	beq topcave
+	cmp #MAP_MINE_ENTRANCE
+	beq topcave
+	cmp #MAP_BLOCKY_CAVE
 	bne topnotcave
+topcave:
 	jsr can_travel_up
 	beq rockborderset
 
@@ -100,8 +138,8 @@ borderloaded:
 	beq leftisforest
 	jsr read_overworld_left
 	and #$3f
-	cmp #MAP_FOREST
-	bne leftnotforest
+	jsr is_map_type_forest
+	beq leftnotforest
 leftisforest:
 	lda #FOREST_TILES + FOREST_TREE
 	jsr gen_left_wall_small
@@ -112,8 +150,8 @@ leftnotforest:
 	beq rightisforest
 	jsr read_overworld_right
 	and #$3f
-	cmp #MAP_FOREST
-	bne rightnotforest
+	jsr is_map_type_forest
+	beq rightnotforest
 rightisforest:
 	lda #FOREST_TILES + FOREST_TREE
 	jsr gen_right_wall_small
@@ -124,8 +162,8 @@ rightnotforest:
 	beq topisforest
 	jsr read_overworld_up
 	and #$3f
-	cmp #MAP_FOREST
-	bne topnotforest
+	jsr is_map_type_forest
+	beq topnotforest
 topisforest:
 	lda #FOREST_TILES + FOREST_TREE
 	jsr gen_top_wall_small
@@ -136,8 +174,8 @@ topnotforest:
 	beq botisforest
 	jsr read_overworld_down
 	and #$3f
-	cmp #MAP_FOREST
-	bne botnotforest
+	jsr is_map_type_forest
+	beq botnotforest
 botisforest:
 	lda #FOREST_TILES + FOREST_TREE
 	jsr gen_bot_wall_small
@@ -151,6 +189,14 @@ botnotforest:
 	cmp #MAP_BOUNDARY
 	beq rock_boundary
 	cmp #MAP_CAVE_INTERIOR
+	beq cave_boundary
+	cmp #MAP_STARTING_CAVE
+	beq cave_boundary
+	cmp #MAP_BLOCKY_CAVE
+	beq cave_boundary
+	cmp #MAP_LOST_CAVE
+	beq cave_boundary
+	cmp #MAP_MINE_ENTRANCE
 	beq cave_boundary
 	cmp #MAP_LAKE
 	beq lake_boundary
@@ -384,28 +430,37 @@ PROC gen_forest_rock_boundary
 	; Generate borders of rock type with the rock tile set
 	jsr read_overworld_left
 	and #$3f
-	cmp #MAP_FOREST
-	beq leftnotrock
+	jsr is_map_type_forest
+	bne leftnotrock
 	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
 	jsr gen_left_wall_large
 
 leftnotrock:
 	jsr read_overworld_right
 	and #$3f
-	cmp #MAP_FOREST
-	beq rightnotrock
+	jsr is_map_type_forest
+	bne rightnotrock
 	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
 	jsr gen_right_wall_large
 
 rightnotrock:
 	jsr read_overworld_up
 	and #$3f
-	cmp #MAP_FOREST
-	beq topnotrock
+	jsr is_map_type_forest
+	bne topnotrock
 
 	lda border_type
 	cmp #MAP_CAVE_INTERIOR
+	beq rightcave
+	cmp #MAP_STARTING_CAVE
+	beq rightcave
+	cmp #MAP_LOST_CAVE
+	beq rightcave
+	cmp #MAP_MINE_ENTRANCE
+	beq rightcave
+	cmp #MAP_BLOCKY_CAVE
 	bne rightnotcave
+rightcave:
 	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
 	jsr gen_top_wall_always_thick
 	jmp topnotrock
@@ -416,8 +471,8 @@ rightnotcave:
 topnotrock:
 	jsr read_overworld_down
 	and #$3f
-	cmp #MAP_FOREST
-	beq botnotrock
+	jsr is_map_type_forest
+	bne botnotrock
 	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
 	jsr gen_bot_wall_large
 
@@ -434,32 +489,32 @@ PROC gen_forest_lake_boundary
 	; Generate borders of rock type with the rock tile set
 	jsr read_overworld_left
 	and #$3f
-	cmp #MAP_FOREST
-	beq leftnotlake
+	jsr is_map_type_forest
+	bne leftnotlake
 	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
 	jsr gen_left_wall_large
 
 leftnotlake:
 	jsr read_overworld_right
 	and #$3f
-	cmp #MAP_FOREST
-	beq rightnotlake
+	jsr is_map_type_forest
+	bne rightnotlake
 	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
 	jsr gen_right_wall_large
 
 rightnotlake:
 	jsr read_overworld_up
 	and #$3f
-	cmp #MAP_FOREST
-	beq topnotlake
+	jsr is_map_type_forest
+	bne topnotlake
 	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
 	jsr gen_top_wall_large
 
 topnotlake:
 	jsr read_overworld_down
 	and #$3f
-	cmp #MAP_FOREST
-	beq botnotlake
+	jsr is_map_type_forest
+	bne botnotlake
 	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
 	jsr gen_bot_wall_large
 

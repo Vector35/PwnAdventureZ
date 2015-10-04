@@ -132,7 +132,15 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define MAP_BASE_INTERIOR   10
 .define MAP_BLOCKY_TREASURE 11
 .define MAP_BLOCKY_PUZZLE   12
-.define MAP_TYPE_COUNT      13
+.define MAP_BLOCKY_CAVE     13
+.define MAP_STARTING_CAVE   14
+.define MAP_LOST_CAVE       15
+.define MAP_MINE_ENTRANCE   16
+.define MAP_MINE_DOWN       17
+.define MAP_DEAD_WOOD       18
+.define MAP_UNBEARABLE      19
+.define MAP_START_FOREST    20
+.define MAP_TYPE_COUNT      21
 
 
 ; Map parameters
@@ -375,7 +383,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .global controller
 
 .global player_x, player_y, player_entry_x, player_entry_y
-.global player_health
+.global player_health, gold
 
 .global cur_enemy
 

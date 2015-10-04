@@ -65,6 +65,7 @@ prepare:
 	jsr init_zombie_sprites
 	jsr init_shark_sprites
 	jsr init_effect_sprites
+	jsr init_status_tiles
 
 	jsr save_enemies
 
@@ -115,6 +116,7 @@ vblank:
 	jsr wait_for_vblank
 	jsr update_player_surroundings
 	jsr update_player_sprite
+	jsr update_status_bar
 	jsr prepare_for_rendering
 
 	jsr update_enemy_sprites
@@ -268,6 +270,14 @@ namedone:
 	lda #100
 	sta player_health
 
+	lda secret_code
+	beq nocode
+
+	lda #1
+	sta gold
+
+nocode:
+
 	; Don't start a new game on restore
 	lda #0
 	sta start_new_game
@@ -326,8 +336,10 @@ deathupdatedone:
 	sta cur_screen_y
 	lda spawn_pos_x
 	sta player_x
+	sta player_entry_x
 	lda spawn_pos_y
 	sta player_y
+	sta player_entry_y
 	lda #100
 	sta player_health
 	lda #0
@@ -339,7 +351,7 @@ deathupdatedone:
 	jsr fade_out
 	jsr clear_screen
 
-	LOAD_ALL_TILES 0, ui_tiles
+	LOAD_ALL_TILES 0, title_tiles
 
 	; Draw text
 	LOAD_PTR game_over_strings
@@ -609,3 +621,6 @@ VAR active_save_slot
 
 VAR secret_code
 	.byte 0
+
+VAR gold
+	.byte 0, 0, 0, 0
