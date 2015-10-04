@@ -345,7 +345,9 @@ spawnloop:
 	txa
 	pha
 
-	lda #2
+;	jsr forest_has_water ;returns 1 or 0
+;	adc #2
+	lda #3
 	jsr rand_range
 	tax
 	lda forest_enemy_types, x
@@ -360,6 +362,23 @@ restoredspawn:
 	rts
 .endproc
 
+PROC forest_has_water
+	ldx #32
+check_for_water:
+	dex
+	lda water_collision, x
+	cmp #0
+	bne found_water
+	cpx #0
+	beq no_water
+	jmp check_for_water
+found_water:
+	lda #1
+	rts
+no_water:
+	lda #0
+	rts
+.endproc
 
 PROC gen_forest_rock_boundary
 	; Generate borders of rock type with the rock tile set
@@ -466,7 +485,8 @@ VAR forest_lake_border_palette
 	.byte $0f, $02, $12, $19
 
 VAR forest_enemy_types
-	.byte ENEMY_NORMAL_MALE_ZOMBIE, ENEMY_NORMAL_FEMALE_ZOMBIE
+	.byte ENEMY_NORMAL_MALE_ZOMBIE, ENEMY_NORMAL_FEMALE_ZOMBIE, ENEMY_SHARK
+
 
 TILES forest_tiles, 2, "tiles/forest/forest.chr", 8
 TILES forest_rock_border_tiles, 2, "tiles/forest/rock.chr", 60

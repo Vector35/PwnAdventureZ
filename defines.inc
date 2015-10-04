@@ -252,7 +252,8 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 ; Enemy types
 .define ENEMY_NORMAL_MALE_ZOMBIE   0
 .define ENEMY_NORMAL_FEMALE_ZOMBIE 1
-.define ENEMY_FAT_ZOMBIE           2
+.define ENEMY_SHARK                2
+.define ENEMY_FAT_ZOMBIE           3
 .define ENEMY_NONE                 $ff
 
 .define ENEMY_MAX_COUNT          8
@@ -290,6 +291,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define SPRITE_TILE_NORMAL_MALE_ZOMBIE   $20
 .define SPRITE_TILE_NORMAL_FEMALE_ZOMBIE $40
 .define SPRITE_TILE_FAT_ZOMBIE           $60
+.define SPRITE_TILE_SHARK                $80
 
 .define SPRITE_TILE_BULLET        $f2
 .define SPRITE_TILE_BULLET_HIT    $f4

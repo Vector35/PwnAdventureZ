@@ -5,10 +5,18 @@
 PROC spawn_starting_enemy
 	sta arg5
 
-	; Try to find a valid spawn location
 	lda #0
 	sta arg4
+	; Try to find a valid spawn location
 spawnloop:
+	lda arg5
+	cmp #ENEMY_SHARK
+	bne not_shark
+	jsr find_water_spawn_point
+check_spawnable:
+	beq notspawnable
+	jmp dospawn
+not_shark:
 	lda #7
 	jsr rand_range
 	clc
@@ -22,10 +30,9 @@ spawnloop:
 	sta arg1
 	tay
 	ldx arg0
-
 	jsr read_spawnable_at
 	beq notspawnable
-
+dospawn:
 	; Check to make sure there isn't already an enemy here
 	ldx #0
 collideloop:
@@ -156,6 +163,65 @@ done:
 	rts
 .endproc
 
+PROC find_water_spawn_point
+	;pick a random edge
+	lda #4
+	jsr rand_range
+	cmp #0
+	bne not_up
+	;try to spawn at top of screen
+	;use random X
+	lda #MAP_WIDTH
+	jsr rand_range
+	tax
+	;use 0 for y
+	ldy #0
+	stx arg0
+	sty arg1
+	jsr read_water_collision_at
+	jmp check_spawnable
+not_up:
+	cmp #1
+	bne not_down
+	;try to spawn at bottom of screen
+	;use random x
+	lda #MAP_WIDTH
+	jsr rand_range
+	tax
+	; use bottom of screen for y
+	ldy #MAP_HEIGHT-1
+	stx arg0
+	sty arg1
+	jsr read_water_collision_at
+	jmp check_spawnable
+not_down:
+	cmp #2
+	bne not_right
+	;try to spawn on right side of screen
+	;use random y
+	lda #MAP_HEIGHT
+	jsr rand_range
+	tay
+	; use left side of screen
+	ldx #MAP_WIDTH-1
+	stx arg0
+	sty arg1
+	jsr read_water_collision_at
+	jmp check_spawnable
+not_right:
+	;try to spawn on left side of screen
+	;use random y
+	lda #MAP_HEIGHT
+	jsr rand_range
+	tay
+	; use left side of screen
+	ldx #0
+	stx arg0
+	sty arg1
+	jsr read_water_collision_at
+check_spawnable:
+	rts
+.endproc
 
 PROC update_enemies
 	lda #0
@@ -1520,4 +1586,5 @@ VAR knockback_control
 VAR enemy_descriptors
 	.word normal_male_zombie_descriptor
 	.word normal_female_zombie_descriptor
+	.word shark_descriptor 
 	.word fat_zombie_descriptor

@@ -63,6 +63,7 @@ prepare:
 	jsr generate_map
 	jsr init_player_sprites
 	jsr init_zombie_sprites
+	jsr init_shark_sprites
 	jsr init_effect_sprites
 
 	jsr save_enemies
