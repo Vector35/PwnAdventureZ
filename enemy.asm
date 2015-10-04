@@ -1138,8 +1138,10 @@ PROC update_enemy_sprites
 spriteloop:
 	lda enemy_type, x
 	cmp #ENEMY_NONE
-	beq empty
+	bne present
+	jmp empty
 
+present:
 	asl
 	tay
 	lda enemy_descriptors, y
@@ -1153,6 +1155,14 @@ spriteloop:
 	ldy #ENEMY_DESC_PALETTE
 	lda (ptr), y
 	sta arg1
+	ldy #ENEMY_DESC_SPRITE_STATES
+	lda (ptr), y
+	sta temp
+	ldy #ENEMY_DESC_SPRITE_STATES + 1
+	lda (ptr), y
+	sta ptr + 1
+	lda temp
+	sta ptr
 
 	txa
 	clc
@@ -1185,22 +1195,32 @@ spriteloop:
 	sta sprites, y
 	sta sprites + 4, y
 
-	pla
 	stx temp + 1
+
+	tya
 	tax
 
-	lda walking_sprites_for_state, x
+	pla
+	tay
+
+	lda (ptr), y
 	ora arg0
-	sta sprites + 1, y
-	lda walking_sprites_for_state + 1, x
+	sta sprites + 1, x
+	iny
+	lda (ptr), y
 	ora arg1
-	sta sprites + 2, y
-	lda walking_sprites_for_state + 2, x
+	sta sprites + 2, x
+	iny
+	lda (ptr), y
 	ora arg0
-	sta sprites + 5, y
-	lda walking_sprites_for_state + 3, x
+	sta sprites + 5, x
+	iny
+	lda (ptr), y
 	ora arg1
-	sta sprites + 6, y
+	sta sprites + 6, x
+
+	txa
+	tay
 
 	ldx temp + 1
 	lda enemy_x, x

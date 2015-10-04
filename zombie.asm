@@ -34,6 +34,7 @@ VAR normal_male_zombie_descriptor
 	.word walking_ai_tick
 	.word remove_enemy
 	.word normal_zombie_collide
+	.word walking_sprites_for_state
 	.byte SPRITE_TILE_NORMAL_MALE_ZOMBIE
 	.byte 1
 	.byte 1, 0
@@ -43,6 +44,7 @@ VAR normal_female_zombie_descriptor
 	.word walking_ai_tick
 	.word remove_enemy
 	.word normal_zombie_collide
+	.word walking_sprites_for_state
 	.byte SPRITE_TILE_NORMAL_FEMALE_ZOMBIE
 	.byte 1
 	.byte 1, 0
@@ -52,6 +54,7 @@ VAR fat_zombie_descriptor
 	.word walking_ai_tick
 	.word fat_zombie_explode
 	.word fat_zombie_explode
+	.word walking_sprites_for_state
 	.byte SPRITE_TILE_FAT_ZOMBIE
 	.byte 1
 	.byte 1, 0

@@ -255,16 +255,17 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define ENEMY_FAT_ZOMBIE           2
 .define ENEMY_NONE                 $ff
 
-.define ENEMY_MAX_COUNT        8
+.define ENEMY_MAX_COUNT          8
 
-.define ENEMY_DESC_TICK        0
-.define ENEMY_DESC_DIE         2
-.define ENEMY_DESC_COLLIDE     4
-.define ENEMY_DESC_TILE        6
-.define ENEMY_DESC_PALETTE     7
-.define ENEMY_DESC_SPEED_MASK  8
-.define ENEMY_DESC_SPEED_VALUE 9
-.define ENEMY_DESC_HEALTH      10
+.define ENEMY_DESC_TICK          0
+.define ENEMY_DESC_DIE           2
+.define ENEMY_DESC_COLLIDE       4
+.define ENEMY_DESC_SPRITE_STATES 6
+.define ENEMY_DESC_TILE          8
+.define ENEMY_DESC_PALETTE       9
+.define ENEMY_DESC_SPEED_MASK    10
+.define ENEMY_DESC_SPEED_VALUE   11
+.define ENEMY_DESC_HEALTH        12
 
 
 ; Interaction types
