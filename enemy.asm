@@ -120,6 +120,13 @@ slotfound:
 	lda (ptr), y
 	sta enemy_speed_value, x
 
+	ldy #ENEMY_DESC_SPRITE_STATES
+	lda (ptr), y
+	sta enemy_sprite_state_low, x
+	ldy #ENEMY_DESC_SPRITE_STATES + 1
+	lda (ptr), y
+	sta enemy_sprite_state_high, x
+
 	lda difficulty
 	cmp #1
 	beq hard
@@ -1155,14 +1162,11 @@ present:
 	ldy #ENEMY_DESC_PALETTE
 	lda (ptr), y
 	sta arg1
-	ldy #ENEMY_DESC_SPRITE_STATES
-	lda (ptr), y
-	sta temp
-	ldy #ENEMY_DESC_SPRITE_STATES + 1
-	lda (ptr), y
-	sta ptr + 1
-	lda temp
+
+	lda enemy_sprite_state_low, x
 	sta ptr
+	lda enemy_sprite_state_high, x
+	sta ptr + 1
 
 	txa
 	clc
@@ -1451,6 +1455,16 @@ VAR enemy_y
 	.endrepeat
 
 VAR enemy_health
+	.repeat ENEMY_MAX_COUNT
+	.byte 0
+	.endrepeat
+
+VAR enemy_sprite_state_low
+	.repeat ENEMY_MAX_COUNT
+	.byte 0
+	.endrepeat
+
+VAR enemy_sprite_state_high
 	.repeat ENEMY_MAX_COUNT
 	.byte 0
 	.endrepeat
