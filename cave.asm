@@ -414,6 +414,9 @@ PROC starting_chest_interact
 
 	jsr prepare_for_rendering
 
+	lda #ITEM_AXE
+	jsr give_item
+
 	lda #1
 	sta starting_chest_opened
 

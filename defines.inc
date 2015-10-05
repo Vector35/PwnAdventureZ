@@ -367,6 +367,20 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define ITEM_COFFEE        28
 .define ITEM_WINE          29
 
+.define ITEM_DESC_USE      0
+.define ITEM_DESC_TYPE     2
+.define ITEM_DESC_NAME     3
+
+.define ITEM_TYPE_GUN        0
+.define ITEM_TYPE_MELEE      1
+.define ITEM_TYPE_GRENADE    2
+.define ITEM_TYPE_CRAFTING   3
+.define ITEM_TYPE_OUTFIT     4
+.define ITEM_TYPE_HEALTH     5
+.define ITEM_TYPE_CONSUMABLE 6
+.define ITEM_TYPE_SELL       7
+.define ITEM_TYPE_CAMPFIRE   8
+
 
 ; Globally accessible zero page variables
 .zeropage

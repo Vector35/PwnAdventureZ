@@ -104,6 +104,34 @@ clearloop:
 .endproc
 
 
+PROC clear_alt_screen
+; Should be called with rendering disabled
+
+	; Clear sprites
+	lda #$ff
+	ldx #0
+clearsprites:
+	sta sprites, x
+	inx
+	bne clearsprites
+
+	ldx #$24
+	stx PPUADDR
+	ldy #0
+	sty PPUADDR
+	tya
+clearloop:
+	sta PPUDATA
+	iny
+	bne clearloop
+	inx
+	cpx #$28
+	bne clearloop
+
+	rts
+.endproc
+
+
 PROC set_ppu_addr_to_coord
 	; Calculate address of write and set PPU address to it
 	lda PPUSTATUS

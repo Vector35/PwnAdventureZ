@@ -95,6 +95,14 @@ notdead:
 	jmp vblank
 
 nopause:
+	lda controller
+	and #JOY_SELECT
+	beq noinventory
+
+	jsr show_inventory
+	jmp vblank
+
+noinventory:
 	lda knockback_time
 	beq normalmove
 
@@ -275,6 +283,17 @@ namedone:
 
 	lda #1
 	sta gold
+
+	lda #ITEM_PISTOL
+	ldx #200
+	jsr give_weapon
+
+	lda #ITEM_SNEAKERS
+	jsr give_item
+
+	lda #ITEM_HEALTH_KIT
+	ldx #5
+	jsr give_item_with_count
 
 nocode:
 

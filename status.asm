@@ -7,7 +7,7 @@
 .code
 
 PROC init_status_tiles
-	LOAD_ALL_TILES 0, ui_tiles
+	LOAD_ALL_TILES 0, status_ui_tiles
 	LOAD_ALL_TILES RIGHT_PANEL_TILES, key_tiles
 
 	; Load tiles for name of area
@@ -437,7 +437,7 @@ VAR partial_health_tile
 	.byte $2e
 
 
-TILES ui_tiles, 1, "tiles/ui.chr", 102
+TILES status_ui_tiles, 1, "tiles/status/ui.chr", 102
 
 TILES new_item_tiles, 2, "tiles/status/item.chr", 10
 TILES time_tiles, 2, "tiles/status/time.chr", 10

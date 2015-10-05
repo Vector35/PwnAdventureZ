@@ -14,7 +14,7 @@ PROC minimap
 	rts
 .endproc
 
-PROC back_to_game_from_minimap
+PROC back_to_game_from_alternate_screen
 	lda current_bank
 	pha
 	lda #0
@@ -24,7 +24,7 @@ PROC back_to_game_from_minimap
 	jsr update_enemy_sprites
 	jsr update_effect_sprites
 
-	LOAD_ALL_TILES $000, ui_tiles
+	LOAD_ALL_TILES $000, title_tiles
 	jsr init_status_tiles
 
 	pla
@@ -48,8 +48,9 @@ palettesaveloop:
 	sta saved_ppu_settings
 
 	jsr fade_out
+	jsr clear_alt_screen
 
-	LOAD_ALL_TILES $000, ui_tiles
+	LOAD_ALL_TILES $000, title_tiles
 	LOAD_ALL_TILES MINIMAP_TILE_BACKGROUND, minimap_background_tiles
 	LOAD_ALL_TILES MINIMAP_TILE_FOREST, minimap_forest_tiles
 	LOAD_ALL_TILES MINIMAP_TILE_CAVE_ENTRANCE, minimap_cave_entrace_tile
@@ -191,14 +192,6 @@ visited:
 	cpy #22
 	bne visityloop
 
-	; Clear sprites
-	lda #$ff
-	ldx #0
-clearsprites:
-	sta sprites, x
-	inx
-	bne clearsprites
-
 	; Add sprite for current location
 	lda cur_screen_y
 	asl
@@ -239,11 +232,20 @@ selectloop:
 
 	jsr update_controller
 	lda controller
-	and #JOY_START
+	and #JOY_START | JOY_A
 	beq notstart
 	jmp done & $ffff
 
 notstart:
+	lda controller
+	and #JOY_B
+	beq notb
+
+	lda #0
+	sta selection
+	jmp done & $ffff
+
+notb:
 	lda controller
 	and #JOY_LEFT | JOY_RIGHT | JOY_SELECT
 	beq selectloop
@@ -335,7 +337,7 @@ done:
 	cmp #1
 	beq quit
 
-	jsr back_to_game_from_minimap
+	jsr back_to_game_from_alternate_screen
 
 	LOAD_PTR saved_palette
 	jsr fade_in
