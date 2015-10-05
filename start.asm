@@ -282,4 +282,26 @@ VAR version_hash
 .segment "CHR3"
 .segment "CHR4"
 .segment "CHR5"
-.segment "CHR6"
+
+
+.segment "CODEIDENT"
+VAR current_bank
+.byte 0
+
+.segment "CHR1IDENT"
+.byte 1
+
+.segment "CHR2IDENT"
+.byte 2
+
+.segment "CHR3IDENT"
+.byte 3
+
+.segment "CHR4IDENT"
+.byte 4
+
+.segment "CHR5IDENT"
+.byte 5
+
+.segment "EXTRAIDENT"
+.byte 6

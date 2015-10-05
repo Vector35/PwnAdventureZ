@@ -62,6 +62,20 @@ PROC bankswitch
 .endproc
 
 
+PROC bankswitch_with_ram_enabled
+	sta $e000
+	lsr
+	sta $e000
+	lsr
+	sta $e000
+	lsr
+	sta $e000
+	lsr
+	sta $e000
+	rts
+.endproc
+
+
 PROC has_save_ram
 	lda #1
 	rts
@@ -71,7 +85,7 @@ PROC has_save_ram
 PROC enable_save_ram
 	; Enable RAM in both CHR and PRG select registers, as the original SNROM boards
 	; used CHR select bit 4 as a write protect as well
-	lda #$00
+	lda current_bank
 	sta $e000
 	lsr
 	sta $e000
@@ -100,7 +114,8 @@ PROC enable_save_ram
 PROC disable_save_ram
 	; Disable RAM in both CHR and PRG select registers, as the original SNROM boards
 	; used CHR select bit 4 as a write protect as well
-	lda #$10
+	lda current_bank
+	ora #$10
 	sta $e000
 	lsr
 	sta $e000
@@ -1412,7 +1427,13 @@ done:
 
 
 PROC generate_minimap_cache
+	lda current_bank
+	pha
+
 	jsr enable_save_ram
+
+	lda map_bank
+	jsr bankswitch_with_ram_enabled
 
 	lda #0
 	sta arg1
@@ -1422,7 +1443,7 @@ genyloop:
 genxloop:
 	ldx arg0
 	ldy arg1
-	jsr read_overworld_map
+	jsr read_overworld_map_known_bank
 
 	and #$3f
 	jsr get_minimap_tile_for_type
@@ -1458,7 +1479,7 @@ caveyloop:
 cavexloop:
 	ldx arg0
 	ldy arg1
-	jsr read_overworld_map
+	jsr read_overworld_map_known_bank
 
 	cmp #MAP_CAVE_INTERIOR
 	beq cave
@@ -1486,7 +1507,7 @@ cave:
 	ldx arg0
 	ldy arg1
 	iny
-	jsr read_overworld_map
+	jsr read_overworld_map_known_bank
 	and #$3f
 	jsr is_map_type_forest
 	beq nextcave
@@ -1513,6 +1534,9 @@ xwrapcave:
 
 cavedone:
 	jsr disable_save_ram
+
+	pla
+	jsr bankswitch
 	rts
 .endproc
 

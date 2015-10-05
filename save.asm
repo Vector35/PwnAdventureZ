@@ -4,9 +4,35 @@
 .define TILE_SAVE  $80
 .define TILE_BLOCK $f0
 
-.code
+
+.segment "FIXED"
 
 PROC save_select
+	lda current_bank
+	pha
+	lda #^save_select_worker
+	jsr bankswitch
+	jsr save_select_worker & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+PROC enter_name
+	lda current_bank
+	pha
+	lda #^enter_name_worker
+	jsr bankswitch
+	jsr enter_name_worker & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+.segment "EXTRA"
+
+PROC save_select_worker
 	jsr clear_screen
 	jsr clear_tiles
 
@@ -111,7 +137,7 @@ gameloop:
 	tay
 	jsr write_string
 
-	jmp nextslot
+	jmp nextslot & $ffff
 
 validsave:
 	; Pull the save data out of the save slot
@@ -375,7 +401,7 @@ nextslot:
 	sty arg0
 	cpy #3
 	beq savedone
-	jmp gameloop
+	jmp gameloop & $ffff
 
 savedone:
 	LOAD_PTR delete_str
@@ -395,7 +421,7 @@ savedone:
 	lda #0
 	sta delete_mode
 
-	jsr draw_save_arrows
+	jsr draw_save_arrows & $ffff
 
 selectloop:
 	jsr wait_for_vblank
@@ -412,10 +438,10 @@ selectloop:
 	lda controller
 	and #JOY_DOWN
 	bne down
-	jmp selectloop
+	jmp selectloop & $ffff
 
 up:
-	jsr erase_save_arrows
+	jsr erase_save_arrows & $ffff
 
 	ldx active_save_slot
 	dex
@@ -424,10 +450,10 @@ up:
 	bne movedone
 	lda #3
 	sta active_save_slot
-	jmp movedone
+	jmp movedone & $ffff
 
 down:
-	jsr erase_save_arrows
+	jsr erase_save_arrows & $ffff
 
 	ldx active_save_slot
 	inx
@@ -436,17 +462,17 @@ down:
 	bne movedone
 	lda #0
 	sta active_save_slot
-	jmp movedone
+	jmp movedone & $ffff
 
 movedone:
-	jsr draw_save_arrows
+	jsr draw_save_arrows & $ffff
 
 waitfordepress:
 	jsr wait_for_vblank
 	jsr update_controller
 	and #JOY_UP | JOY_DOWN | JOY_START | JOY_A
 	bne waitfordepress
-	jmp selectloop
+	jmp selectloop & $ffff
 
 activate:
 	lda active_save_slot
@@ -473,7 +499,7 @@ activate:
 	ldy #17
 	jsr write_string
 	jsr prepare_for_rendering
-	jmp waitfordepress
+	jmp waitfordepress & $ffff
 
 exitdeletemode:
 	; Change the palette to normal to indicate delete mode is inactive
@@ -490,7 +516,7 @@ exitdeletemode:
 	ldy #17
 	jsr write_string
 	jsr prepare_for_rendering
-	jmp waitfordepress
+	jmp waitfordepress & $ffff
 
 activateslot:
 	lda delete_mode
@@ -523,7 +549,7 @@ activateslot:
 	jsr write_string
 	jsr prepare_for_rendering
 
-	jmp selectloop
+	jmp selectloop & $ffff
 
 done:
 	; A valid slot has been selected, proceed to start the game
@@ -571,12 +597,12 @@ delete:
 PROC draw_save_arrows
 	jsr wait_for_vblank
 
-	jsr get_y_for_save_slot
+	jsr get_y_for_save_slot & $ffff
 	LOAD_PTR right_arrow_str
 	ldx #5
 	jsr write_string
 
-	jsr get_y_for_save_slot
+	jsr get_y_for_save_slot & $ffff
 	LOAD_PTR left_arrow_str
 	ldx #25
 	jsr write_string
@@ -589,12 +615,12 @@ PROC draw_save_arrows
 PROC erase_save_arrows
 	jsr wait_for_vblank
 
-	jsr get_y_for_save_slot
+	jsr get_y_for_save_slot & $ffff
 	LOAD_PTR space_str
 	ldx #5
 	jsr write_string
 
-	jsr get_y_for_save_slot
+	jsr get_y_for_save_slot & $ffff
 	LOAD_PTR space_str
 	ldx #25
 	jsr write_string
@@ -604,7 +630,7 @@ PROC erase_save_arrows
 .endproc
 
 
-PROC enter_name
+PROC enter_name_worker
 	; Put a placeholder name in for now until UI is implemented
 	jsr clear_screen
 	jsr clear_tiles
@@ -681,8 +707,8 @@ PROC enter_name
 	sta name_entry_pos
 	sta name_entry_line
 	sta name_entry_col
-	jsr draw_name_entry_block
-	jsr draw_name_entry_arrows
+	jsr draw_name_entry_block & $ffff
+	jsr draw_name_entry_arrows & $ffff
 
 selectloop:
 	jsr wait_for_vblank
@@ -707,20 +733,20 @@ selectloop:
 	lda controller
 	and #JOY_DOWN
 	bne downpressed
-	jmp selectloop
+	jmp selectloop & $ffff
 
 startpressed:
-	jmp done
+	jmp done & $ffff
 deletepressed:
-	jmp delete
+	jmp delete & $ffff
 leftpressed:
-	jmp left
+	jmp left & $ffff
 rightpressed:
-	jmp right
+	jmp right & $ffff
 uppressed:
-	jmp up
+	jmp up & $ffff
 downpressed:
-	jmp down
+	jmp down & $ffff
 
 activate:
 	lda name_entry_line
@@ -742,12 +768,12 @@ addchar:
 	ldx name_entry_pos
 	cpx #14
 	bne nottoolong
-	jmp waitfordepress
+	jmp waitfordepress & $ffff
 nottoolong:
 	sta name, x
 	inx
 	stx name_entry_pos
-	jmp updatename
+	jmp updatename & $ffff
 
 activatebottom:
 	lda name_entry_col
@@ -755,11 +781,11 @@ activatebottom:
 	beq delete
 	cmp #1
 	beq space
-	jmp done
+	jmp done & $ffff
 
 space:
 	lda #' '
-	jmp addchar
+	jmp addchar & $ffff
 
 updatename:
 	jsr wait_for_vblank
@@ -768,15 +794,15 @@ updatename:
 	ldy #10
 	jsr write_string
 	jsr prepare_for_rendering
-	jsr draw_name_entry_block
-	jmp waitfordepress
+	jsr draw_name_entry_block & $ffff
+	jmp waitfordepress & $ffff
 
 delete:
 	; Don't delete if empty
 	lda name_entry_pos
 	cmp #0
 	bne deleteok
-	jmp waitfordepress
+	jmp waitfordepress & $ffff
 
 deleteok:
 	ldx name_entry_pos
@@ -785,11 +811,11 @@ deleteok:
 	lda #0
 	sta name, x
 
-	jsr draw_name_entry_block
-	jmp waitfordepress
+	jsr draw_name_entry_block & $ffff
+	jmp waitfordepress & $ffff
 
 left:
-	jsr erase_name_entry_arrows
+	jsr erase_name_entry_arrows & $ffff
 	ldx name_entry_col
 	ldy name_entry_line
 	cpy #4
@@ -798,24 +824,24 @@ left:
 	stx name_entry_col
 	cpx #$ff
 	beq leftwrap
-	jmp movedone
+	jmp movedone & $ffff
 leftwrap:
 	ldx #9
 	stx name_entry_col
-	jmp movedone
+	jmp movedone & $ffff
 leftonbottom:
 	dex
 	stx name_entry_col
 	cpx #$ff
 	beq leftbottomwrap
-	jmp movedone
+	jmp movedone & $ffff
 leftbottomwrap:
 	ldx #2
 	stx name_entry_col
-	jmp movedone
+	jmp movedone & $ffff
 
 right:
-	jsr erase_name_entry_arrows
+	jsr erase_name_entry_arrows & $ffff
 	ldx name_entry_col
 	ldy name_entry_line
 	cpy #4
@@ -824,24 +850,24 @@ right:
 	stx name_entry_col
 	cpx #10
 	beq rightwrap
-	jmp movedone
+	jmp movedone & $ffff
 rightwrap:
 	ldx #0
 	stx name_entry_col
-	jmp movedone
+	jmp movedone & $ffff
 rightonbottom:
 	inx
 	stx name_entry_col
 	cpx #3
 	beq rightbottomwrap
-	jmp movedone
+	jmp movedone & $ffff
 rightbottomwrap:
 	ldx #0
 	stx name_entry_col
-	jmp movedone
+	jmp movedone & $ffff
 
 up:
-	jsr erase_name_entry_arrows
+	jsr erase_name_entry_arrows & $ffff
 	ldy name_entry_line
 	cpy #4
 	beq upfrombottom
@@ -851,14 +877,14 @@ up:
 	bne movedone
 	ldy #4
 	sty name_entry_line
-	jmp movetobottom
+	jmp movetobottom & $ffff
 upfrombottom:
 	dey
 	sty name_entry_line
-	jmp movefrombottom
+	jmp movefrombottom & $ffff
 
 down:
-	jsr erase_name_entry_arrows
+	jsr erase_name_entry_arrows & $ffff
 	ldy name_entry_line
 	cpy #4
 	beq downfrombottom
@@ -867,11 +893,11 @@ down:
 	cpy #4
 	bne movedone
 	sty name_entry_line
-	jmp movetobottom
+	jmp movetobottom & $ffff
 downfrombottom:
 	ldy #0
 	sty name_entry_line
-	jmp movefrombottom
+	jmp movefrombottom & $ffff
 
 movetobottom:
 	ldx name_entry_col
@@ -879,17 +905,17 @@ movetobottom:
 	bcs tobottomnotdelete
 	ldx #0
 	stx name_entry_col
-	jmp movedone
+	jmp movedone & $ffff
 tobottomnotdelete:
 	cpx #8
 	bcs tobottomnotspace
 	ldx #1
 	stx name_entry_col
-	jmp movedone
+	jmp movedone & $ffff
 tobottomnotspace:
 	ldx #2
 	stx name_entry_col
-	jmp movedone
+	jmp movedone & $ffff
 
 movefrombottom:
 	ldx name_entry_col
@@ -897,33 +923,33 @@ movefrombottom:
 	bne frombottomnotdelete
 	ldx #1
 	stx name_entry_col
-	jmp movedone
+	jmp movedone & $ffff
 frombottomnotdelete:
 	cpx #1
 	bne frombottomnotspace
 	ldx #5
 	stx name_entry_col
-	jmp movedone
+	jmp movedone & $ffff
 frombottomnotspace:
 	ldx #8
 	stx name_entry_col
-	jmp movedone
+	jmp movedone & $ffff
 
 movedone:
-	jsr draw_name_entry_arrows
-	jmp waitfordepress
+	jsr draw_name_entry_arrows & $ffff
+	jmp waitfordepress & $ffff
 
 waitfordepress:
 	jsr wait_for_vblank
 	jsr update_controller
 	bne waitfordepress
-	jmp selectloop
+	jmp selectloop & $ffff
 
 done:
 	; Don't allow empty input
 	lda name_entry_pos
 	bne notblank
-	jmp waitfordepress
+	jmp waitfordepress & $ffff
 notblank:
 
 	; Name entry completed, start game
@@ -1025,10 +1051,10 @@ PROC draw_name_entry_arrows
 	jsr wait_for_vblank
 
 	LOAD_PTR right_arrow_str
-	jsr get_left_pos_for_name_char
+	jsr get_left_pos_for_name_char & $ffff
 	jsr write_string
 	LOAD_PTR left_arrow_str
-	jsr get_right_pos_for_name_char
+	jsr get_right_pos_for_name_char & $ffff
 	jsr write_string
 
 	jsr prepare_for_rendering
@@ -1040,10 +1066,10 @@ PROC erase_name_entry_arrows
 	jsr wait_for_vblank
 
 	LOAD_PTR space_str
-	jsr get_left_pos_for_name_char
+	jsr get_left_pos_for_name_char & $ffff
 	jsr write_string
 	LOAD_PTR space_str
-	jsr get_right_pos_for_name_char
+	jsr get_right_pos_for_name_char & $ffff
 	jsr write_string
 
 	jsr prepare_for_rendering
@@ -1054,6 +1080,9 @@ PROC erase_name_entry_arrows
 .segment "FIXED"
 
 PROC copy_number_tiles_to_temp_area
+	lda current_bank
+	pha
+
 	lda #1
 	jsr bankswitch
 
@@ -1065,7 +1094,7 @@ copyloop:
 	cpx #$b0
 	bne copyloop
 
-	lda #0
+	pla
 	jsr bankswitch
 	rts
 .endproc

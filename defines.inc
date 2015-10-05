@@ -24,15 +24,13 @@ name:
 VAR var
 .incbin file
 .data
-VAR .ident(.concat(.string(var), "_bank"))
-	.byte seg
 VAR .ident(.concat(.string(var), "_count"))
 	.byte count
 .endmacro
 
 .macro LOAD_TILES addr, var, count
 	LOAD_PTR var
-	lda .ident(.concat(.string(var), "_bank"))
+	lda #^var
 	tay
 	lda #<((addr) * $10)
 	sta temp
@@ -388,7 +386,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .global cur_enemy
 
 .global inventory, inventory_count
-.global map_screen_generators, cur_screen_x, cur_screen_y, map_ptr, map_visited_ptr
+.global map_screen_generators, cur_screen_x, cur_screen_y, map_bank, map_ptr, map_visited_ptr
 .global spawn_screen_x, spawn_screen_y, spawn_pos_x, spawn_pos_y
 .global active_save_slot
 

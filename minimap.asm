@@ -1,8 +1,41 @@
 .include "defines.inc"
 
-.code
+
+.segment "FIXED"
 
 PROC minimap
+	lda current_bank
+	pha
+	lda #^show_minimap
+	jsr bankswitch
+	jsr show_minimap & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+PROC back_to_game_from_minimap
+	lda current_bank
+	pha
+	lda #0
+	jsr bankswitch
+
+	jsr update_player_sprite
+	jsr update_enemy_sprites
+	jsr update_effect_sprites
+
+	LOAD_ALL_TILES $000, ui_tiles
+	jsr init_status_tiles
+
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+.segment "EXTRA"
+
+PROC show_minimap
 	ldx #0
 palettesaveloop:
 	lda active_palette, x
@@ -194,7 +227,7 @@ clearsprites:
 
 waitfordepress:
 	jsr wait_for_vblank
-	jsr update_minimap_palette
+	jsr update_minimap_palette & $ffff
 
 	jsr update_controller
 	lda controller
@@ -202,13 +235,13 @@ waitfordepress:
 
 selectloop:
 	jsr wait_for_vblank
-	jsr update_minimap_palette
+	jsr update_minimap_palette & $ffff
 
 	jsr update_controller
 	lda controller
 	and #JOY_START
 	beq notstart
-	jmp done
+	jmp done & $ffff
 
 notstart:
 	lda controller
@@ -221,7 +254,7 @@ notstart:
 	beq selectresume
 
 	jsr wait_for_vblank
-	jsr update_minimap_palette
+	jsr update_minimap_palette & $ffff
 
 	LOAD_PTR minimap_clear
 	ldx #1
@@ -250,11 +283,11 @@ notstart:
 	lda #2
 	jsr load_single_palette
 	jsr prepare_for_rendering
-	jmp waitfordepress
+	jmp waitfordepress & $ffff
 
 selectresume:
 	jsr wait_for_vblank
-	jsr update_minimap_palette
+	jsr update_minimap_palette & $ffff
 
 	LOAD_PTR minimap_right_arrow
 	ldx #1
@@ -283,11 +316,11 @@ selectresume:
 	lda #2
 	jsr load_single_palette
 	jsr prepare_for_rendering
-	jmp waitfordepress
+	jmp waitfordepress & $ffff
 
 done:
 	jsr wait_for_vblank
-	jsr update_minimap_palette
+	jsr update_minimap_palette & $ffff
 
 	jsr update_controller
 	lda controller
@@ -302,15 +335,11 @@ done:
 	cmp #1
 	beq quit
 
-	jsr update_player_sprite
-	jsr update_enemy_sprites
-	jsr update_effect_sprites
-
-	LOAD_ALL_TILES $000, ui_tiles
-	jsr init_status_tiles
+	jsr back_to_game_from_minimap
 
 	LOAD_PTR saved_palette
 	jsr fade_in
+
 	lda #0
 	rts
 
@@ -328,7 +357,7 @@ PROC update_minimap_palette
 
 	lda #2
 	sta sprites + 2
-	jmp done
+	jmp done & $ffff
 
 white:
 	lda #1
@@ -338,6 +367,8 @@ done:
 	rts
 .endproc
 
+
+.segment "FIXED"
 
 PROC set_ppu_addr_to_minimap_tile
 	txa

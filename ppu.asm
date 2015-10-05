@@ -606,6 +606,9 @@ PROC copy_tiles
 	tax
 
 	; Switch to bank that contains the tiles
+	lda current_bank
+	pha
+
 	tya
 	jsr bankswitch
 
@@ -635,8 +638,8 @@ tileloop:
 	dex
 	bne copyloop
 
-	; Switch back to game code bank
-	lda #0
+	; Switch back to old bank
+	pla
 	jsr bankswitch
 
 	rts

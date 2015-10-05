@@ -6,7 +6,8 @@
 .define FOREST_PALETTE 0
 .define BORDER_PALETTE 1
 
-.code
+
+.segment "FIXED"
 
 PROC is_map_type_forest
 	cmp #MAP_FOREST
@@ -23,6 +24,9 @@ forest:
 	lda #1
 	rts
 .endproc
+
+
+.code
 
 PROC gen_forest
 	; Load forest tiles

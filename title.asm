@@ -4,9 +4,23 @@
 .define TILE_VECTOR $01
 .define TILE_Z      $01
 
-.code
+.segment "FIXED"
 
 PROC title
+	lda current_bank
+	pha
+	lda #^show_title
+	jsr bankswitch
+	jsr show_title & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+.segment "EXTRA"
+
+PROC show_title
 	; Get the developer logo screen ready
 	jsr clear_screen
 	jsr clear_tiles
@@ -194,15 +208,15 @@ buttonmoveloop:
 
 waitfordepress:
 	jsr wait_for_vblank
-	jsr title_palette_anim
+	jsr title_palette_anim & $ffff
 	jsr update_controller
 	lda controller
 	bne waitfordepress
 
 nopress:
 	jsr wait_for_vblank
-	jsr title_palette_anim
-	jmp menuloop
+	jsr title_palette_anim & $ffff
+	jmp menuloop & $ffff
 
 start:
 	jsr fade_out

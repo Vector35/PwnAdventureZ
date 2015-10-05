@@ -602,6 +602,8 @@ VAR cur_screen_x
 	.byte 0
 VAR cur_screen_y
 	.byte 0
+VAR map_bank
+	.byte 0
 VAR map_ptr
 	.word 0
 VAR map_visited_ptr

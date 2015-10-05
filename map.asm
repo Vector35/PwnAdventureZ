@@ -25,6 +25,8 @@ genloop:
 	sta cur_screen_y
 	sta spawn_screen_y
 
+	lda #^normal_overworld_map
+	sta map_bank
 	lda #<normal_overworld_map
 	sta map_ptr
 	lda #>normal_overworld_map
@@ -40,6 +42,8 @@ veryhard:
 	sta cur_screen_y
 	sta spawn_screen_y
 
+	lda #^hard_overworld_map
+	sta map_bank
 	lda #<hard_overworld_map
 	sta map_ptr
 	lda #>hard_overworld_map
@@ -1134,6 +1138,58 @@ PROC can_travel_right
 
 
 PROC read_overworld_map
+	txa
+	pha
+	tya
+	pha
+	sta temp
+
+	lda current_bank
+	pha
+	lda map_bank
+	jsr bankswitch
+
+	lda temp
+	tay
+	lsr
+	lsr
+	lsr
+	and #3
+	sta ptr + 1
+
+	tya
+	ror
+	ror
+	ror
+	ror
+	and #$e0
+	sta temp
+	txa
+	ora temp
+	clc
+	adc map_ptr
+	sta ptr
+	lda ptr + 1
+	adc map_ptr + 1
+	sta ptr + 1
+
+	ldy #0
+	lda (ptr), y
+	sta temp
+
+	pla
+	jsr bankswitch
+
+	pla
+	tay
+	pla
+	tax
+	lda temp
+	rts
+.endproc
+
+
+PROC read_overworld_map_known_bank
 	txa
 	pha
 	tya
@@ -2454,6 +2510,9 @@ VAR normal_overworld_map
 	.byte $83, $83, $83, $83, $83, $c3, $8f, $8f, $cf, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+
+; Maps other than main overworld are stored in extra bank
+.segment "EXTRA"
 
 VAR hard_overworld_map
 	.byte $c7, $c7, $c7, $c7, $c7, $c7, $c7, $c7, $c7, $c7, $c7, $c7, $c7, $c7, $c7, $c7

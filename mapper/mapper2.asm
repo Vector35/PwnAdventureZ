@@ -73,7 +73,7 @@ genyloop:
 genxloop:
 	ldx arg0
 	ldy arg1
-	jsr read_overworld_map
+	jsr read_overworld_map_known_bank
 
 	and #$3f
 	jsr get_minimap_tile_for_type
@@ -109,7 +109,7 @@ caveyloop:
 cavexloop:
 	ldx arg0
 	ldy arg1
-	jsr read_overworld_map
+	jsr read_overworld_map_known_bank
 
 	cmp #MAP_CAVE_INTERIOR
 	beq cave
@@ -137,7 +137,7 @@ cave:
 	ldx arg0
 	ldy arg1
 	iny
-	jsr read_overworld_map
+	jsr read_overworld_map_known_bank
 	and #$3f
 	jsr is_map_type_forest
 	beq nextcave
