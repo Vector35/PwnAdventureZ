@@ -307,6 +307,18 @@ namedone:
 	ldx #10
 	jsr give_item_with_count
 
+	lda #ITEM_GEM
+	ldx #10
+	jsr give_item_with_count
+
+	lda #ITEM_CLOTH
+	ldx #30
+	jsr give_item_with_count
+
+	lda #ITEM_SHIRT
+	ldx #8
+	jsr give_item_with_count
+
 nocode:
 
 	; Don't start a new game on restore

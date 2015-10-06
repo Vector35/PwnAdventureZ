@@ -111,6 +111,15 @@ PROC use_item
 	lda (ptr), y
 	sta temp + 1
 
+	lda temp
+	bne valid
+	lda temp + 1
+	bne valid
+
+	lda #0
+	rts
+
+valid:
 	jsr call_temp
 	rts
 .endproc
@@ -155,187 +164,229 @@ found:
 .endproc
 
 
+PROC use_bandage
+	lda player_health
+	cmp #100
+	beq alreadymax
+
+	clc
+	adc #25
+	cmp #100
+	bcc notmax
+	lda #100
+notmax:
+	sta player_health
+	lda #1
+	rts
+
+alreadymax:
+	lda #0
+	rts
+.endproc
+
+
+PROC use_health_kit
+	lda player_health
+	cmp #100
+	beq alreadymax
+
+	clc
+	adc #50
+	cmp #100
+	bcc notmax
+	lda #100
+notmax:
+	sta player_health
+	lda #1
+	rts
+
+alreadymax:
+	lda #0
+	rts
+.endproc
+
+
 .data
 
 VAR axe_item
 	.word 0
 	.byte ITEM_TYPE_MELEE
-	.byte "WOOD AXE", 0
-	.byte "CHOPS WOOD OR ZOMBIES", 0
+	.byte "WOOD AXE       ", 0
+	.byte "CHOPS WOOD OR ZOMBIES     ", 0
 
 VAR sword_item
 	.word 0
 	.byte ITEM_TYPE_MELEE
-	.byte "NINJA SWORD", 0
-	.byte "MASTER THE CLOSE RANGE", 0
+	.byte "NINJA SWORD    ", 0
+	.byte "MASTER THE CLOSE RANGE    ", 0
 
 VAR pistol_item
 	.word 0
 	.byte ITEM_TYPE_GUN
-	.byte "G17 PISTOL", 0
-	.byte "A RELIABLE HANDGUN", 0
+	.byte "G17 PISTOL     ", 0
+	.byte "A RELIABLE HANDGUN        ", 0
 
 VAR smg_item
 	.word 0
 	.byte ITEM_TYPE_GUN
-	.byte "SMG", 0
-	.byte "SMALL FULL AUTO WEAPON", 0
+	.byte "SMG            ", 0
+	.byte "SMALL FULL AUTO WEAPON    ", 0
 
 VAR lmg_item
 	.word 0
 	.byte ITEM_TYPE_GUN
-	.byte "MACHINE GUN", 0
-	.byte "EFFECTIVE HEAVY WEAPON", 0
+	.byte "MACHINE GUN    ", 0
+	.byte "EFFECTIVE HEAVY WEAPON    ", 0
 
 VAR ak_item
 	.word 0
 	.byte ITEM_TYPE_GUN
-	.byte "AK RIFLE", 0
-	.byte "FAMOUS FOR RELIABILITY", 0
+	.byte "AK RIFLE       ", 0
+	.byte "FAMOUS FOR RELIABILITY    ", 0
 
 VAR shotgun_item
 	.word 0
 	.byte ITEM_TYPE_GUN
-	.byte "SHOTGUN", 0
-	.byte "LEGENDARY ZOMBIE DEFENSE", 0
+	.byte "SHOTGUN        ", 0
+	.byte "LEGENDARY ZOMBIE DEFENSE  ", 0
 
 VAR sniper_item
 	.word 0
 	.byte ITEM_TYPE_GUN
-	.byte "SNIPER RIFLE", 0
-	.byte "TAKE THEM OUT FROM AFAR", 0
+	.byte "SNIPER RIFLE   ", 0
+	.byte "TAKE THEM OUT FROM AFAR   ", 0
 
 VAR hand_cannon_item
 	.word 0
 	.byte ITEM_TYPE_GUN
-	.byte "HAND CANNON", 0
-	.byte "THE ENVY OF ALL PIRATES", 0
+	.byte "HAND CANNON    ", 0
+	.byte "THE ENVY OF ALL PIRATES   ", 0
 
 VAR rocket_launcher_item
 	.word 0
 	.byte ITEM_TYPE_GUN
 	.byte "ROCKET LAUNCHER", 0
-	.byte "MAKE IT GO BOOM", 0
+	.byte "MAKE IT GO BOOM           ", 0
 
 VAR flamethrower_item
 	.word 0
 	.byte ITEM_TYPE_GUN
-	.byte "FLAMETHROWER", 0
-	.byte "BURNINATE THE INFECTED", 0
+	.byte "FLAMETHROWER   ", 0
+	.byte "BURNINATE THE INFECTED    ", 0
 
 VAR grenade_item
 	.word 0
 	.byte ITEM_TYPE_GRENADE
-	.byte "FRAG GRENADE", 0
-	.byte "FIRE IN THE HOLE", 0
+	.byte "FRAG GRENADE   ", 0
+	.byte "FIRE IN THE HOLE          ", 0
 
 VAR bandage_item
-	.word 0
+	.word use_bandage
 	.byte ITEM_TYPE_HEALTH
-	.byte "BANDAGE", 0
-	.byte "HEAL MINOR WOUNDS", 0
+	.byte "BANDAGE        ", 0
+	.byte "HEAL MINOR WOUNDS         ", 0
 
 VAR health_kit_item
-	.word 0
+	.word use_health_kit
 	.byte ITEM_TYPE_HEALTH
-	.byte "HEALTH KIT", 0
-	.byte "QUICKLY HEAL WOUNDS", 0
+	.byte "HEALTH KIT     ", 0
+	.byte "QUICKLY HEAL WOUNDS       ", 0
 
 VAR fuel_item
 	.word 0
 	.byte ITEM_TYPE_CONSUMABLE
-	.byte "FUEL CAN", 0
-	.byte "COMBUSTABLE FUEL", 0
+	.byte "FUEL CAN       ", 0
+	.byte "COMBUSTABLE FUEL          ", 0
 
 VAR stick_item
 	.word 0
 	.byte ITEM_TYPE_CRAFTING
-	.byte "STICK", 0
-	.byte "WOOD STICK FOR CRAFTING", 0
+	.byte "STICK          ", 0
+	.byte "WOOD STICK FOR CRAFTING   ", 0
 
 VAR cloth_item
 	.word 0
 	.byte ITEM_TYPE_CRAFTING
-	.byte "CLOTH STRIPS", 0
-	.byte "TORN CLOTH FOR CRAFTING", 0
+	.byte "CLOTH STRIPS   ", 0
+	.byte "TORN CLOTH FOR CRAFTING   ", 0
 
 VAR shirt_item
 	.word 0
 	.byte ITEM_TYPE_CRAFTING
-	.byte "SHIRT", 0
-	.byte "A SHIRT FOR CRAFTING", 0
+	.byte "SHIRT          ", 0
+	.byte "A SHIRT FOR CRAFTING      ", 0
 
 VAR pants_item
 	.word 0
 	.byte ITEM_TYPE_CRAFTING
-	.byte "PANTS", 0
-	.byte "DENIM FOR CRAFTING", 0
+	.byte "PANTS          ", 0
+	.byte "DENIM FOR CRAFTING        ", 0
 
 VAR metal_item
 	.word 0
 	.byte ITEM_TYPE_CRAFTING
 	.byte "METAL FRAGMENTS", 0
-	.byte "METAL FOR CRAFTING", 0
+	.byte "METAL FOR CRAFTING        ", 0
 
 VAR gem_item
 	.word 0
 	.byte ITEM_TYPE_SELL
-	.byte "GEM", 0
-	.byte "SELL FOR GOLD", 0
+	.byte "GEM            ", 0
+	.byte "SELL FOR GOLD             ", 0
 
 VAR gunpowder_item
 	.word 0
 	.byte ITEM_TYPE_CRAFTING
-	.byte "GUNPOWDER", 0
-	.byte "EXPLOSIVE POWDER", 0
+	.byte "GUNPOWDER      ", 0
+	.byte "EXPLOSIVE POWDER          ", 0
 
 VAR campfire_item
 	.word 0
 	.byte ITEM_TYPE_CAMPFIRE
-	.byte "CAMPFIRE", 0
-	.byte "USE TO SET SPAWN POINT", 0
+	.byte "CAMPFIRE       ", 0
+	.byte "USE TO SET SPAWN POINT    ", 0
 
 VAR sneakers_item
 	.word 0
 	.byte ITEM_TYPE_OUTFIT
-	.byte "SNEAKERS", 0
-	.byte "WEAR TO RUN FASTER", 0
+	.byte "SNEAKERS       ", 0
+	.byte "WEAR TO RUN FASTER        ", 0
 
 VAR wizard_hat_item
 	.word 0
 	.byte ITEM_TYPE_OUTFIT
-	.byte "WIZARD HAT", 0
-	.byte "FEELS MAGICAL", 0
+	.byte "WIZARD HAT     ", 0
+	.byte "FEELS MAGICAL             ", 0
 
 VAR armor_item
 	.word 0
 	.byte ITEM_TYPE_OUTFIT
-	.byte "SUIT OF ARMOR", 0
-	.byte "LESS DAMAGE BUT SLOWER", 0
+	.byte "SUIT OF ARMOR  ", 0
+	.byte "LESS DAMAGE BUT SLOWER    ", 0
 
 VAR tinfoil_hat_item
 	.word 0
 	.byte ITEM_TYPE_OUTFIT
-	.byte "TINFOIL HAT", 0
-	.byte "MAY REFLECT LASER BEAMS", 0
+	.byte "TINFOIL HAT    ", 0
+	.byte "MAY REFLECT LASER BEAMS   ", 0
 
 VAR ghillie_suit_item
 	.word 0
 	.byte ITEM_TYPE_OUTFIT
-	.byte "GHILLIE SUIT", 0
+	.byte "GHILLIE SUIT   ", 0
 	.byte "MAKE LIKE A TREE AND SNIPE", 0
 
 VAR coffee_item
 	.word 0
 	.byte ITEM_TYPE_CONSUMABLE
-	.byte "COFFEE", 0
-	.byte "GO INTO HYPER ACTIVE", 0
+	.byte "COFFEE         ", 0
+	.byte "GO INTO HYPER ACTIVE      ", 0
 
 VAR wine_item
 	.word 0
 	.byte ITEM_TYPE_CONSUMABLE
-	.byte "WINE BOTTLE", 0
-	.byte "NUMBS THE PAIN FOR A TIME", 0
+	.byte "WINE BOTTLE    ", 0
+	.byte "NUMBS THE PAIN FOR A TIME ", 0
 
 VAR item_descriptors
 	.word axe_item

@@ -37,6 +37,15 @@ PROC enable_rendering
 .endproc
 
 
+PROC wait_for_vblank_if_rendering
+	lda rendering_enabled
+	beq norender
+	jsr wait_for_vblank
+norender:
+	rts
+.endproc
+
+
 PROC ensure_black_screen
 	jsr wait_for_vblank
 	ldx #$3f
