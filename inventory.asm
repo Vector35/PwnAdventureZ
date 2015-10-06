@@ -328,23 +328,69 @@ use:
 	tax
 	lda inventory + 1, x
 	jsr use_item
-	beq invaliduse
+	bne validuse
+
+	jmp invaliduse
+
+validuse:
+	jsr deselect_inventory_item
 
 	lda selection
 	asl
 	tax
 	dec inventory, x
-	bne usedall
+	beq usedall
 
 	jsr update_inventory_status
-	jsr deselect_inventory_item
 	jsr render_inventory_items
 	jsr select_inventory_item
 	jmp waitfordepress
 
 usedall:
+	lda selection
+	sta arg0
+deleteloop:
+	lda arg0
+	clc
+	adc #1
+	cmp inventory_count
+	beq deletedone
+
+	lda arg0
+	asl
+	tax
+	lda inventory + 2, x
+	sta inventory, x
+	lda inventory + 3, x
+	sta inventory + 1, x
+
+	inc arg0
+	jmp deleteloop
+
+deletedone:
+	dec inventory_count
+	beq deleteempty
+
+	lda scroll
+	clc
+	adc #5
+	cmp inventory_count
+	bcc deletescrollok
+
+	dec selection
+
+	lda scroll
+	beq deletelast
+
+	dec scroll
+	jmp deletescrollok
+
+deleteempty:
+
+deletelast:
+
+deletescrollok:
 	jsr update_inventory_status
-	jsr deselect_inventory_item
 	jsr render_inventory_items
 	jsr select_inventory_item
 	jmp waitfordepress
