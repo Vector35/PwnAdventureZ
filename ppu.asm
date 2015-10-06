@@ -259,11 +259,11 @@ PROC draw_large_box
 	sta PPUCTRL
 
 	ldx arg0
-	lda #$17
+	lda #$1b
 	jsr draw_until_arg3
 
 	ldx arg2
-	lda #$16
+	lda #$1a
 	jsr draw_until_arg3
 
 	lda ppu_settings
@@ -272,21 +272,21 @@ PROC draw_large_box
 	ldx arg0
 	ldy arg1
 	jsr set_ppu_addr_to_coord
-	lda #$18
+	lda #$1c
 	sta PPUDATA
 	lda #$3c
 	jsr draw_until_arg2
-	lda #$1a
+	lda #$1e
 	sta PPUDATA
 
 	ldx arg0
 	ldy arg3
 	jsr set_ppu_addr_to_coord
-	lda #$19
+	lda #$1d
 	sta PPUDATA
 	lda #$3e
 	jsr draw_until_arg2
-	lda #$1b
+	lda #$1f
 	sta PPUDATA
 
 	rts

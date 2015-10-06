@@ -291,8 +291,20 @@ namedone:
 	lda #ITEM_SNEAKERS
 	jsr give_item
 
+	lda #ITEM_BANDAGE
+	ldx #5
+	jsr give_item_with_count
+
 	lda #ITEM_HEALTH_KIT
 	ldx #5
+	jsr give_item_with_count
+
+	lda #ITEM_METAL
+	ldx #10
+	jsr give_item_with_count
+
+	lda #ITEM_GUNPOWDER
+	ldx #10
 	jsr give_item_with_count
 
 nocode:

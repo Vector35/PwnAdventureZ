@@ -6,10 +6,7 @@
 
 .code
 
-PROC init_status_tiles
-	LOAD_ALL_TILES 0, status_ui_tiles
-	LOAD_ALL_TILES RIGHT_PANEL_TILES, key_tiles
-
+PROC load_area_name_tiles
 	; Load tiles for name of area
 	jsr read_overworld_cur
 	and #$3f
@@ -111,6 +108,15 @@ blocky:
 	jmp namedone
 
 namedone:
+	rts
+.endproc
+
+
+PROC init_status_tiles
+	LOAD_ALL_TILES 0, status_ui_tiles
+	LOAD_ALL_TILES RIGHT_PANEL_TILES, key_tiles
+	jsr load_area_name_tiles
+
 	; Load status bar palette into palette 3
 	LOAD_PTR status_palette
 	jsr load_game_palette_3
