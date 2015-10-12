@@ -651,6 +651,18 @@ count:
 	adc #32 + 3
 	tay
 	jsr write_string
+
+	LOAD_PTR inventory_non_ammo_tiles
+	ldx #7
+	lda arg0
+	asl
+	clc
+	adc arg0
+	adc #32 + 4
+	tay
+	lda #3
+	jsr write_tiles
+
 	jmp drawname
 
 ammocount:
@@ -1111,6 +1123,8 @@ VAR inventory_item_second_box_tiles
 
 VAR inventory_ammo_tiles
 	.byte $70, $71, $72
+VAR inventory_non_ammo_tiles
+	.byte $00, $00, $00
 
 VAR inventory_weapon_tiles
 	.byte $60, $61, $62, $63, $00, $00
