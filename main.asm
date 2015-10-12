@@ -279,7 +279,7 @@ namedone:
 	sta player_health
 
 	lda secret_code
-	beq nocode
+;	beq nocode
 
 	lda #1
 	sta gold
