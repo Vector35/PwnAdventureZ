@@ -377,17 +377,39 @@ deletedone:
 	cmp inventory_count
 	bcc deletescrollok
 
-	dec selection
-
 	lda scroll
 	beq deletelast
 
+	dec selection
 	dec scroll
 	jmp deletescrollok
 
 deleteempty:
+	jsr clear_last_inventory_item
+
+	jsr wait_for_vblank_if_rendering
+	LOAD_PTR no_items_str
+	ldx #11
+	ldy #32 + 11
+	jsr write_string
+	jsr prepare_for_rendering
+
+	jsr wait_for_vblank_if_rendering
+	LOAD_PTR clear_item_description_str
+	ldx #2
+	ldy #32 + 21
+	jsr write_string
+	jsr prepare_for_rendering
+
+	jmp emptyloop
 
 deletelast:
+	lda selection
+	cmp inventory_count
+	bne nochangeselect
+	dec selection
+nochangeselect:
+	jsr clear_last_inventory_item
 
 deletescrollok:
 	jsr update_inventory_status
@@ -697,6 +719,72 @@ nextitem:
 	jmp itemloop
 
 itemend:
+	rts
+.endproc
+
+
+PROC clear_last_inventory_item
+	jsr wait_for_vblank_if_rendering
+
+	lda inventory_count
+	beq noitems
+	LOAD_PTR clear_item_tiles
+	jmp renderbox
+noitems:
+	LOAD_PTR clear_last_item_tiles
+
+renderbox:
+	ldx #2
+	lda inventory_count
+	asl
+	clc
+	adc inventory_count
+	adc #32 + 2
+	sta arg1
+	tay
+	lda #4
+	jsr write_tiles
+
+	ldx #2
+	inc arg1
+	ldy arg1
+	lda #4
+	jsr write_tiles
+
+	ldx #2
+	inc arg1
+	ldy arg1
+	lda #4
+	jsr write_tiles
+
+	ldx #2
+	inc arg1
+	ldy arg1
+	lda #4
+	jsr write_tiles
+
+	jsr prepare_for_rendering
+	jsr wait_for_vblank_if_rendering
+
+	LOAD_PTR clear_item_str
+	ldx #7
+	lda inventory_count
+	asl
+	clc
+	adc inventory_count
+	adc #32 + 3
+	sta arg1
+	tay
+	jsr write_string
+
+	LOAD_PTR clear_item_str
+	ldx #7
+	inc arg1
+	ldy arg1
+	jsr write_string
+
+	jsr prepare_for_rendering
+
 	rts
 .endproc
 
@@ -1023,6 +1111,24 @@ VAR two_items_bot_tiles
 
 VAR inventory_keys
 	.byte $7b, $7c, $7d, $7e, $7f
+
+VAR clear_item_tiles
+	.byte $01, $29, $29, $2c
+	.byte $00, $00, $00, $00
+	.byte $00, $00, $00, $00
+	.byte $00, $00, $00, $00
+
+VAR clear_last_item_tiles
+	.byte $00, $00, $00, $00
+	.byte $00, $00, $00, $00
+	.byte $00, $00, $00, $00
+	.byte $00, $00, $00, $00
+
+VAR clear_item_str
+	.byte "                    ", 0
+
+VAR clear_item_description_str
+	.byte "                          ", 0
 
 VAR inventory_palette
 	.byte $0f, $21, $31, $37
