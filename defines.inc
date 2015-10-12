@@ -367,6 +367,8 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define ITEM_COFFEE        28
 .define ITEM_WINE          29
 
+.define ITEM_NONE          $ff
+
 .define ITEM_DESC_USE      0
 .define ITEM_DESC_TYPE     2
 .define ITEM_DESC_NAME     3

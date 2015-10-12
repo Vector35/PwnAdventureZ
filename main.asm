@@ -320,6 +320,9 @@ namedone:
 	jsr give_item_with_count
 
 nocode:
+	lda #ITEM_NONE
+	sta equipped_weapon
+	sta equipped_armor
 
 	; Don't start a new game on restore
 	lda #0
@@ -640,6 +643,15 @@ VAR map_screen_generators
 	.repeat MAP_TYPE_COUNT
 	.word 0
 	.endrepeat
+
+VAR equipped_weapon
+	.byte 0
+VAR equipped_armor
+	.byte 0
+VAR equipped_weapon_slot
+	.byte 0
+VAR equipped_armor_slot
+	.byte 0
 
 VAR cur_screen_x
 	.byte 0

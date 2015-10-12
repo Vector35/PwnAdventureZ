@@ -164,6 +164,59 @@ found:
 .endproc
 
 
+PROC update_equipped_item_slots
+	lda equipped_weapon
+	cmp #ITEM_NONE
+	beq noweapon
+
+	ldx #0
+weaponloop:
+	txa
+	asl
+	tay
+	lda inventory + 1, y
+	cmp equipped_weapon
+	beq foundweapon
+	inx
+	cpx inventory_count
+	bne weaponloop
+
+	lda #ITEM_NONE
+	sta equipped_weapon
+	jmp noweapon
+
+foundweapon:
+	stx equipped_weapon_slot
+
+noweapon:
+	lda equipped_armor
+	cmp #ITEM_NONE
+	beq noarmor
+
+	ldx #0
+armorloop:
+	txa
+	asl
+	tay
+	lda inventory + 1, y
+	cmp equipped_armor
+	beq foundarmor
+	inx
+	cpx inventory_count
+	bne armorloop
+
+	lda #ITEM_NONE
+	sta equipped_armor
+	rts
+
+foundarmor:
+	stx equipped_armor_slot
+
+noarmor:
+	rts
+.endproc
+
+
 PROC use_bandage
 	lda player_health
 	cmp #100
@@ -206,6 +259,118 @@ alreadymax:
 .endproc
 
 
+PROC use_one_ammo
+	lda equipped_weapon_slot
+	asl
+	tax
+	dec inventory, x
+	beq outofammo
+	rts
+
+outofammo:
+	; No more ammo for current weapon, grenades disappear from inventory when
+	; the last one is used
+	lda equipped_weapon
+	jsr get_item_type
+	cmp #ITEM_TYPE_GRENADE
+	beq usedall
+	rts
+
+usedall:
+	lda equipped_weapon_slot
+	sta arg0
+deleteloop:
+	lda arg0
+	clc
+	adc #1
+	cmp inventory_count
+	beq deletedone
+
+	lda arg0
+	asl
+	tax
+	lda inventory + 2, x
+	sta inventory, x
+	lda inventory + 3, x
+	sta inventory + 1, x
+
+	inc arg0
+	jmp deleteloop
+
+deletedone:
+	dec inventory_count
+	lda #ITEM_NONE
+	sta equipped_weapon
+	rts
+.endproc
+
+
+PROC fire_pistol
+	jsr use_one_ammo
+
+	lda player_x
+	clc
+	adc #7
+	sta arg0
+	lda player_y
+	clc
+	adc #7
+	sta arg1
+	lda #EFFECT_PLAYER_BULLET
+	sta arg2
+	jsr get_player_direction_bits
+	sta arg3
+	jsr create_effect
+
+	cmp #$ff
+	beq failed
+
+	sta cur_effect
+	jsr player_bullet_tick
+	jsr player_bullet_tick
+
+	lda #15
+	sta attack_cooldown
+	lda #1
+	sta attack_held
+
+failed:
+	rts
+.endproc
+
+
+PROC fire_smg
+	jsr use_one_ammo
+
+	lda player_x
+	clc
+	adc #7
+	sta arg0
+	lda player_y
+	clc
+	adc #7
+	sta arg1
+	lda #EFFECT_PLAYER_BULLET
+	sta arg2
+	jsr get_player_direction_bits
+	sta arg3
+	jsr create_effect
+
+	cmp #$ff
+	beq failed
+
+	sta cur_effect
+	jsr player_bullet_tick
+	jsr player_bullet_tick
+
+	lda #12
+	sta attack_cooldown
+
+failed:
+	rts
+.endproc
+
+
 .data
 
 VAR axe_item
@@ -221,13 +386,13 @@ VAR sword_item
 	.byte "MASTER THE CLOSE RANGE    ", 0
 
 VAR pistol_item
-	.word 0
+	.word fire_pistol
 	.byte ITEM_TYPE_GUN
 	.byte "G17 PISTOL     ", 0
 	.byte "A RELIABLE HANDGUN        ", 0
 
 VAR smg_item
-	.word 0
+	.word fire_smg
 	.byte ITEM_TYPE_GUN
 	.byte "SMG            ", 0
 	.byte "SMALL FULL AUTO WEAPON    ", 0

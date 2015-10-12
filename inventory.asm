@@ -327,6 +327,38 @@ use:
 	asl
 	tax
 	lda inventory + 1, x
+	jsr get_item_type
+	cmp #ITEM_TYPE_GUN
+	beq equipweapon
+	cmp #ITEM_TYPE_MELEE
+	beq equipweapon
+	cmp #ITEM_TYPE_GRENADE
+	beq equipweapon
+	cmp #ITEM_TYPE_OUTFIT
+	beq equipwearable
+	jmp performuse
+
+equipweapon:
+	lda selection
+	asl
+	tax
+	lda inventory + 1, x
+	sta equipped_weapon
+	jmp waitfordepress
+
+equipwearable:
+	lda selection
+	asl
+	tax
+	lda inventory + 1, x
+	sta equipped_armor
+	jmp waitfordepress
+
+performuse:
+	lda selection
+	asl
+	tax
+	lda inventory + 1, x
 	jsr use_item
 	bne validuse
 
@@ -462,6 +494,7 @@ done:
 	lda saved_ppu_settings
 	sta ppu_settings
 
+	jsr update_equipped_item_slots
 	jsr back_to_game_from_alternate_screen
 
 	LOAD_PTR saved_palette

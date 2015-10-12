@@ -871,31 +871,26 @@ nocooldown:
 	rts
 
 notheld:
-	lda player_x
-	clc
-	adc #7
-	sta arg0
-	lda player_y
-	clc
-	adc #7
-	sta arg1
-	lda #EFFECT_PLAYER_BULLET
-	sta arg2
-	jsr get_player_direction_bits
-	sta arg3
-	jsr create_effect
+	; Get equipped weapon type
+	lda equipped_weapon
+	cmp #ITEM_NONE
+	beq failed
+	jsr get_item_type
 
-	cmp #$ff
+	; Melee weapons do not use ammo
+	cmp #ITEM_TYPE_MELEE
+	beq ammook
+
+	; Check ammo count for weapon
+	lda equipped_weapon_slot
+	asl
+	tax
+	lda inventory, x
 	beq failed
 
-	sta cur_effect
-	jsr player_bullet_tick
-	jsr player_bullet_tick
-
-	lda #15
-	sta attack_cooldown
-	lda #1
-	sta attack_held
+ammook:
+	lda equipped_weapon
+	jsr use_item
 
 failed:
 	rts

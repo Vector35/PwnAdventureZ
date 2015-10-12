@@ -204,6 +204,15 @@ fullhealth:
 	lda player_health
 	sta displayed_health
 
+	; Check equipped weapon to see if it has ammo
+	lda equipped_weapon
+	cmp #ITEM_NONE
+	beq noammo
+
+	jsr get_item_type
+	cmp #ITEM_TYPE_MELEE
+	beq noammo
+
 	; Render ammo counter
 	LOAD_PTR ammo_tiles
 	ldx #16
@@ -211,11 +220,33 @@ fullhealth:
 	lda #3
 	jsr write_tiles
 
-	LOAD_PTR ammo_test_str
+	lda equipped_weapon_slot
+	asl
+	tax
+	lda inventory, x
+	sta displayed_ammo
+	jsr byte_to_padded_str
+	LOAD_PTR scratch
 	ldx #16
 	ldy #26
 	jsr write_string
 
+	jmp renderitem
+
+noammo:
+	; No equipped item or does not have ammo
+	LOAD_PTR clear_ammo_tiles
+	ldx #16
+	ldy #25
+	lda #3
+	jsr write_tiles
+
+	LOAD_PTR clear_ammo_str
+	ldx #16
+	ldy #26
+	jsr write_string
+
+renderitem:
 	; Render current item box
 	LOAD_PTR cur_item_top_tiles
 	ldx #19
@@ -288,6 +319,30 @@ nonzero:
 
 
 PROC update_status_bar
+	lda equipped_weapon
+	cmp #ITEM_NONE
+	beq noammo
+	jsr get_item_type
+	cmp #ITEM_TYPE_MELEE
+	beq noammo
+
+	lda equipped_weapon_slot
+	asl
+	tax
+	lda inventory, x
+	cmp displayed_ammo
+	beq noammo
+
+	; Amount of ammo changed, display the new ammo count
+	sta displayed_ammo
+	jsr byte_to_padded_str
+	LOAD_PTR scratch
+	ldx #16
+	ldy #26
+	jsr write_string
+	rts
+
+noammo:
 	lda displayed_health
 	cmp player_health
 	bne healthupdate
@@ -391,6 +446,8 @@ VAR gold_str
 
 VAR displayed_health
 	.byte 0
+VAR displayed_ammo
+	.byte 0
 
 
 .data
@@ -409,8 +466,10 @@ VAR health_bar_below_tiles
 
 VAR ammo_tiles
 	.byte $2a, $2b, $2c
-VAR ammo_test_str
-	.byte "120", 0
+VAR clear_ammo_tiles
+	.byte $00, $00, $00
+VAR clear_ammo_str
+	.byte "   ", 0
 
 VAR cur_item_top_tiles
 	.byte $60, $5b, $5b, $62
