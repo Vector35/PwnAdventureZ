@@ -474,56 +474,56 @@ VAR sword_item
 
 VAR pistol_item
 	.word fire_pistol
-	.word blank_tiles & $ffff
+	.word pistol_tiles & $ffff
 	.byte ITEM_TYPE_GUN
 	.byte "G17 PISTOL     ", 0
 	.byte "A RELIABLE HANDGUN        ", 0
 
 VAR smg_item
 	.word fire_smg
-	.word blank_tiles & $ffff
+	.word smg_tiles & $ffff
 	.byte ITEM_TYPE_GUN
 	.byte "SMG            ", 0
 	.byte "SMALL FULL AUTO WEAPON    ", 0
 
 VAR lmg_item
 	.word 0
-	.word blank_tiles & $ffff
+	.word lmg_tiles & $ffff
 	.byte ITEM_TYPE_GUN
 	.byte "MACHINE GUN    ", 0
 	.byte "EFFECTIVE HEAVY WEAPON    ", 0
 
 VAR ak_item
 	.word 0
-	.word blank_tiles & $ffff
+	.word ak_tiles & $ffff
 	.byte ITEM_TYPE_GUN
 	.byte "AK RIFLE       ", 0
 	.byte "FAMOUS FOR RELIABILITY    ", 0
 
 VAR shotgun_item
 	.word 0
-	.word blank_tiles & $ffff
+	.word shotgun_tiles & $ffff
 	.byte ITEM_TYPE_GUN
 	.byte "SHOTGUN        ", 0
 	.byte "LEGENDARY ZOMBIE DEFENSE  ", 0
 
 VAR sniper_item
 	.word 0
-	.word blank_tiles & $ffff
+	.word sniper_tiles & $ffff
 	.byte ITEM_TYPE_GUN
 	.byte "SNIPER RIFLE   ", 0
 	.byte "TAKE THEM OUT FROM AFAR   ", 0
 
 VAR hand_cannon_item
 	.word 0
-	.word blank_tiles & $ffff
+	.word hand_cannon_tiles & $ffff
 	.byte ITEM_TYPE_GUN
 	.byte "HAND CANNON    ", 0
 	.byte "THE ENVY OF ALL PIRATES   ", 0
 
 VAR rocket_launcher_item
 	.word 0
-	.word blank_tiles & $ffff
+	.word launcher_tiles & $ffff
 	.byte ITEM_TYPE_GUN
 	.byte "ROCKET LAUNCHER", 0
 	.byte "MAKE IT GO BOOM           ", 0
@@ -717,3 +717,11 @@ TILES sticks_tiles, 3, "tiles/items/sticks.chr", 4
 TILES wine_tiles, 3, "tiles/items/wine.chr", 4
 TILES axe_tiles, 3, "tiles/weapons/axe.chr", 4
 TILES grenade_tiles, 3, "tiles/weapons/grenade.chr", 4
+TILES ak_tiles, 3, "tiles/weapons/ak.chr", 4
+TILES hand_cannon_tiles, 3, "tiles/weapons/handcannon.chr", 4
+TILES launcher_tiles, 3, "tiles/weapons/launcher.chr", 4
+TILES lmg_tiles, 3, "tiles/weapons/lmg.chr", 4
+TILES pistol_tiles, 3, "tiles/weapons/pistol.chr", 4
+TILES shotgun_tiles, 3, "tiles/weapons/shotgun.chr", 4
+TILES smg_tiles, 3, "tiles/weapons/smg.chr", 4
+TILES sniper_tiles, 3, "tiles/weapons/sniper.chr", 4
