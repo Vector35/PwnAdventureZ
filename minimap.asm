@@ -20,6 +20,15 @@ PROC back_to_game_from_alternate_screen
 	lda #0
 	jsr bankswitch
 
+	; Clear sprites
+	lda #$ff
+	ldx #0
+clearsprites:
+	sta sprites, x
+	inx
+	bne clearsprites
+
+	jsr init_player_sprites
 	jsr update_player_sprite
 	jsr update_enemy_sprites
 	jsr update_effect_sprites

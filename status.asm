@@ -266,6 +266,29 @@ renderitem:
 	lda #4
 	jsr write_tiles
 
+	; Render current item
+	lda equipped_weapon
+	ldx #DYNAMIC_TILES
+	jsr load_item_background_tiles
+
+	lda #207
+	sta sprites + SPRITE_OAM_EQUIP_WEAPON
+	lda #DYNAMIC_TILES
+	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 1
+	lda #2
+	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 2
+	lda #168
+	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 3
+
+	lda #207
+	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 4
+	lda #DYNAMIC_TILES + 2
+	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 5
+	lda #2
+	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 6
+	lda #176
+	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 7
+
 	; Render right panel, which by default contains the game progress and gold
 	LOAD_PTR right_panel_top_tiles
 	ldx #24

@@ -30,8 +30,7 @@ VAR .ident(.concat(.string(var), "_count"))
 
 .macro LOAD_TILES addr, var, count
 	LOAD_PTR var
-	lda #^var
-	tay
+	ldy #^var
 	lda #<((addr) * $10)
 	sta temp
 	lda #>((addr) * $10)
@@ -291,6 +290,8 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define SPRITE_OAM_INTERACT $08
 .define SPRITE_OAM_ENEMIES  $10
 .define SPRITE_OAM_EFFECTS  $50
+.define SPRITE_OAM_EQUIP_WEAPON $f0
+.define SPRITE_OAM_EQUIP_ARMOR  $f8
 
 .define SPRITE_TILE_PLAYER $00
 
@@ -370,8 +371,9 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define ITEM_NONE          $ff
 
 .define ITEM_DESC_USE      0
-.define ITEM_DESC_TYPE     2
-.define ITEM_DESC_NAME     3
+.define ITEM_DESC_TILE     2
+.define ITEM_DESC_TYPE     4
+.define ITEM_DESC_NAME     5
 
 .define ITEM_TYPE_GUN        0
 .define ITEM_TYPE_MELEE      1
@@ -403,6 +405,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 
 .global inventory, inventory_count
 .global map_screen_generators, cur_screen_x, cur_screen_y, map_bank, map_ptr, map_visited_ptr
+.global equipped_weapon, equipped_armor, equipped_weapon_slot, equipped_armor_slot
 .global spawn_screen_x, spawn_screen_y, spawn_pos_x, spawn_pos_y
 .global active_save_slot
 

@@ -152,6 +152,51 @@ itemend:
 	ldy #32 + 26
 	jsr write_string
 
+	; Render currently equipped items
+	lda equipped_weapon
+	ldx #$18
+	jsr load_item_sprite_tiles
+
+	lda #207
+	sta sprites + SPRITE_OAM_EQUIP_WEAPON
+	lda #$19
+	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 1
+	lda #2
+	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 2
+	lda #168
+	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 3
+
+	lda #207
+	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 4
+	lda #$1b
+	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 5
+	lda #2
+	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 6
+	lda #176
+	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 7
+
+	lda equipped_armor
+	ldx #$1c
+	jsr load_item_sprite_tiles
+
+	lda #207
+	sta sprites + SPRITE_OAM_EQUIP_ARMOR
+	lda #$1d
+	sta sprites + SPRITE_OAM_EQUIP_ARMOR + 1
+	lda #2
+	sta sprites + SPRITE_OAM_EQUIP_ARMOR + 2
+	lda #136
+	sta sprites + SPRITE_OAM_EQUIP_ARMOR + 3
+
+	lda #207
+	sta sprites + SPRITE_OAM_EQUIP_ARMOR + 4
+	lda #$1f
+	sta sprites + SPRITE_OAM_EQUIP_ARMOR + 5
+	lda #2
+	sta sprites + SPRITE_OAM_EQUIP_ARMOR + 6
+	lda #144
+	sta sprites + SPRITE_OAM_EQUIP_ARMOR + 7
+
 	; Draw help text
 	LOAD_PTR inventory_help_str
 	ldx #1
@@ -344,7 +389,7 @@ equipweapon:
 	tax
 	lda inventory + 1, x
 	sta equipped_weapon
-	jmp waitfordepress
+	jmp updateequip
 
 equipwearable:
 	lda selection
@@ -352,6 +397,21 @@ equipwearable:
 	tax
 	lda inventory + 1, x
 	sta equipped_armor
+	jmp updateequip
+
+updateequip:
+	jsr wait_for_vblank
+	lda equipped_weapon
+	ldx #$18
+	jsr load_item_sprite_tiles
+	jsr prepare_for_rendering
+
+	jsr wait_for_vblank
+	lda equipped_armor
+	ldx #$1c
+	jsr load_item_sprite_tiles
+	jsr prepare_for_rendering
+
 	jmp waitfordepress
 
 performuse:
@@ -614,6 +674,56 @@ drawitem:
 	jsr write_tiles
 
 count:
+	; Load icon for the item
+	jsr wait_for_vblank_if_rendering
+
+	lda arg0
+	asl
+	asl
+	tax
+	lda arg0
+	clc
+	adc scroll
+	asl
+	tay
+	lda inventory + 1, y
+	jsr load_item_sprite_tiles
+
+	jsr prepare_for_rendering
+
+	lda arg0
+	asl
+	asl
+	asl
+	clc
+	adc #16
+	tay
+	lda arg0
+	asl
+	clc
+	adc arg0
+	asl
+	asl
+	asl
+	adc #31
+	sta sprites, y
+	sta sprites + 4, y
+	lda arg0
+	asl
+	asl
+	clc
+	adc #1
+	sta sprites + 1, y
+	adc #2
+	sta sprites + 5, y
+	lda #1
+	sta sprites + 2, y
+	sta sprites + 6, y
+	lda #32
+	sta sprites + 3, y
+	lda #40
+	sta sprites + 7, y
+
 	jsr wait_for_vblank_if_rendering
 
 	; Get string with item count
@@ -829,6 +939,17 @@ renderbox:
 	jsr write_string
 
 	jsr prepare_for_rendering
+
+	lda arg0
+	asl
+	asl
+	asl
+	clc
+	adc #16
+	tay
+	lda #$ff
+	sta sprites, y
+	sta sprites + 4, y
 
 	rts
 .endproc
@@ -1181,8 +1302,8 @@ VAR inventory_palette
 	.byte $0f, $21, $31, $37
 	.byte $0f, $00, $16, $30
 	.byte $0f, $21, $31, $21
-	.byte $0f, $21, $31, $31
-	.byte $0f, $31, $31, $31
+	.byte $0f, $21, $31, $21
+	.byte $0f, $21, $21, $21
 	.byte $0f, $00, $10, $30
 	.byte $0f, $00, $10, $30
 	.byte $0f, $00, $10, $30

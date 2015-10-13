@@ -291,6 +291,9 @@ namedone:
 	lda #ITEM_SNEAKERS
 	jsr give_item
 
+	lda #ITEM_GHILLIE_SUIT
+	jsr give_item
+
 	lda #ITEM_BANDAGE
 	ldx #5
 	jsr give_item_with_count

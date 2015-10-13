@@ -3,9 +3,19 @@
 .code
 
 PROC init_player_sprites
-	LOAD_ALL_TILES $100 + SPRITE_TILE_PLAYER, unarmed_player_tiles
 	LOAD_ALL_TILES $100 + SPRITE_TILE_INTERACT, interact_tiles
 
+	lda equipped_armor
+	cmp #ITEM_GHILLIE_SUIT
+	beq ghillie
+
+	LOAD_ALL_TILES $100 + SPRITE_TILE_PLAYER, unarmed_player_tiles
+	jmp setpalette
+
+ghillie:
+	LOAD_ALL_TILES $100 + SPRITE_TILE_PLAYER, ghillie_player_tiles
+
+setpalette:
 	jsr read_overworld_cur
 	and #$3f
 	cmp #MAP_CAVE_START
@@ -27,11 +37,27 @@ PROC init_player_sprites
 	cmp #MAP_MINE_DOWN
 	beq dark
 
+	lda equipped_armor
+	cmp #ITEM_GHILLIE_SUIT
+	beq ghillielightpalette
+
 	LOAD_PTR light_player_palette
 	jmp loadpal
 
+ghillielightpalette:
+	LOAD_PTR light_ghillie_player_palette
+	jmp loadpal
+
 dark:
+	lda equipped_armor
+	cmp #ITEM_GHILLIE_SUIT
+	beq ghilliedarkpalette
+
 	LOAD_PTR dark_player_palette
+	jmp loadpal
+
+ghilliedarkpalette:
+	LOAD_PTR dark_ghillie_player_palette
 
 loadpal:
 	lda ptr
@@ -51,6 +77,9 @@ loadpal:
 
 
 PROC update_player_sprite
+	lda rendering_enabled
+	beq palettedone
+
 	lda player_damage_flash_time
 	beq normalpalette
 
@@ -1182,6 +1211,11 @@ VAR dark_player_palette
 VAR light_player_palette
 	.byte $0f, $0f, $37, $07
 
+VAR dark_ghillie_player_palette
+	.byte $0f, $2d, $09, $07
+VAR light_ghillie_player_palette
+	.byte $0f, $0f, $09, $07
+
 VAR player_damage_palette
 	.byte $0f, $20, $10, $2d
 
@@ -1224,4 +1258,5 @@ VAR player_bullet_damage_descriptor
 	.byte 0, 0
 
 TILES unarmed_player_tiles, 2, "tiles/characters/player/unarmed.chr", 32
+TILES ghillie_player_tiles, 2, "tiles/characters/player/unarmed-ghillie.chr", 32
 TILES interact_tiles, 2, "tiles/interact.chr", 8
