@@ -183,6 +183,12 @@ PROC perform_player_move
 	lda knockback_time
 	beq normalmove
 
+	lda extra_player_move
+	beq knockback
+	lda #0
+	rts
+
+knockback:
 	lda knockback_control
 	sta temp_controller
 	jmp noactivate
@@ -217,6 +223,8 @@ noactivate:
 	sta attack_held
 
 startmove:
+	lda extra_player_move
+	bne nocooldown
 	lda attack_cooldown
 	beq nocooldown
 	dec attack_cooldown
@@ -1160,6 +1168,9 @@ VAR possible_interaction_tile_y
 VAR attack_held
 	.byte 0
 VAR attack_cooldown
+	.byte 0
+
+VAR extra_player_move
 	.byte 0
 
 

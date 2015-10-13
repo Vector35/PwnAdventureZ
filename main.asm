@@ -112,8 +112,24 @@ noinventory:
 	jmp movedone
 
 normalmove:
+	lda #0
+	sta extra_player_move
 	jsr perform_player_move
 	bne prepare
+
+	lda equipped_armor
+	cmp #ITEM_SNEAKERS
+	bne movedone
+
+	lda vblank_count
+	and #1
+	bne movedone
+
+	lda #1
+	sta extra_player_move
+	jsr perform_player_move
+	beq movedone
+	jmp prepare
 
 movedone:
 	jsr update_enemies
