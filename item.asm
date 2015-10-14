@@ -572,9 +572,9 @@ VAR stick_item
 
 VAR cloth_item
 	.word 0
-	.word cloth_strip_tiles & $ffff
+	.word cloth_tiles & $ffff
 	.byte ITEM_TYPE_CRAFTING
-	.byte "CLOTH STRIPS   ", 0
+	.byte "RAW CLOTH      ", 0
 	.byte "TORN CLOTH FOR CRAFTING   ", 0
 
 VAR shirt_item
@@ -703,7 +703,7 @@ VAR item_descriptors
 
 TILES blank_tiles, 3, "tiles/items/blank.chr", 4
 TILES campfire_tiles, 3, "tiles/items/campfire.chr", 4
-TILES cloth_strip_tiles, 3, "tiles/items/clothstrips.chr", 4
+TILES cloth_tiles, 3, "tiles/items/cloth.chr", 4
 TILES coffee_tiles, 3, "tiles/items/coffee.chr", 4
 TILES fuel_tiles, 3, "tiles/items/fuel.chr", 4
 TILES gem_tiles, 3, "tiles/items/gem.chr", 4
