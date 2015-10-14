@@ -307,6 +307,9 @@ namedone:
 	lda #ITEM_SNEAKERS
 	jsr give_item
 
+	lda #ITEM_ARMOR
+	jsr give_item
+
 	lda #ITEM_GHILLIE_SUIT
 	jsr give_item
 

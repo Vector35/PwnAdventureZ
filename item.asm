@@ -467,7 +467,7 @@ VAR axe_item
 
 VAR sword_item
 	.word 0
-	.word blank_tiles & $ffff
+	.word ninja_sword_tiles & $ffff
 	.byte ITEM_TYPE_MELEE
 	.byte "NINJA SWORD    ", 0
 	.byte "MASTER THE CLOSE RANGE    ", 0
@@ -544,7 +544,7 @@ VAR grenade_item
 
 VAR bandage_item
 	.word use_bandage
-	.word blank_tiles & $ffff
+	.word bandage_tiles & $ffff
 	.byte ITEM_TYPE_HEALTH
 	.byte "BANDAGE        ", 0
 	.byte "HEAL MINOR WOUNDS         ", 0
@@ -565,7 +565,7 @@ VAR fuel_item
 
 VAR stick_item
 	.word 0
-	.word blank_tiles & $ffff
+	.word sticks_tiles & $ffff
 	.byte ITEM_TYPE_CRAFTING
 	.byte "STICK          ", 0
 	.byte "WOOD STICK FOR CRAFTING   ", 0
@@ -593,7 +593,7 @@ VAR pants_item
 
 VAR metal_item
 	.word 0
-	.word blank_tiles & $ffff
+	.word metal_tiles & $ffff
 	.byte ITEM_TYPE_CRAFTING
 	.byte "METAL FRAGMENTS", 0
 	.byte "METAL FOR CRAFTING        ", 0
@@ -628,14 +628,14 @@ VAR sneakers_item
 
 VAR wizard_hat_item
 	.word 0
-	.word blank_tiles & $ffff
+	.word wizard_hat_tiles & $ffff
 	.byte ITEM_TYPE_OUTFIT
 	.byte "WIZARD HAT     ", 0
 	.byte "FEELS MAGICAL             ", 0
 
 VAR armor_item
 	.word 0
-	.word blank_tiles & $ffff
+	.word armor_tiles & $ffff
 	.byte ITEM_TYPE_OUTFIT
 	.byte "SUIT OF ARMOR  ", 0
 	.byte "LESS DAMAGE BUT SLOWER    ", 0
@@ -725,3 +725,8 @@ TILES pistol_tiles, 3, "tiles/weapons/pistol.chr", 4
 TILES shotgun_tiles, 3, "tiles/weapons/shotgun.chr", 4
 TILES smg_tiles, 3, "tiles/weapons/smg.chr", 4
 TILES sniper_tiles, 3, "tiles/weapons/sniper.chr", 4
+TILES bandage_tiles, 3, "tiles/items/bandage.chr", 4
+TILES metal_tiles, 3, "tiles/items/metalfragments.chr", 4
+TILES wizard_hat_tiles, 3, "tiles/items/wizardhat.chr", 4
+TILES ninja_sword_tiles, 3, "tiles/weapons/ninjasword.chr", 4
+TILES armor_tiles, 3, "tiles/items/armor.chr", 4
