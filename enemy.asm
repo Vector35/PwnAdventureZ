@@ -1480,6 +1480,173 @@ spawnloop:
 .endproc
 
 
+PROC enemy_die
+	lda #ITEM_NONE
+	ldx #0
+	jsr enemy_die_with_drop
+	rts
+.endproc
+
+
+PROC enemy_die_with_drop
+	sta arg4
+	stx arg5
+
+	ldx cur_enemy
+	lda enemy_x, x
+	sta arg0
+	lda enemy_y, x
+	sta arg1
+	lda #EFFECT_ENEMY_DEATH
+	sta arg2
+	lda #0
+	sta arg3
+
+	jsr create_effect
+	rts
+.endproc
+
+
+PROC enemy_die_with_drop_table
+	; Pick drop entry from table
+	ldy #0
+	lda (ptr), y
+	jsr rand_range
+	sta arg0
+
+	; Read drop type pointer
+	ldy #1
+	lda (ptr), y
+	sta temp
+	ldy #2
+	lda (ptr), y
+	sta temp + 1
+
+	; Look up drop type
+	ldy arg0
+	lda (temp), y
+	sta arg1
+
+	; Read count randomization field and pick a count
+	ldy #5
+	lda (ptr), y
+	sta temp
+	ldy #6
+	lda (ptr), y
+	sta temp + 1
+
+	ldy arg0
+	lda (temp), y
+	jsr rand_range
+	sta arg2
+
+	; Add in the minimum count
+	ldy #3
+	lda (ptr), y
+	sta temp
+	ldy #4
+	lda (ptr), y
+	sta temp + 1
+	ldy arg0
+	lda (temp), y
+	clc
+	adc arg2
+	tax
+
+	lda arg1
+	jsr enemy_die_with_drop
+	rts
+.endproc
+
+
+PROC enemy_death_tick
+	ldx cur_effect
+	inc effect_time, x
+	lda effect_time, x
+	cmp #8
+	beq secondframe
+	cmp #16
+	beq thirdframe
+	cmp #24
+	beq splatdone
+	rts
+
+secondframe:
+	lda #SPRITE_TILE_SPLAT + 4
+	sta effect_tile, x
+	rts
+thirdframe:
+	lda #SPRITE_TILE_SPLAT + 8
+	sta effect_tile, x
+	rts
+
+splatdone:
+	; If there is no drop, remove effect now
+	ldx cur_effect
+	lda effect_data_0, x
+	cmp #ITEM_NONE
+	beq noitem
+	lda effect_data_1, x
+	bne hasitem
+
+noitem:
+	jsr remove_effect
+	rts
+
+hasitem:
+	lda #SPRITE_TILE_ORB
+	sta effect_tile, x
+	lda #0
+	sta effect_time, x
+	lda #EFFECT_DROP
+	sta effect_type, x
+	lda effect_x, x
+	clc
+	adc #4
+	sta effect_x, x
+	lda effect_y, x
+	clc
+	adc #4
+	sta effect_y, x
+	rts
+.endproc
+
+
+PROC drop_tick
+	ldx cur_effect
+	inc effect_time, x
+	lda effect_time, x
+	cmp #16
+	beq secondframe
+	cmp #32
+	bne done
+
+	lda #SPRITE_TILE_ORB
+	sta effect_tile, x
+	lda #0
+	sta effect_time, x
+	rts
+
+secondframe:
+	lda #SPRITE_TILE_ORB + 2
+	sta effect_tile, x
+
+done:
+	rts
+.endproc
+
+
+PROC drop_collide
+	ldy cur_effect
+	lda effect_data_1, y
+	tax
+	lda effect_data_0, y
+	jsr give_item_with_count
+	jsr remove_effect
+	rts
+.endproc
+
+
 .zeropage
 
 VAR cur_enemy
@@ -1588,3 +1755,27 @@ VAR enemy_descriptors
 	.word normal_female_zombie_descriptor
 	.word shark_descriptor 
 	.word fat_zombie_descriptor
+
+
+VAR enemy_death_descriptor
+	.word enemy_death_tick
+	.word nothing
+	.word nothing
+	.word nothing
+	.byte SPRITE_TILE_SPLAT, 1
+	.byte 3
+	.byte 16, 16
+
+
+VAR drop_descriptor
+	.word drop_tick
+	.word drop_collide
+	.word nothing
+	.word nothing
+	.byte SPRITE_TILE_ORB, 0
+	.byte 2
+	.byte 8, 8
+
+
+TILES splat_tiles, 2, "tiles/effects/splat.chr", 12
+TILES orb_tiles, 2, "tiles/items/orb.chr", 4

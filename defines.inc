@@ -300,6 +300,8 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define SPRITE_TILE_FAT_ZOMBIE           $60
 .define SPRITE_TILE_SHARK                $80
 
+.define SPRITE_TILE_SPLAT         $e0
+.define SPRITE_TILE_ORB           $ee
 .define SPRITE_TILE_BULLET        $f2
 .define SPRITE_TILE_BULLET_HIT    $f4
 .define SPRITE_TILE_BULLET_DAMAGE $f6
@@ -308,8 +310,10 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 
 ; Effects
 .define EFFECT_PLAYER_BULLET        0
-.define EFFECT_PLAYER_BULLET_DAMAGE 1
-.define EFFECT_PLAYER_BULLET_HIT    2
+.define EFFECT_DROP                 1
+.define EFFECT_ENEMY_DEATH          2
+.define EFFECT_PLAYER_BULLET_DAMAGE 3
+.define EFFECT_PLAYER_BULLET_HIT    4
 .define EFFECT_NONE                 $ff
 
 .define EFFECT_MAX_COUNT     16

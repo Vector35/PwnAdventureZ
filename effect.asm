@@ -4,6 +4,8 @@
 
 PROC init_effect_sprites
 	LOAD_ALL_TILES $100 + SPRITE_TILE_BULLET, bullet_tiles
+	LOAD_ALL_TILES $100 + SPRITE_TILE_SPLAT, splat_tiles
+	LOAD_ALL_TILES $100 + SPRITE_TILE_ORB, orb_tiles
 
 	ldx #0
 	lda #EFFECT_NONE
@@ -425,6 +427,10 @@ found:
 	sta effect_direction, x
 	lda #0
 	sta effect_time, x
+	lda arg4
+	sta effect_data_0, x
+	lda arg5
+	sta effect_data_1, x
 
 	lda arg2
 	asl
@@ -496,11 +502,23 @@ VAR effect_time
 	.byte 0
 	.endrepeat
 
+VAR effect_data_0
+	.repeat EFFECT_MAX_COUNT
+	.byte 0
+	.endrepeat
+
+VAR effect_data_1
+	.repeat EFFECT_MAX_COUNT
+	.byte 0
+	.endrepeat
+
 
 .data
 
 VAR effect_descriptors
 	.word player_bullet_descriptor
+	.word drop_descriptor
+	.word enemy_death_descriptor
 	.word player_bullet_damage_descriptor
 	.word player_bullet_hit_descriptor
 
