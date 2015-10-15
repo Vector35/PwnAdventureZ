@@ -474,7 +474,7 @@ VAR displayed_ammo
 	.byte 0
 
 
-.rodata
+.segment "FIXED"
 
 VAR status_palette
 	.byte $0f, $00, $16, $30
