@@ -307,9 +307,6 @@ namedone:
 	lda #ITEM_SNEAKERS
 	jsr give_item
 
-	lda #ITEM_ARMOR
-	jsr give_item
-
 	lda #ITEM_GHILLIE_SUIT
 	jsr give_item
 
@@ -365,9 +362,9 @@ nocode:
 .endproc
 
 
-.segment "FIXED"
+.segment "EXTRA"
 
-PROC game_over
+PROC show_game_over
 	; Update number of deaths
 	ldx death_count + 2
 	inx
@@ -511,7 +508,7 @@ loop:
 	lda controller
 	and #JOY_UP | JOY_DOWN | JOY_SELECT
 	bne change
-	jmp loop
+	jmp loop & $ffff
 
 change:
 	jsr wait_for_vblank
@@ -544,7 +541,7 @@ waitfordepress:
 	lda controller
 	bne waitfordepress
 
-	jmp loop
+	jmp loop & $ffff
 
 done:
 	lda selection
@@ -554,6 +551,20 @@ done:
 
 continue:
 	jsr fade_out
+	rts
+.endproc
+
+
+.segment "FIXED"
+
+PROC game_over
+	lda current_bank
+	pha
+	lda #^show_game_over
+	jsr bankswitch
+	jsr show_game_over & $ffff
+	pla
+	jsr bankswitch
 	rts
 .endproc
 

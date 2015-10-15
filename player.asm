@@ -1174,7 +1174,7 @@ VAR extra_player_move
 	.byte 0
 
 
-.data
+.rodata
 VAR walking_sprites_for_state
 	; Up
 	.byte $1c + 1, $00

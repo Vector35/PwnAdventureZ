@@ -254,7 +254,7 @@ VAR button_presses
 	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 
-.data
+.segment "EXTRA"
 
 VAR vector35_logo
 	.byte 99, TILE_VECTOR, 0, 108
@@ -331,14 +331,14 @@ VAR press_start_str
 
 
 VAR flashing_text_palette_anim
-	.word normal_str_palette
-	.word normal_str_palette
-	.word normal_str_palette
-	.word alt_str_palettes
-	.word alt_str_palettes + 4
-	.word alt_str_palettes + 8
-	.word alt_str_palettes + 4
-	.word alt_str_palettes
+	.word normal_str_palette & $ffff
+	.word normal_str_palette & $ffff
+	.word normal_str_palette & $ffff
+	.word alt_str_palettes & $ffff
+	.word (alt_str_palettes + 4) & $ffff
+	.word (alt_str_palettes + 8) & $ffff
+	.word (alt_str_palettes + 4) & $ffff
+	.word alt_str_palettes & $ffff
 
 VAR title_palette
 	.byte $0f, $21, $31, $37

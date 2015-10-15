@@ -2,31 +2,6 @@
 
 .code
 
-PROC find_item
-	sta temp
-	ldx #0
-	ldy #0
-loop:
-	cpx inventory_count
-	beq notfound
-	lda inventory + 1, y
-	cmp temp
-	beq found
-	inx
-	iny
-	iny
-	jmp loop
-
-found:
-	txa
-	rts
-
-notfound:
-	lda #$ff
-	rts
-.endproc
-
-
 PROC give_weapon
 	sta temp
 	lda inventory_count
@@ -82,20 +57,6 @@ newitem:
 .endproc
 
 
-PROC get_item_type
-	asl
-	tax
-	lda item_descriptors, x
-	sta ptr
-	lda item_descriptors + 1, x
-	sta ptr + 1
-
-	ldy #ITEM_DESC_TYPE
-	lda (ptr), y
-	rts
-.endproc
-
-
 PROC use_item
 	asl
 	tax
@@ -121,45 +82,6 @@ PROC use_item
 
 valid:
 	jsr call_temp
-	rts
-.endproc
-
-
-PROC get_item_name
-	asl
-	tax
-	lda item_descriptors, x
-	sta ptr
-	lda item_descriptors + 1, x
-	sta ptr + 1
-
-	ldy #ITEM_DESC_NAME
-	jsr add_y_to_ptr
-	rts
-.endproc
-
-
-PROC get_item_description
-	asl
-	tax
-	lda item_descriptors, x
-	sta ptr
-	lda item_descriptors + 1, x
-	sta ptr + 1
-
-	ldy #ITEM_DESC_NAME
-	jsr add_y_to_ptr
-
-	ldy #0
-loop:
-	lda (ptr), y
-	beq found
-	iny
-	jmp loop
-
-found:
-	iny
-	jsr add_y_to_ptr
 	rts
 .endproc
 
@@ -213,91 +135,6 @@ foundarmor:
 	stx equipped_armor_slot
 
 noarmor:
-	rts
-.endproc
-
-
-PROC load_item_background_tiles
-	cmp #ITEM_NONE
-	beq blank
-
-	asl
-	tay
-	lda item_descriptors, y
-	sta temp
-	lda item_descriptors + 1, y
-	sta temp + 1
-	ldy #ITEM_DESC_TILE
-	lda (temp), y
-	sta ptr
-	iny
-	lda (temp), y
-	sta ptr + 1
-	jmp load
-
-blank:
-	LOAD_PTR blank_tiles
-
-load:
-	txa
-	asl
-	asl
-	asl
-	asl
-	sta temp
-	txa
-	lsr
-	lsr
-	lsr
-	lsr
-	sta temp + 1
-	lda #4
-	ldy #3
-	jsr copy_tiles
-
-	rts
-.endproc
-
-
-PROC load_item_sprite_tiles
-	cmp #ITEM_NONE
-	beq blank
-
-	asl
-	tay
-	lda item_descriptors, y
-	sta temp
-	lda item_descriptors + 1, y
-	sta temp + 1
-	ldy #ITEM_DESC_TILE
-	lda (temp), y
-	sta ptr
-	iny
-	lda (temp), y
-	sta ptr + 1
-	jmp load
-
-blank:
-	LOAD_PTR blank_tiles
-
-load:
-	txa
-	asl
-	asl
-	asl
-	asl
-	sta temp
-	txa
-	lsr
-	lsr
-	lsr
-	lsr
-	ora #$10
-	sta temp + 1
-	lda #4
-	ldy #3
-	jsr copy_tiles
-
 	rts
 .endproc
 
@@ -452,6 +289,178 @@ PROC fire_smg
 	sta attack_cooldown
 
 failed:
+	rts
+.endproc
+
+
+.segment "FIXED"
+
+PROC find_item
+	sta temp
+	ldx #0
+	ldy #0
+loop:
+	cpx inventory_count
+	beq notfound
+	lda inventory + 1, y
+	cmp temp
+	beq found
+	inx
+	iny
+	iny
+	jmp loop
+
+found:
+	txa
+	rts
+
+notfound:
+	lda #$ff
+	rts
+.endproc
+
+
+PROC get_item_type
+	asl
+	tax
+	lda item_descriptors, x
+	sta ptr
+	lda item_descriptors + 1, x
+	sta ptr + 1
+
+	ldy #ITEM_DESC_TYPE
+	lda (ptr), y
+	rts
+.endproc
+
+
+PROC get_item_name
+	cmp #ITEM_NONE
+	beq empty
+
+	asl
+	tax
+	lda item_descriptors, x
+	sta ptr
+	lda item_descriptors + 1, x
+	sta ptr + 1
+
+	ldy #ITEM_DESC_NAME
+	jsr add_y_to_ptr
+	rts
+
+empty:
+	LOAD_PTR empty_item_name_str
+	rts
+.endproc
+
+
+PROC get_item_description
+	asl
+	tax
+	lda item_descriptors, x
+	sta ptr
+	lda item_descriptors + 1, x
+	sta ptr + 1
+
+	ldy #ITEM_DESC_NAME
+	jsr add_y_to_ptr
+
+	ldy #0
+loop:
+	lda (ptr), y
+	beq found
+	iny
+	jmp loop
+
+found:
+	iny
+	jsr add_y_to_ptr
+	rts
+.endproc
+
+
+PROC load_item_background_tiles
+	cmp #ITEM_NONE
+	beq blank
+
+	asl
+	tay
+	lda item_descriptors, y
+	sta temp
+	lda item_descriptors + 1, y
+	sta temp + 1
+	ldy #ITEM_DESC_TILE
+	lda (temp), y
+	sta ptr
+	iny
+	lda (temp), y
+	sta ptr + 1
+	jmp load
+
+blank:
+	LOAD_PTR blank_tiles
+
+load:
+	txa
+	asl
+	asl
+	asl
+	asl
+	sta temp
+	txa
+	lsr
+	lsr
+	lsr
+	lsr
+	sta temp + 1
+	lda #4
+	ldy #3
+	jsr copy_tiles
+
+	rts
+.endproc
+
+
+PROC load_item_sprite_tiles
+	cmp #ITEM_NONE
+	beq blank
+
+	asl
+	tay
+	lda item_descriptors, y
+	sta temp
+	lda item_descriptors + 1, y
+	sta temp + 1
+	ldy #ITEM_DESC_TILE
+	lda (temp), y
+	sta ptr
+	iny
+	lda (temp), y
+	sta ptr + 1
+	jmp load
+
+blank:
+	LOAD_PTR blank_tiles
+
+load:
+	txa
+	asl
+	asl
+	asl
+	asl
+	sta temp
+	txa
+	lsr
+	lsr
+	lsr
+	lsr
+	ora #$10
+	sta temp + 1
+	lda #4
+	ldy #3
+	jsr copy_tiles
+
 	rts
 .endproc
 
@@ -638,7 +647,7 @@ VAR armor_item
 	.word armor_tiles & $ffff
 	.byte ITEM_TYPE_OUTFIT
 	.byte "SUIT OF ARMOR  ", 0
-	.byte "LESS DAMAGE BUT SLOWER    ", 0
+	.byte "LESS DAMAGE FROM HITS     ", 0
 
 VAR tinfoil_hat_item
 	.word 0
@@ -667,6 +676,9 @@ VAR wine_item
 	.byte ITEM_TYPE_CONSUMABLE
 	.byte "WINE BOTTLE    ", 0
 	.byte "NUMBS THE PAIN FOR A TIME ", 0
+
+VAR empty_item_name_str
+	.byte "               ", 0
 
 VAR item_descriptors
 	.word axe_item

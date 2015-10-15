@@ -15,12 +15,16 @@ palettesaveloop:
 	sta saved_ppu_settings
 
 	jsr fade_out
-	jsr clear_alt_screen
-
-	LOAD_ALL_TILES $000, inventory_ui_tiles
 
 	lda #PPUCTRL_ENABLE_NMI | PPUCTRL_SPRITE_SIZE | PPUCTRL_NAMETABLE_2000
 	sta ppu_settings
+
+	jmp show_inventory_tab
+.endproc
+
+PROC show_inventory_tab
+	jsr clear_alt_screen
+	LOAD_ALL_TILES $000, inventory_ui_tiles
 
 	; Draw box around inventory screen
 	lda #1
@@ -96,106 +100,7 @@ notempty:
 	jsr render_inventory_items
 
 itemend:
-	jsr load_area_name_tiles
-
-	; Render health bar outline
-	LOAD_PTR inventory_health_bar_top_tiles
-	ldx #1
-	ldy #32 + 24
-	lda #14
-	jsr write_tiles
-	ldx #1
-	ldy #32 + 25
-	lda #14
-	jsr write_tiles
-	ldx #1
-	ldy #32 + 26
-	lda #14
-	jsr write_tiles
-	ldx #2
-	ldy #32 + 27
-	lda #11
-	jsr write_tiles
-
-	jsr update_inventory_status
-
-	; Render item boxes for equipped item
-	LOAD_PTR two_items_top_tiles
-	ldx #15
-	ldy #32 + 24
-	lda #8
-	jsr write_tiles
-	ldx #15
-	ldy #32 + 25
-	lda #8
-	jsr write_tiles
-	ldx #15
-	ldy #32 + 26
-	lda #8
-	jsr write_tiles
-	ldx #15
-	ldy #32 + 27
-	lda #8
-	jsr write_tiles
-
-	; Show key count and gold
-	LOAD_ALL_TILES $7b, inventory_key_tiles
-	LOAD_PTR inventory_keys
-	ldx #24
-	ldy #32 + 25
-	lda #5
-	jsr write_tiles
-
-	jsr generate_gold_string
-	LOAD_PTR gold_str
-	ldx #24
-	ldy #32 + 26
-	jsr write_string
-
-	; Render currently equipped items
-	lda equipped_weapon
-	ldx #$18
-	jsr load_item_sprite_tiles
-
-	lda #207
-	sta sprites + SPRITE_OAM_EQUIP_WEAPON
-	lda #$19
-	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 1
-	lda #2
-	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 2
-	lda #168
-	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 3
-
-	lda #207
-	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 4
-	lda #$1b
-	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 5
-	lda #2
-	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 6
-	lda #176
-	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 7
-
-	lda equipped_armor
-	ldx #$1c
-	jsr load_item_sprite_tiles
-
-	lda #207
-	sta sprites + SPRITE_OAM_EQUIP_ARMOR
-	lda #$1d
-	sta sprites + SPRITE_OAM_EQUIP_ARMOR + 1
-	lda #2
-	sta sprites + SPRITE_OAM_EQUIP_ARMOR + 2
-	lda #136
-	sta sprites + SPRITE_OAM_EQUIP_ARMOR + 3
-
-	lda #207
-	sta sprites + SPRITE_OAM_EQUIP_ARMOR + 4
-	lda #$1f
-	sta sprites + SPRITE_OAM_EQUIP_ARMOR + 5
-	lda #2
-	sta sprites + SPRITE_OAM_EQUIP_ARMOR + 6
-	lda #144
-	sta sprites + SPRITE_OAM_EQUIP_ARMOR + 7
+	jsr render_inventory_status_bar
 
 	; Draw help text
 	LOAD_PTR inventory_help_str
@@ -230,9 +135,16 @@ selectloop:
 	and #JOY_A
 	bne usepressed
 	lda controller
+	and #JOY_RIGHT
+	bne craft
+	lda controller
 	and #JOY_SELECT
 	beq nobutton
 	jmp done
+
+craft:
+	jsr fade_out
+	jmp show_crafting_tab
 
 nobutton:
 	lda #30
@@ -564,7 +476,184 @@ done:
 .endproc
 
 
+.segment "FIXED"
+
+PROC render_inventory_status_bar
+	lda current_bank
+	pha
+	lda #^do_render_inventory_status_bar
+	jsr bankswitch
+	jsr do_render_inventory_status_bar & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
 PROC update_inventory_status
+	lda current_bank
+	pha
+	lda #^do_update_inventory_status
+	jsr bankswitch
+	jsr do_update_inventory_status & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+PROC render_inventory_items
+	lda current_bank
+	pha
+	lda #^do_render_inventory_items
+	jsr bankswitch
+	jsr do_render_inventory_items & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+PROC clear_last_inventory_item
+	lda current_bank
+	pha
+	lda #^do_clear_last_inventory_item
+	jsr bankswitch
+	jsr do_clear_last_inventory_item & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+PROC select_inventory_item
+	lda current_bank
+	pha
+	lda #^do_select_inventory_item
+	jsr bankswitch
+	jsr do_select_inventory_item & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+PROC deselect_inventory_item
+	lda current_bank
+	pha
+	lda #^do_deselect_inventory_item
+	jsr bankswitch
+	jsr do_deselect_inventory_item & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+.segment "EXTRA"
+
+PROC do_render_inventory_status_bar
+	jsr load_area_name_tiles
+
+	; Render health bar outline
+	LOAD_PTR inventory_health_bar_top_tiles
+	ldx #1
+	ldy #32 + 24
+	lda #14
+	jsr write_tiles
+	ldx #1
+	ldy #32 + 25
+	lda #14
+	jsr write_tiles
+	ldx #1
+	ldy #32 + 26
+	lda #14
+	jsr write_tiles
+	ldx #2
+	ldy #32 + 27
+	lda #11
+	jsr write_tiles
+
+	jsr do_update_inventory_status & $ffff
+
+	; Render item boxes for equipped item
+	LOAD_PTR two_items_top_tiles
+	ldx #15
+	ldy #32 + 24
+	lda #8
+	jsr write_tiles
+	ldx #15
+	ldy #32 + 25
+	lda #8
+	jsr write_tiles
+	ldx #15
+	ldy #32 + 26
+	lda #8
+	jsr write_tiles
+	ldx #15
+	ldy #32 + 27
+	lda #8
+	jsr write_tiles
+
+	; Show key count and gold
+	LOAD_ALL_TILES $7b, inventory_key_tiles
+	LOAD_PTR inventory_keys
+	ldx #24
+	ldy #32 + 25
+	lda #5
+	jsr write_tiles
+
+	jsr generate_gold_string
+	LOAD_PTR gold_str
+	ldx #24
+	ldy #32 + 26
+	jsr write_string
+
+	; Render currently equipped items
+	lda equipped_weapon
+	ldx #$18
+	jsr load_item_sprite_tiles
+
+	lda #207
+	sta sprites + SPRITE_OAM_EQUIP_WEAPON
+	lda #$19
+	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 1
+	lda #2
+	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 2
+	lda #168
+	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 3
+
+	lda #207
+	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 4
+	lda #$1b
+	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 5
+	lda #2
+	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 6
+	lda #176
+	sta sprites + SPRITE_OAM_EQUIP_WEAPON + 7
+
+	lda equipped_armor
+	ldx #$1c
+	jsr load_item_sprite_tiles
+
+	lda #207
+	sta sprites + SPRITE_OAM_EQUIP_ARMOR
+	lda #$1d
+	sta sprites + SPRITE_OAM_EQUIP_ARMOR + 1
+	lda #2
+	sta sprites + SPRITE_OAM_EQUIP_ARMOR + 2
+	lda #136
+	sta sprites + SPRITE_OAM_EQUIP_ARMOR + 3
+
+	lda #207
+	sta sprites + SPRITE_OAM_EQUIP_ARMOR + 4
+	lda #$1f
+	sta sprites + SPRITE_OAM_EQUIP_ARMOR + 5
+	lda #2
+	sta sprites + SPRITE_OAM_EQUIP_ARMOR + 6
+	lda #144
+	sta sprites + SPRITE_OAM_EQUIP_ARMOR + 7
+
+	rts
+.endproc
+
+
+PROC do_update_inventory_status
 	jsr wait_for_vblank_if_rendering
 
 	; Render health bar according to player health
@@ -620,7 +709,7 @@ fullhealth:
 .endproc
 
 
-PROC render_inventory_items
+PROC do_render_inventory_items
 	lda #0
 	sta arg0
 itemloop:
@@ -629,13 +718,13 @@ itemloop:
 	adc scroll
 	cmp inventory_count
 	bne hasitem
-	jmp itemend
+	jmp itemend & $ffff
 
 hasitem:
 	lda arg0
 	beq first
 	LOAD_PTR inventory_item_second_box_tiles
-	jmp drawitem
+	jmp drawitem & $ffff
 first:
 	LOAD_PTR inventory_item_first_box_tiles
 
@@ -773,7 +862,7 @@ count:
 	lda #3
 	jsr write_tiles
 
-	jmp drawname
+	jmp drawname & $ffff
 
 ammocount:
 	; Draw ammo count
@@ -840,19 +929,19 @@ drawname:
 	beq usable
 
 	LOAD_PTR inventory_sell_tiles
-	jmp drawtype
+	jmp drawtype & $ffff
 weapon:
 	LOAD_PTR inventory_weapon_tiles
-	jmp drawtype
+	jmp drawtype & $ffff
 crafting:
 	LOAD_PTR inventory_crafting_tiles
-	jmp drawtype
+	jmp drawtype & $ffff
 wearable:
 	LOAD_PTR inventory_wearable_tiles
-	jmp drawtype
+	jmp drawtype & $ffff
 healing:
 	LOAD_PTR inventory_healing_tiles
-	jmp drawtype
+	jmp drawtype & $ffff
 usable:
 	LOAD_PTR inventory_usable_tiles
 
@@ -871,20 +960,20 @@ nextitem:
 	stx arg0
 	cpx #6
 	beq itemend
-	jmp itemloop
+	jmp itemloop & $ffff
 
 itemend:
 	rts
 .endproc
 
 
-PROC clear_last_inventory_item
+PROC do_clear_last_inventory_item
 	jsr wait_for_vblank_if_rendering
 
 	lda inventory_count
 	beq noitems
 	LOAD_PTR clear_item_tiles
-	jmp renderbox
+	jmp renderbox & $ffff
 noitems:
 	LOAD_PTR clear_last_item_tiles
 
@@ -955,7 +1044,7 @@ renderbox:
 .endproc
 
 
-PROC select_inventory_item
+PROC do_select_inventory_item
 	lda selection
 	sec
 	sbc scroll
@@ -981,12 +1070,12 @@ PROC select_inventory_item
 	sta arg2
 	lda temp
 	sta arg3
-	lda #3
+	lda #2
 	sta arg4
 	jsr wait_for_vblank
 	jsr set_box_palette
 	jsr prepare_for_rendering
-	jmp palettedone
+	jmp palettedone & $ffff
 
 even:
 	lda selection
@@ -1008,7 +1097,7 @@ even:
 	sta arg2
 	lda temp
 	sta arg3
-	lda #3
+	lda #2
 	sta arg4
 	jsr wait_for_vblank
 	jsr set_box_palette
@@ -1033,12 +1122,12 @@ even:
 	sta arg2
 	lda temp
 	sta arg3
-	lda #3
+	lda #2
 	sta arg4
 	jsr wait_for_vblank
 	jsr set_box_palette
 	jsr prepare_for_rendering
-	jmp palettedone
+	jmp palettedone & $ffff
 
 palettedone:
 	jsr wait_for_vblank
@@ -1110,7 +1199,7 @@ palettedone:
 .endproc
 
 
-PROC deselect_inventory_item
+PROC do_deselect_inventory_item
 	lda selection
 	sec
 	sbc scroll
@@ -1141,7 +1230,7 @@ PROC deselect_inventory_item
 	jsr wait_for_vblank
 	jsr set_box_palette
 	jsr prepare_for_rendering
-	jmp updatesprites
+	jmp updatesprites & $ffff
 
 even:
 	lda selection
@@ -1193,7 +1282,7 @@ even:
 	jsr wait_for_vblank
 	jsr set_box_palette
 	jsr prepare_for_rendering
-	jmp updatesprites
+	jmp updatesprites & $ffff
 
 updatesprites:
 	lda #$ff
@@ -1302,7 +1391,7 @@ VAR inventory_palette
 	.byte $0f, $21, $31, $37
 	.byte $0f, $00, $16, $30
 	.byte $0f, $21, $31, $21
-	.byte $0f, $21, $31, $21
+	.byte $0f, $21, $31, $30
 	.byte $0f, $21, $21, $21
 	.byte $0f, $00, $10, $30
 	.byte $0f, $00, $10, $30

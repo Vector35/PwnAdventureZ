@@ -761,7 +761,7 @@ activate:
 	asl
 	ora name_entry_col
 	tax
-	lda name_entry_chars, x
+	lda name_entry_chars & $ffff, x
 
 addchar:
 	; Don't allow overflow
@@ -1112,7 +1112,7 @@ VAR name_entry_col
 	.byte 0
 
 
-.data
+.segment "EXTRA"
 
 VAR save_select_palette
 	.byte $0f, $21, $31, $37

@@ -4,7 +4,7 @@
 .define LOCATION_TILES    $04
 .define DYNAMIC_TILES     $70
 
-.code
+.segment "FIXED"
 
 PROC load_area_name_tiles
 	; Load tiles for name of area
@@ -111,6 +111,38 @@ namedone:
 	rts
 .endproc
 
+PROC generate_gold_string
+	lda #'$'
+	sta gold_str
+	ldx #0
+	ldy #1
+loop:
+	lda gold, x
+	bne nonzero
+	lda #' '
+	sta gold_str - 1, y
+	lda #'$'
+	sta gold_str, y
+	inx
+	iny
+	cpx #3
+	bne loop
+nonzero:
+	lda gold, x
+	clc
+	adc #'0'
+	sta gold_str, y
+	inx
+	iny
+	cpx #4
+	bne nonzero
+	lda #0
+	sta gold_str, y
+	rts
+.endproc
+
+
+.code
 
 PROC init_status_tiles
 	LOAD_ALL_TILES 0, status_ui_tiles
@@ -310,37 +342,6 @@ renderitem:
 .endproc
 
 
-PROC generate_gold_string
-	lda #'$'
-	sta gold_str
-	ldx #0
-	ldy #1
-loop:
-	lda gold, x
-	bne nonzero
-	lda #' '
-	sta gold_str - 1, y
-	lda #'$'
-	sta gold_str, y
-	inx
-	iny
-	cpx #3
-	bne loop
-nonzero:
-	lda gold, x
-	clc
-	adc #'0'
-	sta gold_str, y
-	inx
-	iny
-	cpx #4
-	bne nonzero
-	lda #0
-	sta gold_str, y
-	rts
-.endproc
-
-
 PROC update_status_bar
 	lda equipped_weapon
 	cmp #ITEM_NONE
@@ -473,7 +474,7 @@ VAR displayed_ammo
 	.byte 0
 
 
-.data
+.rodata
 
 VAR status_palette
 	.byte $0f, $00, $16, $30
