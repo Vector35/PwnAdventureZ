@@ -553,25 +553,25 @@ PROC fade_in
 	jsr enable_rendering
 
 	; Fade in the palettes over time
-	ldx #5
+	ldx #3
 	jsr wait_for_frame_count
 	lda #$30
 	jsr load_palette_darken
 	jsr prepare_for_rendering
 
-	ldx #5
+	ldx #3
 	jsr wait_for_frame_count
 	lda #$20
 	jsr load_palette_darken
 	jsr prepare_for_rendering
 
-	ldx #5
+	ldx #3
 	jsr wait_for_frame_count
 	lda #$10
 	jsr load_palette_darken
 	jsr prepare_for_rendering
 
-	ldx #5
+	ldx #3
 	jsr wait_for_frame_count
 	jsr load_palette
 	jsr prepare_for_rendering
@@ -596,25 +596,25 @@ loadloop:
 	jsr prepare_for_rendering
 
 	; Fade out the palette over time
-	ldx #5
+	ldx #3
 	jsr wait_for_frame_count
 	lda #$10
 	jsr load_palette_darken
 	jsr prepare_for_rendering
 
-	ldx #5
+	ldx #3
 	jsr wait_for_frame_count
 	lda #$20
 	jsr load_palette_darken
 	jsr prepare_for_rendering
 
-	ldx #5
+	ldx #3
 	jsr wait_for_frame_count
 	lda #$30
 	jsr load_palette_darken
 	jsr prepare_for_rendering
 
-	ldx #5
+	ldx #3
 	jsr wait_for_frame_count
 	lda #$40
 	jsr load_palette_darken

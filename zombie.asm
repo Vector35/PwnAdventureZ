@@ -73,27 +73,28 @@ VAR zombie_palette
 	.byte $0f, $18, $28, $08
 
 VAR normal_zombie_drop_table
-	.byte 4
+	.byte 16
 	.word normal_zombie_drop_type
 	.word normal_zombie_drop_base_count
 	.word normal_zombie_drop_rand_count
 VAR normal_zombie_drop_type
-	.byte ITEM_NONE, ITEM_PISTOL, ITEM_PISTOL, ITEM_BANDAGE
+	.byte ITEM_NONE, ITEM_NONE
+	.byte ITEM_CLOTH, ITEM_SHIRT, ITEM_PANTS, ITEM_STICKS
+	.byte ITEM_GUNPOWDER, ITEM_GUNPOWDER, ITEM_GUNPOWDER, ITEM_GUNPOWDER
+	.byte ITEM_METAL, ITEM_METAL, ITEM_METAL, ITEM_METAL
+	.byte ITEM_GEM, ITEM_HEALTH_KIT
 VAR normal_zombie_drop_base_count
-	.byte 0, 2, 2, 1
+	.byte 0, 0
+	.byte 2, 1, 1, 1
+	.byte 8, 8, 8, 8
+	.byte 8, 8, 8, 8
+	.byte 1, 1
 VAR normal_zombie_drop_rand_count
-	.byte 1, 4, 4, 1
-;VAR normal_zombie_drop_table
-;	.byte 6
-;	.word normal_zombie_drop_type
-;	.word normal_zombie_drop_base_count
-;	.word normal_zombie_drop_rand_count
-;VAR normal_zombie_drop_type
-;	.byte ITEM_CLOTH, ITEM_SHIRT, ITEM_PANTS, ITEM_STICKS, ITEM_GUNPOWDER, ITEM_METAL
-;VAR normal_zombie_drop_base_count
-;	.byte 2, 1, 1, 1, 1, 1, 1, 2, 2
-;VAR normal_zombie_drop_rand_count
-;	.byte 3, 1, 1, 1, 2, 1, 1, 3, 3
+	.byte 1, 1
+	.byte 5, 1, 1, 2
+	.byte 10, 10, 10, 10
+	.byte 10, 10, 10, 10
+	.byte 1, 1
 
 TILES normal_male_zombie_tiles, 2, "tiles/enemies/zombie/zombie-male.chr", 32
 TILES normal_female_zombie_tiles, 2, "tiles/enemies/zombie/zombie-female.chr", 32

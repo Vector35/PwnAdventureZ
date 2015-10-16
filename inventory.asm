@@ -38,9 +38,34 @@ PROC show_inventory_tab
 	jsr draw_large_box
 
 	LOAD_PTR inventory_str
-	ldx #8
+	ldx #3
 	ldy #32 + 1
 	jsr write_string
+
+	; Set palette for title
+	lda #1
+	sta arg0
+	lda #16 + 0
+	sta arg1
+	lda #4
+	sta arg2
+	lda #16 + 0
+	sta arg3
+	lda #2
+	sta arg4
+	jsr set_box_palette
+
+	lda #10
+	sta arg0
+	lda #16 + 0
+	sta arg1
+	lda #13
+	sta arg2
+	lda #16 + 0
+	sta arg3
+	lda #2
+	sta arg4
+	jsr set_box_palette
 
 	; Set palette for inside of box
 	lda #1
@@ -52,19 +77,6 @@ PROC show_inventory_tab
 	lda #16 + 10
 	sta arg3
 	lda #1
-	sta arg4
-	jsr set_box_palette
-
-	; Set palette for help text
-	lda #0
-	sta arg0
-	lda #16 + 11
-	sta arg1
-	lda #14
-	sta arg2
-	lda #16 + 11
-	sta arg3
-	lda #2
 	sta arg4
 	jsr set_box_palette
 
@@ -135,12 +147,19 @@ selectloop:
 	and #JOY_A
 	bne usepressed
 	lda controller
+	and #JOY_LEFT
+	bne salvage
+	lda controller
 	and #JOY_RIGHT
 	bne craft
 	lda controller
 	and #JOY_SELECT
 	beq nobutton
 	jmp done
+
+salvage:
+	jsr fade_out
+	jmp show_salvage_tab
 
 craft:
 	jsr fade_out
@@ -457,8 +476,20 @@ emptyloop:
 	jsr update_controller
 	jsr wait_for_vblank
 	lda controller
+	and #JOY_LEFT
+	bne emptysalvage
+	lda controller
+	and #JOY_RIGHT
+	bne emptycrafting
+	lda controller
 	and #JOY_SELECT
 	beq emptyloop
+	jmp done
+
+emptysalvage:
+	jmp salvage
+emptycrafting:
+	jmp craft
 
 done:
 	jsr fade_out
@@ -1070,7 +1101,7 @@ PROC do_select_inventory_item
 	sta arg2
 	lda temp
 	sta arg3
-	lda #2
+	lda #0
 	sta arg4
 	jsr wait_for_vblank
 	jsr set_box_palette
@@ -1097,7 +1128,7 @@ even:
 	sta arg2
 	lda temp
 	sta arg3
-	lda #2
+	lda #0
 	sta arg4
 	jsr wait_for_vblank
 	jsr set_box_palette
@@ -1122,7 +1153,7 @@ even:
 	sta arg2
 	lda temp
 	sta arg3
-	lda #2
+	lda #0
 	sta arg4
 	jsr wait_for_vblank
 	jsr set_box_palette
@@ -1305,7 +1336,7 @@ VAR repeat_time
 .data
 
 VAR inventory_str
-	.byte $3b, " INVENTORY ", $3d, 0
+	.byte "SALVAGE", $3c, $3b, " ITEMS ", $3d, $3c, "CRAFT", 0
 
 VAR craft_str
 	.byte " CRAFT ", 0
@@ -1388,9 +1419,9 @@ VAR clear_item_description_str
 	.byte "                          ", 0
 
 VAR inventory_palette
-	.byte $0f, $21, $31, $37
-	.byte $0f, $00, $16, $30
 	.byte $0f, $21, $31, $21
+	.byte $0f, $00, $16, $30
+	.byte $0f, $21, $31, $00
 	.byte $0f, $21, $31, $30
 	.byte $0f, $21, $21, $21
 	.byte $0f, $00, $10, $30

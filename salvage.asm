@@ -2,33 +2,23 @@
 
 .code
 
-PROC show_crafting_tab
+PROC show_salvage_tab
 	jsr clear_alt_screen
-	LOAD_ALL_TILES $000, crafting_ui_tiles
+	LOAD_ALL_TILES $000, salvage_ui_tiles
 
-	; Determine which craftable items are possible to craft (ammo for guns that
-	; the player does not have should not be included)
+	; Determine which salvagable items are available
 	lda #0
 	sta arg0
 	sta valid_crafting_count
 
 checkloop:
 	ldx arg0
-	lda craftable_items, x
+	lda salvage_items, x
 	jsr find_item
 	ldx valid_crafting_count
 	sta valid_crafting_index, x
 	cmp #$ff
-	bne hasitem
-
-	ldx arg0
-	lda craftable_items, x
-	jsr get_item_type
-	cmp #ITEM_TYPE_GUN
-	bne hasitem
-
-	; Item is a gun that is not owned by the player, do not include in list
-	jmp nextitem
+	beq nextitem
 
 hasitem:
 	lda arg0
@@ -40,7 +30,7 @@ nextitem:
 	ldx arg0
 	inx
 	stx arg0
-	cpx #12
+	cpx #14
 	bne checkloop
 
 	; Draw box around inventory screen
@@ -54,7 +44,7 @@ nextitem:
 	sta arg3
 	jsr draw_large_box
 
-	LOAD_PTR crafting_str
+	LOAD_PTR salvage_str
 	ldx #4
 	ldy #32 + 1
 	jsr write_string
@@ -72,7 +62,7 @@ nextitem:
 	sta arg4
 	jsr set_box_palette
 
-	lda #10
+	lda #11
 	sta arg0
 	lda #16 + 0
 	sta arg1
@@ -126,16 +116,34 @@ nextitem:
 	jsr render_inventory_status_bar
 
 	; Draw help text
-	LOAD_PTR crafting_help_str
-	ldx #2
+	LOAD_PTR salvage_help_str
+	ldx #1
 	ldy #32 + 23
 	jsr write_string
 
-	; Draw requirements text
-	LOAD_PTR requirements_tiles
+	lda valid_crafting_count
+	bne hasitems
+
+	LOAD_PTR no_items_str
+	ldx #11
+	ldy #32 + 11
+	jsr write_string
+	jmp itemend
+
+hasitems:
+	; Draw initial items
+	lda #0
+	sta selection
+	lda #0
+	sta scroll
+	jsr render_salvage_items
+	jsr select_salvage_item
+
+	; Draw yield text
+	LOAD_PTR yield_tiles
 	ldx #2
 	ldy #32 + 19
-	lda #6
+	lda #4
 	jsr write_tiles
 
 	LOAD_PTR crafting_have_tiles
@@ -144,22 +152,21 @@ nextitem:
 	lda #3
 	jsr write_tiles
 
-	; Draw initial items
-	lda #0
-	sta selection
-	lda #0
-	sta scroll
-	jsr render_crafting_items
-	jsr select_crafting_item
-
-	LOAD_PTR inventory_palette
+itemend:
+	LOAD_PTR salvage_palette
 	jsr fade_in
 
-	jsr select_crafting_item
+	lda valid_crafting_count
+	beq nosetupselect
+	jsr select_salvage_item
+nosetupselect:
 
 	lda #30
 	sta repeat_time
 
+	lda valid_crafting_count
+	bne selectloop
+	jmp emptyloop
 selectloop:
 	jsr update_controller
 	jsr wait_for_vblank
@@ -174,22 +181,22 @@ selectloop:
 	bne craftpressed
 	lda controller
 	and #JOY_LEFT
-	bne inventory
+	bne crafting
 	lda controller
 	and #JOY_RIGHT
-	bne salvage
+	bne inventory
 	lda controller
 	and #JOY_SELECT
 	beq nobutton
 	jmp done
 
+crafting:
+	jsr fade_out
+	jmp show_crafting_tab
+
 inventory:
 	jsr fade_out
 	jmp show_inventory_tab
-
-salvage:
-	jsr fade_out
-	jmp show_salvage_tab
 
 nobutton:
 	lda #30
@@ -219,14 +226,14 @@ up:
 
 	dec scroll
 
-	jsr render_crafting_items
+	jsr render_salvage_items
 	dec selection
-	jsr select_crafting_item
+	jsr select_salvage_item
 	jmp shortwaitfordepress
 
 noupscroll:
 	dec selection
-	jsr select_crafting_item
+	jsr select_salvage_item
 attop:
 	jmp waitfordepress
 
@@ -253,19 +260,19 @@ down:
 
 	inc scroll
 
-	jsr render_crafting_items
+	jsr render_salvage_items
 	inc selection
-	jsr select_crafting_item
+	jsr select_salvage_item
 	jmp shortwaitfordepress
 
 nodownscroll:
 	inc selection
-	jsr select_crafting_item
+	jsr select_salvage_item
 atbottom:
 	jmp waitfordepress
 
 craft:
-	jsr craft_current_item
+	jsr salvage_current_item
 	cmp #0
 	beq waitfordepresslong
 	lda controller
@@ -309,6 +316,25 @@ waitfordepresstimeout:
 	sta repeat_time
 	jmp selectloop
 
+emptyloop:
+	jsr update_controller
+	jsr wait_for_vblank
+	lda controller
+	and #JOY_LEFT
+	bne emptycrafting
+	lda controller
+	and #JOY_RIGHT
+	bne emptyinventory
+	lda controller
+	and #JOY_SELECT
+	beq emptyloop
+	jmp done
+
+emptycrafting:
+	jmp crafting
+emptyinventory:
+	jmp inventory
+
 done:
 	jsr fade_out
 
@@ -325,88 +351,46 @@ done:
 .endproc
 
 
-PROC craft_current_item
-	; Get item to be crafted
+PROC salvage_current_item
+	; Get item to be salvaged
 	ldx selection
 	lda valid_crafting_list, x
-	sta arg0
+	sta arg2
 	tax
 
-	; Check for max count of item
-	lda craftable_items, x
-	jsr find_item
-	cmp #$ff
-	beq notmax
-	asl
-	tax
-	lda inventory, x
-	cmp #$ff
-	bne notmax
-
-	jmp invalidcraft
-
-notmax:
-	; Check for enough components
-	ldx arg0
-	lda craftable_component_count_1, x
-	sta arg1
-	lda craftable_component_1, x
+	; Check for item
+	lda salvage_items, x
 	jsr find_item
 	cmp #$ff
 	beq invalidcraft
 	asl
-	tax
-	lda inventory, x
-	cmp arg1
-	bcc invalidcraft
-
-	ldx arg0
-	lda craftable_component_count_2, x
-	sta arg1
-	lda craftable_component_2, x
-	cmp #ITEM_NONE
-	beq validcraft
-	jsr find_item
-	cmp #$ff
-	beq invalidcraft
-	asl
-	tax
-	lda inventory, x
-	cmp arg1
-	bcc invalidcraft
-
-	jmp validcraft
+	tay
+	lda inventory, y
+	bne validcraft
 
 invalidcraft:
 	lda #0
 	rts
 
 validcraft:
-	; Take away first component
-	ldx arg0
-	lda craftable_component_1, x
-	jsr find_item
-	asl
-	tay
-	ldx arg0
-	lda inventory, y
+	; Take away item
 	sec
-	sbc craftable_component_count_1, x
+	sbc #1
 	sta inventory, y
-	bne firstnotempty
+	bne notempty
 
-	; Out of the first component, remove it from inventory
+	; Out of the item, remove it from inventory
 	tya
 	lsr
-	sta arg1
-deletefirstloop:
-	lda arg1
+	sta arg3
+deleteloop:
+	lda arg3
 	clc
 	adc #1
 	cmp inventory_count
-	beq firstdeletedone
+	beq deletedone
 
-	lda arg1
+	lda arg3
 	asl
 	tax
 	lda inventory + 2, x
@@ -414,78 +398,48 @@ deletefirstloop:
 	lda inventory + 3, x
 	sta inventory + 1, x
 
-	inc arg1
-	jmp deletefirstloop
+	inc arg3
+	jmp deleteloop
 
-firstdeletedone:
+deletedone:
 	dec inventory_count
 
-firstnotempty:
-	; Take away second component
-	ldx arg0
-	lda craftable_component_2, x
+notempty:
+	; Give components
+	ldy arg2
+	lda salvage_component_count_1, y
+	tax
+	lda salvage_component_1, y
+	jsr give_item_with_count
+
+	ldy arg2
+	lda salvage_component_count_2, y
+	tax
+	lda salvage_component_2, y
 	cmp #ITEM_NONE
-	beq secondnotempty
-	jsr find_item
-	asl
-	tay
-	ldx arg0
-	lda inventory, y
-	sec
-	sbc craftable_component_count_2, x
-	sta inventory, y
-	bne secondnotempty
+	beq noseconditem
+	jsr give_item_with_count
 
-	; Out of the second component, remove it from inventory
-	tya
-	lsr
-	sta arg1
-deletesecondloop:
-	lda arg1
-	clc
-	adc #1
-	cmp inventory_count
-	beq seconddeletedone
-
-	lda arg1
-	asl
-	tax
-	lda inventory + 2, x
-	sta inventory, x
-	lda inventory + 3, x
-	sta inventory + 1, x
-
-	inc arg1
-	jmp deletesecondloop
-
-seconddeletedone:
-	dec inventory_count
-
-secondnotempty:
-	; Create crafted item
-	ldx arg0
-	lda craftable_items, x
-	jsr give_item
-
+noseconditem:
 	; Refresh item indexes as they may have changed
 	lda #0
-	sta arg0
+	sta arg2
 refreshloop:
-	ldx arg0
+	ldx arg2
 	lda valid_crafting_list, x
 	tax
-	lda craftable_items, x
+	lda salvage_items, x
 	jsr find_item
-	ldx arg0
+	ldx arg2
 	sta valid_crafting_index, x
-	ldx arg0
+	ldx arg2
 	inx
-	stx arg0
+	stx arg2
 	cpx valid_crafting_count
 	bne refreshloop
 
 	; Refresh UI
-	jsr select_crafting_item
+	jsr select_salvage_item
 
 	; Get string with item count
 	lda selection
@@ -510,10 +464,10 @@ getcountstr:
 	lda selection
 	sec
 	sbc scroll
-	sta arg0
+	sta arg2
 	asl
 	clc
-	adc arg0
+	adc arg2
 	adc #32 + 4
 	tay
 	jsr write_string
@@ -527,23 +481,23 @@ getcountstr:
 
 .segment "FIXED"
 
-PROC render_crafting_items
+PROC render_salvage_items
 	lda current_bank
 	pha
-	lda #^do_render_crafting_items
+	lda #^do_render_salvage_items
 	jsr bankswitch
-	jsr do_render_crafting_items & $ffff
+	jsr do_render_salvage_items & $ffff
 	pla
 	jsr bankswitch
 	rts
 .endproc
 
-PROC select_crafting_item
+PROC select_salvage_item
 	lda current_bank
 	pha
-	lda #^do_select_crafting_item
+	lda #^do_select_salvage_item
 	jsr bankswitch
-	jsr do_select_crafting_item & $ffff
+	jsr do_select_salvage_item & $ffff
 	pla
 	jsr bankswitch
 	rts
@@ -552,7 +506,7 @@ PROC select_crafting_item
 
 .segment "EXTRA"
 
-PROC do_render_crafting_items
+PROC do_render_salvage_items
 	lda #0
 	sta arg0
 itemloop:
@@ -619,7 +573,7 @@ count:
 	tay
 	lda valid_crafting_list, y
 	tay
-	lda craftable_items, y
+	lda salvage_items, y
 	jsr load_item_sprite_tiles
 
 	jsr prepare_for_rendering
@@ -683,7 +637,7 @@ getcountstr:
 	tax
 	lda valid_crafting_list, x
 	tax
-	lda craftable_items, x
+	lda salvage_items, x
 	jsr get_item_type
 	sta arg2
 
@@ -716,7 +670,7 @@ getcountstr:
 	tax
 	lda valid_crafting_list, x
 	tax
-	lda craftable_items, x
+	lda salvage_items, x
 	jsr get_item_name
 	ldx #12
 	lda arg0
@@ -734,6 +688,8 @@ getcountstr:
 	beq ammo
 	cmp #ITEM_TYPE_GRENADE
 	beq weapon
+	cmp #ITEM_TYPE_CRAFTING
+	beq crafting
 	cmp #ITEM_TYPE_OUTFIT
 	beq wearable
 	cmp #ITEM_TYPE_HEALTH
@@ -743,6 +699,9 @@ getcountstr:
 	jmp drawtype & $ffff
 ammo:
 	LOAD_PTR crafting_ammo_tiles
+	jmp drawtype & $ffff
+crafting:
+	LOAD_PTR inventory_crafting_tiles
 	jmp drawtype & $ffff
 weapon:
 	LOAD_PTR inventory_weapon_tiles
@@ -775,7 +734,7 @@ itemend:
 .endproc
 
 
-PROC do_select_crafting_item
+PROC do_select_salvage_item
 	lda selection
 	sec
 	sbc scroll
@@ -867,7 +826,7 @@ palettedone:
 	tax
 	lda valid_crafting_list, x
 	tax
-	lda craftable_items, x
+	lda salvage_items, x
 	sta temp
 	jsr get_item_type
 	cmp #ITEM_TYPE_GUN
@@ -878,7 +837,7 @@ palettedone:
 	jmp drawdesc & $ffff
 
 ammo:
-	LOAD_PTR ammo_desc_str
+	LOAD_PTR salvage_ammo_desc_str
 
 drawdesc:
 	ldx #2
@@ -894,7 +853,7 @@ drawdesc:
 	stx arg0
 
 	; Get counts in inventory of each component
-	lda craftable_component_1, x
+	lda salvage_component_1, x
 	jsr find_item
 	cmp #$ff
 	beq havefirstzero
@@ -909,7 +868,7 @@ havefirstzero:
 
 checksecond:
 	ldx arg0
-	lda craftable_component_2, x
+	lda salvage_component_2, x
 	cmp #ITEM_NONE
 	beq havesecondzero
 	jsr find_item
@@ -927,9 +886,9 @@ havesecondzero:
 renderrequirements:
 	jsr wait_for_vblank
 
-	; Render text for requirements
+	; Render text for yield
 	ldx arg0
-	lda craftable_component_count_1, x
+	lda salvage_component_count_1, x
 	sta arg3
 	jsr byte_to_padded_str
 	lda #$40
@@ -942,7 +901,7 @@ renderrequirements:
 	jsr write_string
 
 	ldx arg0
-	lda craftable_component_1, x
+	lda salvage_component_1, x
 	jsr get_item_name
 	ldx #7
 	ldy #32 + 20
@@ -959,7 +918,7 @@ renderrequirements:
 	jsr wait_for_vblank
 
 	ldx arg0
-	lda craftable_component_count_2, x
+	lda salvage_component_count_2, x
 	sta arg4
 	bne hassecondcomponent
 
@@ -995,33 +954,12 @@ hassecondcomponent:
 
 drawsecondname:
 	ldx arg0
-	lda craftable_component_2, x
+	lda salvage_component_2, x
 	jsr get_item_name
 	ldx #7
 	ldy #32 + 21
 	jsr write_string
 
-	lda rendering_enabled
-	beq rendersprites
-
-	lda arg1
-	cmp arg3
-	bcc notenough
-	lda arg2
-	cmp arg4
-	bcc notenough
-
-	LOAD_PTR valid_craft_palette
-	lda #3
-	jsr load_single_palette
-	jmp rendersprites & $ffff
-
-notenough:
-	LOAD_PTR invalid_craft_palette
-	lda #3
-	jsr load_single_palette
-
-rendersprites:
 	jsr prepare_for_rendering
 
 	lda selection
@@ -1082,75 +1020,52 @@ rendersprites:
 
 .data
 
-VAR crafting_str
-	.byte "ITEMS", $3c, $3b, " CRAFT ", $3d, $3c, "SALVAGE", 0
+VAR salvage_str
+	.byte "CRAFT", $3c, $3b, " SALVAGE ", $3d, $3c, "ITEMS", 0
 
-VAR crafting_help_str
-	.byte "A:CRAFT  B:REPEAT  ", $23, "/", $25, ":TAB", 0
+VAR salvage_help_str
+	.byte "A:SALVAGE  B:REPEAT  ", $23, "/", $25, ":TAB", 0
 
-VAR craftable_items
+VAR salvage_items
 	.byte ITEM_PISTOL, ITEM_SMG, ITEM_LMG, ITEM_AK, ITEM_SHOTGUN, ITEM_SNIPER
 	.byte ITEM_HAND_CANNON, ITEM_ROCKET, ITEM_GRENADE, ITEM_BANDAGE
-	.byte ITEM_CAMPFIRE, ITEM_ARMOR
+	.byte ITEM_SHIRT, ITEM_PANTS, ITEM_CAMPFIRE, ITEM_ARMOR
 
-VAR craftable_component_1
+VAR salvage_component_1
 	.byte ITEM_GUNPOWDER, ITEM_GUNPOWDER, ITEM_GUNPOWDER, ITEM_GUNPOWDER, ITEM_GUNPOWDER, ITEM_GUNPOWDER
 	.byte ITEM_GUNPOWDER, ITEM_GUNPOWDER, ITEM_GUNPOWDER, ITEM_CLOTH
-	.byte ITEM_STICKS, ITEM_METAL
+	.byte ITEM_CLOTH, ITEM_CLOTH, ITEM_STICKS, ITEM_METAL
 
-VAR craftable_component_count_1
-	.byte 1, 1, 2, 2, 3, 4
-	.byte 3, 6, 5, 4
-	.byte 20, 150
+VAR salvage_component_count_1
+	.byte 1, 1, 1, 1, 2, 3
+	.byte 2, 5, 4, 3
+	.byte 5, 5, 15, 100
 
-VAR craftable_component_2
+VAR salvage_component_2
 	.byte ITEM_METAL, ITEM_METAL, ITEM_METAL, ITEM_METAL, ITEM_METAL, ITEM_METAL
 	.byte ITEM_METAL, ITEM_METAL, ITEM_METAL, ITEM_NONE
-	.byte ITEM_FUEL, ITEM_CLOTH
+	.byte ITEM_NONE, ITEM_NONE, ITEM_NONE, ITEM_CLOTH
 
-VAR craftable_component_count_2
-	.byte 1, 1, 2, 1, 2, 3
-	.byte 4, 4, 4, 0
-	.byte 1, 20
+VAR salvage_component_count_2
+	.byte 1, 1, 1, 1, 1, 2
+	.byte 3, 3, 3, 0
+	.byte 0, 0, 0, 15
 
-VAR crafting_have_tiles
-	.byte $7a, $5e, $5f
+VAR yield_tiles
+	.byte $62, $63, $03, $58
 
-VAR crafting_ammo_tiles
-	.byte $70, $71, $72, $00, $00, $00
+VAR salvage_ammo_desc_str
+	.byte "BREAK AMMO INTO COMPONENTS", 0
 
-VAR requirements_tiles
-	.byte $64, $65, $66, $67, $68, $69
-
-VAR ammo_desc_str
-	.byte "CRAFT MORE AMMUNITION     ", 0
-
-VAR erase_required_count_str
-	.byte "    ", 0
-
-VAR erase_have_count_str
-	.byte "   ", 0
-
-VAR valid_craft_palette
-	.byte $0f, $21, $31, $3a
-
-VAR invalid_craft_palette
-	.byte $0f, $21, $31, $26
+VAR salvage_palette
+	.byte $0f, $21, $31, $21
+	.byte $0f, $00, $16, $30
+	.byte $0f, $21, $31, $00
+	.byte $0f, $21, $31, $31
+	.byte $0f, $21, $21, $21
+	.byte $0f, $00, $10, $30
+	.byte $0f, $00, $10, $30
+	.byte $0f, $00, $10, $30
 
 
-.segment "TEMP"
-
-VAR valid_crafting_list
-	.byte 0, 0, 0, 0, 0, 0
-	.byte 0, 0, 0, 0
-	.byte 0, 0, 0, 0
-
-VAR valid_crafting_index
-	.byte 0, 0, 0, 0, 0, 0
-	.byte 0, 0, 0, 0
-	.byte 0, 0, 0, 0
-
-VAR valid_crafting_count
-	.byte 0
-
-TILES crafting_ui_tiles, 3, "tiles/items/craft.chr", 123
+TILES salvage_ui_tiles, 3, "tiles/items/salvage.chr", 123
