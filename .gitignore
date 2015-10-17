@@ -1,9 +1,3 @@
-*.nes
-*.map
-PwnAdventureZ_*.bin
-PwnAdventureZ.sav
-*.o
-*.sublime-workspace
+*.zip
 .DS_Store
-*.nl
-*.deb
+PwnAdventureZ.sav
