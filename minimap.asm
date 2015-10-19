@@ -259,6 +259,8 @@ notb:
 	and #JOY_LEFT | JOY_RIGHT | JOY_SELECT
 	beq selectloop
 
+	PLAY_SOUND_EFFECT effect_uimove
+
 	lda selection
 	eor #1
 	sta selection
@@ -336,6 +338,8 @@ done:
 	jsr update_controller
 	lda controller
 	bne done
+
+	PLAY_SOUND_EFFECT effect_select
 
 	jsr fade_out
 

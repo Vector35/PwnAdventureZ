@@ -374,6 +374,8 @@ PROC gen_walkable_bot_path
 .endproc
 
 PROC urn_interact
+	PLAY_SOUND_EFFECT effect_light
+
 	jsr wait_for_vblank
 
 	ldx interaction_tile_x
@@ -481,6 +483,9 @@ PROC bigdoor_interact
 opendoor:
 	ldx #30
 	jsr wait_for_frame_count
+
+	PLAY_SOUND_EFFECT effect_open
+
 	ldy #0
 	ldx #6
 	lda #BIGDOOR_TILE2 + TILE1 + BIGDOOR_PALETTE
@@ -499,6 +504,9 @@ opendoor:
 
 	ldx #30
 	jsr wait_for_frame_count
+
+	PLAY_SOUND_EFFECT effect_open
+
 	ldy #0
 	ldx #6
 	lda #BIGDOOR_TILE3 + TILE1 + BIGDOOR_PALETTE
@@ -516,6 +524,9 @@ opendoor:
 	jsr prepare_for_rendering
 	ldx #30
 	jsr wait_for_frame_count
+
+	PLAY_SOUND_EFFECT effect_open
+
 	ldy #0
 	ldx #6
 	lda #BIGDOOR_TILE4 + TILE1 + BIGDOOR_PALETTE
@@ -555,6 +566,9 @@ PROC blocky_chest_interact
 	lda #CHEST_TILE + TILE2 + CHEST_PALETTE
 	jsr write_large_tile
 	jsr prepare_for_rendering
+
+	PLAY_SOUND_EFFECT effect_open
+
 	;TODO: Grant item
 	rts
 done:

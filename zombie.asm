@@ -16,6 +16,8 @@ PROC init_zombie_sprites
 
 
 PROC normal_zombie_die
+	PLAY_SOUND_EFFECT effect_enemydie
+
 	LOAD_PTR normal_zombie_drop_table
 	jsr enemy_die_with_drop_table
 

@@ -1002,6 +1002,8 @@ ok:
 	bcc dead
 	sta player_health
 
+	PLAY_SOUND_EFFECT effect_playerhit
+
 	lda #30
 	sta player_damage_flash_time
 	rts
@@ -1014,6 +1016,8 @@ dead:
 
 
 PROC bullet_hit_enemy
+	PLAY_SOUND_EFFECT effect_enemyhit
+
 	lda #10
 	jsr enemy_damage
 

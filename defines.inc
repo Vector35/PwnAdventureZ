@@ -43,6 +43,12 @@ VAR .ident(.concat(.string(var), "_count"))
 LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .endmacro
 
+.macro PLAY_SOUND_EFFECT var
+	LOAD_PTR var
+	lda #^var
+	jsr play_sound_effect
+.endmacro
+
 
 ; NES hardware defines
 .define PPUCTRL    $2000
@@ -395,7 +401,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .global ptr ; For manipulating pointers
 .global temp ; 2 byte temporary
 .global arg0, arg1, arg2, arg3, arg4, arg5
-.global vblank_count
+.global vblank_count, in_nmi
 
 .global rendering_enabled
 .global ppu_settings
@@ -414,3 +420,5 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .global active_save_slot
 
 .global secret_code
+
+.global music_page_list_ptr, music_page_bank_ptr, music_page_ptr, audio_reg_ptr

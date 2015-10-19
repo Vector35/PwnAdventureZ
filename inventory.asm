@@ -158,10 +158,12 @@ selectloop:
 	jmp done
 
 salvage:
+	PLAY_SOUND_EFFECT effect_uimove
 	jsr fade_out
 	jmp show_salvage_tab
 
 craft:
+	PLAY_SOUND_EFFECT effect_uimove
 	jsr fade_out
 	jmp show_crafting_tab
 
@@ -179,6 +181,8 @@ usepressed:
 up:
 	lda selection
 	beq attop
+
+	PLAY_SOUND_EFFECT effect_uimove
 
 	jsr deselect_inventory_item
 
@@ -240,6 +244,8 @@ down:
 	adc #1
 	cmp inventory_count
 	beq atbottom
+
+	PLAY_SOUND_EFFECT effect_uimove
 
 	jsr deselect_inventory_item
 
@@ -315,6 +321,8 @@ use:
 	jmp performuse
 
 equipweapon:
+	PLAY_SOUND_EFFECT effect_equip
+
 	lda selection
 	asl
 	tax
@@ -323,6 +331,8 @@ equipweapon:
 	jmp updateequip
 
 equipwearable:
+	PLAY_SOUND_EFFECT effect_equip
+
 	lda selection
 	asl
 	tax
@@ -356,6 +366,8 @@ performuse:
 	jmp invaliduse
 
 validuse:
+	PLAY_SOUND_EFFECT effect_select
+
 	jsr deselect_inventory_item
 
 	lda selection
@@ -492,6 +504,8 @@ emptycrafting:
 	jmp craft
 
 done:
+	PLAY_SOUND_EFFECT effect_select
+
 	jsr fade_out
 
 	lda saved_ppu_settings
@@ -1337,12 +1351,6 @@ VAR repeat_time
 
 VAR inventory_str
 	.byte "SALVAGE", $3c, $3b, " ITEMS ", $3d, $3c, "CRAFT", 0
-
-VAR craft_str
-	.byte " CRAFT ", 0
-
-VAR salvage_str
-	.byte " SALVAGE ", 0
 
 VAR inventory_help_str
 	.byte "A:USE/EQUIP  B:MOVE  ", $23, "/", $25, ":TAB", 0

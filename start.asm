@@ -88,6 +88,9 @@ PROC nmi
 	tya
 	pha
 
+	lda #1
+	sta in_nmi
+
 	; Update vblank count so that waiters will wake up
 	ldx vblank_count
 	inx
@@ -103,7 +106,23 @@ PROC nmi
 	lda #>sprites
 	sta OAMDMA
 
+	lda #0
+	sta in_nmi
+
+	pla
+	tay
+	pla
+	tax
+	pla
+	rti
+
 no_rendering:
+	; When rendering is disabled, update audio in the NMI handler
+	jsr update_audio
+
+	lda #0
+	sta in_nmi
+
 	pla
 	tay
 	pla
@@ -120,6 +139,13 @@ PROC wait_for_vblank
 	tya
 	pha
 
+	; Update audio, unless rendering is disabled (in that case the audio update is
+	; performed in the NMI handler to simply processing)
+	lda rendering_enabled
+	beq noaudioupdate
+	jsr update_audio
+
+noaudioupdate:
 	; Update frames played
 	ldx time_played + 5
 	inx
@@ -247,6 +273,9 @@ VAR ppu_settings
 	.byte 0
 
 VAR vblank_count
+	.byte 0
+
+VAR in_nmi
 	.byte 0
 
 

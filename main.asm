@@ -35,6 +35,22 @@ newgame:
 	jsr new_game
 
 resume:
+	LOAD_PTR neonstarlight_ptr
+	lda #<neonstarlight_bank
+	sta arg0
+	lda #>neonstarlight_bank
+	sta arg1
+	lda #<neonstarlight_loop_ptr
+	sta arg2
+	lda #>neonstarlight_loop_ptr
+	sta arg3
+	lda #<neonstarlight_loop_bank
+	sta arg4
+	lda #>neonstarlight_loop_bank
+	sta arg5
+	lda #^neonstarlight_ptr
+	jsr play_music
+
 	jsr game_loop
 	rts
 .endproc
@@ -91,6 +107,7 @@ notdead:
 	and #JOY_START
 	beq nopause
 
+	PLAY_SOUND_EFFECT effect_select
 	jsr minimap
 	jmp vblank
 
@@ -99,6 +116,7 @@ nopause:
 	and #JOY_SELECT
 	beq noinventory
 
+	PLAY_SOUND_EFFECT effect_select
 	jsr show_inventory
 	jmp vblank
 
@@ -115,8 +133,11 @@ normalmove:
 	lda #0
 	sta extra_player_move
 	jsr perform_player_move
-	bne prepare
+	beq normalsecondmove
 
+	jmp prepare
+
+normalsecondmove:
 	lda equipped_armor
 	cmp #ITEM_SNEAKERS
 	bne movedone

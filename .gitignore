@@ -7,3 +7,5 @@ PwnAdventureZ.sav
 *.map
 *.bin
 *.nes
+audio/*.txt
+*.sublime-workspace

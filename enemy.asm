@@ -1637,6 +1637,8 @@ done:
 
 
 PROC drop_collide
+	PLAY_SOUND_EFFECT effect_getitem
+
 	ldy cur_effect
 	lda effect_data_1, y
 	tax

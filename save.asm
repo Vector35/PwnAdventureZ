@@ -441,6 +441,8 @@ selectloop:
 	jmp selectloop & $ffff
 
 up:
+	PLAY_SOUND_EFFECT effect_uimove
+
 	jsr erase_save_arrows & $ffff
 
 	ldx active_save_slot
@@ -453,6 +455,8 @@ up:
 	jmp movedone & $ffff
 
 down:
+	PLAY_SOUND_EFFECT effect_uimove
+
 	jsr erase_save_arrows & $ffff
 
 	ldx active_save_slot
@@ -480,6 +484,8 @@ activate:
 	bne activateslot
 
 	; Delete mode was selected, toggle delete mode
+	PLAY_SOUND_EFFECT effect_select
+
 	lda delete_mode
 	eor #1
 	sta delete_mode
@@ -553,6 +559,8 @@ activateslot:
 
 done:
 	; A valid slot has been selected, proceed to start the game
+	PLAY_SOUND_EFFECT effect_select
+
 	jsr fade_out
 	jsr clear_screen
 
@@ -788,6 +796,8 @@ space:
 	jmp addchar & $ffff
 
 updatename:
+	PLAY_SOUND_EFFECT effect_select
+
 	jsr wait_for_vblank
 	LOAD_PTR name
 	ldx #7
@@ -811,10 +821,14 @@ deleteok:
 	lda #0
 	sta name, x
 
+	PLAY_SOUND_EFFECT effect_select
+
 	jsr draw_name_entry_block & $ffff
 	jmp waitfordepress & $ffff
 
 left:
+	PLAY_SOUND_EFFECT effect_uimove
+
 	jsr erase_name_entry_arrows & $ffff
 	ldx name_entry_col
 	ldy name_entry_line
@@ -841,6 +855,8 @@ leftbottomwrap:
 	jmp movedone & $ffff
 
 right:
+	PLAY_SOUND_EFFECT effect_uimove
+
 	jsr erase_name_entry_arrows & $ffff
 	ldx name_entry_col
 	ldy name_entry_line
@@ -867,6 +883,8 @@ rightbottomwrap:
 	jmp movedone & $ffff
 
 up:
+	PLAY_SOUND_EFFECT effect_uimove
+
 	jsr erase_name_entry_arrows & $ffff
 	ldy name_entry_line
 	cpy #4
@@ -874,7 +892,9 @@ up:
 	dey
 	sty name_entry_line
 	cpy #$ff
-	bne movedone
+	beq upwrap
+	jmp movedone & $ffff
+upwrap:
 	ldy #4
 	sty name_entry_line
 	jmp movetobottom & $ffff
@@ -884,6 +904,8 @@ upfrombottom:
 	jmp movefrombottom & $ffff
 
 down:
+	PLAY_SOUND_EFFECT effect_uimove
+
 	jsr erase_name_entry_arrows & $ffff
 	ldy name_entry_line
 	cpy #4
@@ -953,6 +975,8 @@ done:
 notblank:
 
 	; Name entry completed, start game
+	PLAY_SOUND_EFFECT effect_select
+
 	jsr fade_out
 	jsr clear_screen
 	rts

@@ -191,10 +191,12 @@ selectloop:
 	jmp done
 
 crafting:
+	PLAY_SOUND_EFFECT effect_uimove
 	jsr fade_out
 	jmp show_crafting_tab
 
 inventory:
+	PLAY_SOUND_EFFECT effect_uimove
 	jsr fade_out
 	jmp show_inventory_tab
 
@@ -212,6 +214,8 @@ craftpressed:
 up:
 	lda selection
 	beq attop
+
+	PLAY_SOUND_EFFECT effect_uimove
 
 	jsr deselect_inventory_item
 
@@ -244,6 +248,8 @@ down:
 	cmp valid_crafting_count
 	beq atbottom
 
+	PLAY_SOUND_EFFECT effect_uimove
+
 	jsr deselect_inventory_item
 
 	lda selection
@@ -275,6 +281,9 @@ craft:
 	jsr salvage_current_item
 	cmp #0
 	beq waitfordepresslong
+
+	PLAY_SOUND_EFFECT effect_craft
+
 	lda controller
 	and #JOY_B
 	beq waitfordepresslong
@@ -336,6 +345,8 @@ emptyinventory:
 	jmp inventory
 
 done:
+	PLAY_SOUND_EFFECT effect_select
+
 	jsr fade_out
 
 	lda saved_ppu_settings

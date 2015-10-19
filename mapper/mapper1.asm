@@ -48,6 +48,24 @@ PROC reset_mapper
 
 
 PROC bankswitch
+	pha
+
+	lda save_ram_enabled
+	bne ramenabled
+
+	lda in_nmi
+	bne nmi
+
+loop:
+	lda vblank_count
+	sta bankswitch_vblank_count
+
+nmi:
+	lda #$80
+	sta $8000
+
+	pla
+	pha
 	ora #$10
 	sta $e000
 	lsr
@@ -58,11 +76,32 @@ PROC bankswitch
 	sta $e000
 	lsr
 	sta $e000
+
+	lda in_nmi
+	bne done
+
+	lda vblank_count
+	cmp bankswitch_vblank_count
+	bne loop
+
+done:
+	pla
 	rts
-.endproc
 
+ramenabled:
+	lda in_nmi
+	bne ramnmi
 
-PROC bankswitch_with_ram_enabled
+ramloop:
+	lda vblank_count
+	sta bankswitch_vblank_count
+
+ramnmi:
+	lda #$80
+	sta $8000
+
+	pla
+	pha
 	sta $e000
 	lsr
 	sta $e000
@@ -72,6 +111,16 @@ PROC bankswitch_with_ram_enabled
 	sta $e000
 	lsr
 	sta $e000
+
+	lda in_nmi
+	bne ramdone
+
+	lda vblank_count
+	cmp bankswitch_vblank_count
+	bne ramloop
+
+ramdone:
+	pla
 	rts
 .endproc
 
@@ -83,8 +132,22 @@ PROC has_save_ram
 
 
 PROC enable_save_ram
+	lda #1
+	sta save_ram_enabled
+
+	lda in_nmi
+	bne nmi
+
+loop:
+	lda vblank_count
+	sta bankswitch_vblank_count
+
+nmi:
 	; Enable RAM in both CHR and PRG select registers, as the original SNROM boards
 	; used CHR select bit 4 as a write protect as well
+	lda #$80
+	sta $8000
+
 	lda current_bank
 	sta $e000
 	lsr
@@ -107,13 +170,34 @@ PROC enable_save_ram
 	lsr
 	sta $a000
 
+	lda in_nmi
+	bne done
+
+	lda vblank_count
+	cmp bankswitch_vblank_count
+	bne loop
+done:
 	rts
 .endproc
 
 
 PROC disable_save_ram
+	lda #0
+	sta save_ram_enabled
+
+	lda in_nmi
+	bne nmi
+
+loop:
+	lda vblank_count
+	sta bankswitch_vblank_count
+
+nmi:
 	; Disable RAM in both CHR and PRG select registers, as the original SNROM boards
 	; used CHR select bit 4 as a write protect as well
+	lda #$80
+	sta $8000
+
 	lda current_bank
 	ora #$10
 	sta $e000
@@ -137,6 +221,13 @@ PROC disable_save_ram
 	lsr
 	sta $a000
 
+	lda in_nmi
+	bne done
+
+	lda vblank_count
+	cmp bankswitch_vblank_count
+	bne loop
+done:
 	rts
 .endproc
 
@@ -1433,7 +1524,7 @@ PROC generate_minimap_cache
 	jsr enable_save_ram
 
 	lda map_bank
-	jsr bankswitch_with_ram_enabled
+	jsr bankswitch
 
 	lda #0
 	sta arg1
@@ -1784,6 +1875,12 @@ loop:
 .segment "TEMP"
 VAR checksum
 	.word 0
+
+VAR save_ram_enabled
+	.byte 0
+
+VAR bankswitch_vblank_count
+	.byte 0
 
 
 .segment "SRAM"
