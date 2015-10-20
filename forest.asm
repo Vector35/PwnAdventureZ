@@ -395,9 +395,9 @@ spawnloop:
 	txa
 	pha
 
-;	jsr forest_has_water ;returns 1 or 0
-;	adc #2
-	lda #3
+	jsr forest_has_water ;returns 1 or 0
+	clc
+	adc #2
 	jsr rand_range
 	tax
 	lda forest_enemy_types, x

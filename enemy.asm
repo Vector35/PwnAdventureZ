@@ -11,9 +11,9 @@ PROC spawn_starting_enemy
 spawnloop:
 	lda arg5
 	cmp #ENEMY_SHARK
-	bne not_shark
+	bne not_shark 
 	jsr find_water_spawn_point
-check_spawnable:
+	cmp #0
 	beq notspawnable
 	jmp dospawn
 not_shark:
@@ -166,12 +166,19 @@ done:
 PROC find_water_spawn_point
 	;pick a random edge
 	lda #4
+	sta arg0
+try_again:
+	lda arg0
+	cmp #0
+	beq done_failed
+	dec arg0
+	lda #4
 	jsr rand_range
 	cmp #0
 	bne not_up
 	;try to spawn at top of screen
-	;use random X
-	lda #MAP_WIDTH
+	;use random X inculsive range 0->MAP_WIDTH-2
+	lda #MAP_WIDTH-1
 	jsr rand_range
 	tax
 	;use 0 for y
@@ -184,9 +191,11 @@ not_up:
 	cmp #1
 	bne not_down
 	;try to spawn at bottom of screen
-	;use random x
-	lda #MAP_WIDTH
+	;use random x inclusive range 1->MAP_WIDTH
+	lda #MAP_WIDTH-1
 	jsr rand_range
+	adc #1
+	clc
 	tax
 	; use bottom of screen for y
 	ldy #MAP_HEIGHT-1
@@ -198,8 +207,8 @@ not_down:
 	cmp #2
 	bne not_right
 	;try to spawn on right side of screen
-	;use random y
-	lda #MAP_HEIGHT
+	;use random y inclusive range 0->MAP_HEIGHT-2
+	lda #MAP_HEIGHT-1
 	jsr rand_range
 	tay
 	; use left side of screen
@@ -210,9 +219,11 @@ not_down:
 	jmp check_spawnable
 not_right:
 	;try to spawn on left side of screen
-	;use random y
-	lda #MAP_HEIGHT
+	;use random y range 1->MAP_HEIGHT
+	lda #MAP_HEIGHT-1
 	jsr rand_range
+	adc #1
+	clc
 	tay
 	; use left side of screen
 	ldx #0
@@ -220,6 +231,12 @@ not_right:
 	sty arg1
 	jsr read_water_collision_at
 check_spawnable:
+	beq try_again
+	lda #1
+	jmp done
+done_failed:
+	lda #0
+done:
 	rts
 .endproc
 
@@ -1434,7 +1451,15 @@ saveloop:
 
 
 PROC restore_enemies
-	ldx #0
+	;clear walking targets
+	ldx #ENEMY_MAX_COUNT
+	lda #0
+zeroloop:
+	dex
+	sta enemy_walk_target, x
+	cpx #0
+	bne zeroloop
+
 findloop:
 	lda saved_enemy_screen_x, x
 	cmp cur_screen_x
@@ -1748,6 +1773,11 @@ VAR knockback_time
 	.byte 0
 VAR knockback_control
 	.byte 0
+
+VAR shark_fire_count 
+	.repeat ENEMY_MAX_COUNT
+	.byte 0
+	.endrepeat
 
 
 .data
