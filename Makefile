@@ -10,6 +10,8 @@ PwnAdventureZ.nes: $(OBJS) flagemu.o mapper1.o Makefile mapper1.cfg PwnAdventure
 	md5 -q PwnAdventureZ.map | xxd -r -p | dd of=PwnAdventureZ.nes bs=1 seek=131078 count=4 conv=notrunc
 	python usage.py
 	python tools/map2nl.py PwnAdventureZ.map
+	tools/makehtml.sh
+	zip PwnAdventureZ.zip PwnAdventureZ.nes* PwnAdventureZ.map instructions.txt
 
 PwnAdventureZ_prg.bin: $(OBJS) flagreal.o mapper1.o Makefile mapper1.cfg
 	$(LD65) -C mapper1.cfg -o PwnAdventureZ_physical.nes $(OBJS) flagreal.o mapper1.o -vm --mapfile PwnAdventureZ.map
@@ -44,6 +46,8 @@ mapper2.o: mapper/mapper2.asm Makefile $(CA65) $(LD65) $(CHR) $(INC)
 	$(CA65) -o $@ -t nes -U $<
 
 clean:
+	rm -f PwnAdventureZ.zip 
+	rm -f PwnAdventureZ.html
 	rm -f PwnAdventureZ.nes
 	rm -f PwnAdventureZ.map
 	rm -f PwnAdventureZ_physical.nes

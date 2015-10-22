@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+	body {
+		background-color: black;
+
+		/* Thanks to schmilblick for the (CC) Attribution Licensed Photo!
+		http://www.flickr.com/photos/schmilblick/252772357/sizes/o/in/photostream/
+		*/
+		background-image:url('oldtv.png');
+		background-repeat:no-repeat;
+		color: #ccc;
+	}
+
+	#thanks {
+		margin-left: 80%;
+		border: solid 2px #ccc;
+		padding: 5px;
+		background-color: #222;
+		filter: alpha(opacity=50);
+	}
+
+	a {
+		color: #ccc;
+	}
+
+	#canvas {
+		margin-left: 150px;
+		margin-top: 120px;
+	}
+</style>
+
+<title>GITS Fanatic Challenge</title>
+<script language="javascript">
+// CPU flags
+var C_FLAG = 1 << 0;
+var Z_FLAG = 1 << 1;
+var I_FLAG = 1 << 2;
+var D_FLAG = 1 << 3;
+var B_FLAG = 1 << 4;
+var V_FLAG = 1 << 6;
+var S_FLAG = 1 << 7;
+
+// PPU register 1 flags
+var VERTICAL_WRITE = 1 << 2;
+var SPRITE_TABLE = 1 << 3;
+var BACKGROUND_TABLE = 1 << 4;
+var LARGE_SPRITE = 1 << 5;
+var VBLANK_ENABLE = 1 << 7;
+
+// PPU register 2 flags
+var LEFT_SPRITE_ENABLE = 1 << 2;
+var SCREEN_ENABLE = 1 << 3;
+var SPRITE_ENABLE = 1 << 4;
+
+// PPU vblank register flags
+var HIT_DETECT = 1 << 6;
+var VBLANK = 1 << 7;
+
+// Sprite flags
+var SPRITE_BEHIND = 1 << 5;
+var FLIP_HORIZONTAL = 1 << 6;
+var FLIP_VERTICAL = 1 << 7;
+
+var InstructionNames = [
+	"brk", "ora", "invalid", "invalid", "invalid", "ora", "asl", "invalid", // 0x00
+	"php", "ora", "asl@", "invalid", "invalid", "ora", "asl", "invalid", // 0x08
+	"bpl", "ora", "invalid", "invalid", "invalid", "ora", "asl", "invalid", // 0x10
+	"clc", "ora", "invalid", "invalid", "invalid", "ora", "asl", "invalid", // 0x18
+	"jsr", "and", "invalid", "invalid", "bit", "and", "rol", "invalid", // 0x20
+	"plp", "and", "rol@", "invalid", "bit", "and", "rol", "invalid", // 0x28
+	"bmi", "and", "invalid", "invalid", "invalid", "and", "rol", "invalid", // 0x30
+	"sec", "and", "invalid", "invalid", "invalid", "and", "rol", "invalid", // 0x38
+	"rti", "eor", "invalid", "invalid", "invalid", "eor", "lsr", "invalid", // 0x40
+	"pha", "eor", "lsr@", "invalid", "jmp", "eor", "lsr", "invalid", // 0x48
+	"bvc", "eor", "invalid", "invalid", "invalid", "eor", "lsr", "invalid", // 0x50
+	"cli", "eor", "invalid", "invalid", "invalid", "eor", "lsr", "invalid", // 0x58
+	"rts", "adc", "invalid", "invalid", "invalid", "adc", "ror", "invalid", // 0x60
+	"pla", "adc", "ror@", "invalid", "jmp", "adc", "ror", "invalid", // 0x68
+	"bvs", "adc", "invalid", "invalid", "invalid", "adc", "ror", "invalid", // 0x70
+	"sei", "adc", "invalid", "invalid", "invalid", "adc", "ror", "invalid", // 0x78
+	"invalid", "sta", "invalid", "invalid", "sty", "sta", "stx", "invalid", // 0x80
+	"dey", "invalid", "txa", "invalid", "sty", "sta", "stx", "invalid", // 0x88
+	"bcc", "sta", "invalid", "invalid", "sty", "sta", "stx", "invalid", // 0x90
+	"tya", "sta", "txs", "invalid", "invalid", "sta", "invalid", "invalid", // 0x98
+	"ldy", "lda", "ldx", "invalid", "ldy", "lda", "ldx", "invalid", // 0xa0
+	"tay", "lda", "tax", "invalid", "ldy", "lda", "ldx", "invalid", // 0xa8
+	"bcs", "lda", "invalid", "invalid", "ldy", "lda", "ldx", "invalid", // 0xb0
+	"clv", "lda", "tsx", "invalid", "ldy", "lda", "ldx", "invalid", // 0xb8
+	"cpy", "cmp", "invalid", "invalid", "cpy", "cmp", "dec", "invalid", // 0xc0
+	"iny", "cmp", "dex", "invalid", "cpy", "cmp", "dec", "invalid", // 0xc8
+	"bne", "cmp", "invalid", "invalid", "invalid", "cmp", "dec", "invalid", // 0xd0
+	"cld", "cmp", "invalid", "invalid", "invalid", "cmp", "dec", "invalid", // 0xd8
+	"cpx", "sbc", "invalid", "invalid", "cpx", "sbc", "inc", "invalid", // 0xe0
+	"inx", "sbc", "nop", "invalid", "cpx", "sbc", "inc", "invalid", // 0xe8
+	"beq", "sbc", "invalid", "invalid", "invalid", "sbc", "inc", "invalid", // 0xf0
+	"sed", "sbc", "invalid", "invalid", "invalid", "sbc", "inc", "invalid" // 0xf8
+];
+
+var NONE = 0;
+var ABS = 1;
+var ABS_DEST = 2;
+var ABS_X = 3;
+var ABS_X_DEST = 4;
+var ABS_Y = 5;
+var ABS_Y_DEST = 6;
+var ACCUM = 7;
+var ADDR = 8;
+var IMMED = 9;
+var IND = 10;
+var IND_X = 11;
+var IND_X_DEST = 12;
+var IND_Y = 13;
+var IND_Y_DEST = 14;
+var REL = 15;
+var ZERO = 16;
+var ZERO_DEST = 17;
+var ZERO_X = 18;
+var ZERO_X_DEST = 19;
+var ZERO_Y = 20;
+var ZERO_Y_DEST = 21;
+var InstructionOperandTypes = [
+	NONE, IND_X, NONE, NONE, NONE, ZERO, ZERO_DEST, NONE, // 0x00
+	NONE, IMMED, ACCUM, NONE, NONE, ABS, ABS_DEST, NONE, // 0x08
+	REL, IND_Y, NONE, NONE, NONE, ZERO_X, ZERO_X_DEST, NONE, // 0x10
+	NONE, ABS_Y, NONE, NONE, NONE, ABS_X, ABS_X_DEST, NONE, // 0x18
+	ADDR, IND_X, NONE, NONE, ZERO, ZERO, ZERO_DEST, NONE, // 0x20
+	NONE, IMMED, ACCUM, NONE, ABS, ABS, ABS_DEST, NONE, // 0x28
+	REL, IND_Y, NONE, NONE, NONE, ZERO_X, ZERO_X_DEST, NONE, // 0x30
+	NONE, ABS_Y, NONE, NONE, NONE, ABS_X, ABS_X_DEST, NONE, // 0x38
+	NONE, IND_X, NONE, NONE, NONE, ZERO, ZERO_DEST, NONE, // 0x40
+	NONE, IMMED, ACCUM, NONE, ADDR, ABS, ABS_DEST, NONE, // 0x48
+	REL, IND_Y, NONE, NONE, NONE, ZERO_X, ZERO_X_DEST, NONE, // 0x50
+	NONE, ABS_Y, NONE, NONE, NONE, ABS_X, ABS_X_DEST, NONE, // 0x58
+	NONE, IND_X, NONE, NONE, NONE, ZERO, ZERO_DEST, NONE, // 0x60
+	NONE, IMMED, ACCUM, NONE, IND, ABS, ABS_DEST, NONE, // 0x68
+	REL, IND_Y, NONE, NONE, NONE, ZERO_X, ZERO_X_DEST, NONE, // 0x70
+	NONE, ABS_Y, NONE, NONE, NONE, ABS_X, ABS_X_DEST, NONE, // 0x78
+	NONE, IND_X_DEST, NONE, NONE, ZERO_DEST, ZERO_DEST, ZERO_DEST, NONE, // 0x80
+	NONE, NONE, NONE, NONE, ABS_DEST, ABS_DEST, ABS_DEST, NONE, // 0x88
+	REL, IND_Y_DEST, NONE, NONE, ZERO_X_DEST, ZERO_X_DEST, ZERO_Y_DEST, NONE, // 0x90
+	NONE, ABS_Y_DEST, NONE, NONE, NONE, ABS_X_DEST, NONE, NONE, // 0x98
+	IMMED, IND_X, IMMED, NONE, ZERO, ZERO, ZERO, NONE, // 0xa0
+	NONE, IMMED, NONE, NONE, ABS, ABS, ABS, NONE, // 0xa8
+	REL, IND_Y, NONE, NONE, ZERO_X, ZERO_X, ZERO_Y, NONE, // 0xb0
+	NONE, ABS_Y, NONE, NONE, ABS_X, ABS_X, ABS_Y, NONE, // 0xb8
+	IMMED, IND_X, NONE, NONE, ZERO, ZERO, ZERO_DEST, NONE, // 0xc0
+	NONE, IMMED, NONE, NONE, ABS, ABS, ABS_DEST, NONE, // 0xc8
+	REL, IND_Y, NONE, NONE, NONE, ZERO_X, ZERO_X_DEST, NONE, // 0xd0
+	NONE, ABS_Y, NONE, NONE, NONE, ABS_X, ABS_X_DEST, NONE, // 0xd8
+	IMMED, IND_X, NONE, NONE, ZERO, ZERO, ZERO_DEST, NONE, // 0xe0
+	NONE, IMMED, NONE, NONE, ABS, ABS, ABS_DEST, NONE, // 0xe8
+	REL, IND_Y, NONE, NONE, NONE, ZERO_X, ZERO_X_DEST, NONE, // 0xf0
+	NONE, ABS_Y, NONE, NONE, NONE, ABS_X, ABS_X_DEST, NONE // 0xf8
+];
+
+var InstructionClocks = [
+	7, 6, 4, 4, 4, 3, 5, 4, 3, 2, 2, 4, 4, 4, 6, 4, // 0x00
+	2, 5, 4, 4, 4, 4, 6, 4, 2, 4, 4, 4, 4, 4, 7, 4, // 0x10
+	6, 6, 4, 4, 3, 3, 5, 4, 4, 2, 2, 4, 4, 4, 6, 4, // 0x20
+	2, 5, 4, 4, 4, 4, 6, 4, 2, 4, 4, 4, 4, 4, 7, 4, // 0x30
+	4, 6, 4, 4, 4, 3, 5, 4, 3, 2, 2, 4, 3, 6, 6, 4, // 0x40
+	2, 5, 4, 4, 4, 4, 6, 4, 2, 4, 4, 4, 4, 4, 7, 4, // 0x50
+	6, 6, 4, 4, 4, 3, 5, 4, 4, 2, 2, 4, 5, 4, 6, 4, // 0x60
+	2, 5, 4, 4, 4, 4, 6, 4, 2, 4, 4, 4, 4, 4, 7, 4, // 0x70
+	4, 6, 4, 4, 3, 3, 3, 4, 2, 4, 2, 4, 4, 4, 4, 4, // 0x80
+	2, 6, 4, 4, 4, 4, 4, 4, 2, 5, 2, 4, 4, 5, 4, 4, // 0x90
+	2, 6, 2, 4, 3, 3, 3, 4, 2, 2, 2, 4, 4, 4, 4, 4, // 0xa0
+	2, 5, 4, 4, 4, 4, 4, 4, 2, 4, 2, 4, 4, 4, 4, 4, // 0xb0
+	2, 6, 4, 4, 3, 3, 5, 4, 2, 2, 2, 4, 4, 4, 6, 4, // 0xc0
+	2, 5, 4, 4, 4, 4, 6, 4, 2, 4, 4, 4, 4, 4, 7, 4, // 0xd0
+	2, 6, 4, 4, 3, 3, 5, 4, 2, 2, 2, 4, 4, 4, 6, 4, // 0xe0
+	2, 5, 4, 4, 4, 4, 6, 4, 2, 4, 4, 4, 4, 4, 7, 4 // 0xf0
+];
+
+function Hex(val)
+{
+	result = val.toString(16);
+	if (result.length == 1)
+		return "0" + result;
+	return result;
+}
+
+function Hex16(val)
+{
+	return Hex(val >> 8) + Hex(val & 0xff);
+}
+
+var DisassembleOperandProcs = [
+	function(pc, a, b) { return ["", 0]; }, // NONE
+	function(pc, a, b) { return [" $" + Hex(b) + Hex(a), 2]; }, // ABS
+	function(pc, a, b) { return [" $" + Hex(b) + Hex(a), 2]; }, // ABS_DEST
+	function(pc, a, b) { return [" $" + Hex(b) + Hex(a) + ",x", 2]; }, // ABS_X
+	function(pc, a, b) { return [" $" + Hex(b) + Hex(a) + ",x", 2]; }, // ABS_X_DEST
+	function(pc, a, b) { return [" $" + Hex(b) + Hex(a) + ",y", 2]; }, // ABS_Y
+	function(pc, a, b) { return [" $" + Hex(b) + Hex(a) + ",y", 2]; }, // ABS_Y_DEST
+	function(pc, a, b) { return [" a", 0]; }, // ACCUM
+	function(pc, a, b) { return [" $" + Hex(b) + Hex(a), 2] }, // ADDR
+	function(pc, a, b) { return [" #$" + Hex(a), 1]; }, // IMMED
+	function(pc, a, b) { return [" ($" + Hex(b) + Hex(a) + ")", 2]; }, // IND
+	function(pc, a, b) { return [" ($" + Hex(a) + ",x)", 1]; }, // IND_X
+	function(pc, a, b) { return [" ($" + Hex(a) + ",x)", 1]; }, // IND_X_DEST
+	function(pc, a, b) { return [" ($" + Hex(a) + "),y", 1]; }, // IND_Y
+	function(pc, a, b) { return [" ($" + Hex(a) + "),y", 1]; }, // IND_Y_DEST
+	function(pc, a, b) { var ofs = a | ((a >> 7) * 0xff00); return [" $" + Hex16(((pc + 2 + ofs) & 0xffff)), 1]; }, // REL
+	function(pc, a, b) { return [" $" + Hex(a), 1]; }, // ZERO
+	function(pc, a, b) { return [" $" + Hex(a), 1]; }, // ZERO_DEST
+	function(pc, a, b) { return [" $" + Hex(a) + ",x", 1]; }, // ZERO_X
+	function(pc, a, b) { return [" $" + Hex(a) + ",x", 1]; }, // ZERO_X_DEST
+	function(pc, a, b) { return [" $" + Hex(a) + ",y", 1]; }, // ZERO_Y
+	function(pc, a, b) { return [" $" + Hex(a) + ",y", 1]; } // ZERO_Y_DEST
+];
+
+var NZFlags = [];
+for (var i = 0; i < 512; i++)
+{
+	flag = 0;
+	if ((i & 0xff) == 0)
+		flag |= Z_FLAG;
+	if ((i & 0x80) != 0)
+		flag |= S_FLAG;
+	if (i >= 0x100)
+		flag |= C_FLAG;
+	NZFlags[i] = flag;
+}
+
+var Palette = [
+	[0x75,0x75,0x75], [0x27,0x1B,0x8F], [0x00,0x00,0xAB], [0x47,0x00,0x9F],
+	[0x8F,0x00,0x77], [0xAB,0x00,0x13], [0xA7,0x00,0x00], [0x7F,0x0B,0x00],
+	[0x43,0x2F,0x00], [0x00,0x47,0x00], [0x00,0x51,0x00], [0x00,0x3F,0x17],
+	[0x1B,0x3F,0x5F], [0x00,0x00,0x00], [0x05,0x05,0x05], [0x05,0x05,0x05],
+	[0xBC,0xBC,0xBC], [0x00,0x73,0xEF], [0x23,0x3B,0xEF], [0x83,0x00,0xF3],
+	[0xBF,0x00,0xBF], [0xE7,0x00,0x5B], [0xDB,0x2B,0x00], [0xCB,0x4F,0x0F],
+	[0x8B,0x73,0x00], [0x00,0x97,0x00], [0x00,0xAB,0x00], [0x00,0x93,0x3B],
+	[0x00,0x83,0x8B], [0x11,0x11,0x11], [0x09,0x09,0x09], [0x09,0x09,0x09],
+	[0xFF,0xFF,0xFF], [0x3F,0xBF,0xFF], [0x5F,0x97,0xFF], [0xA7,0x8B,0xFD],
+	[0xF7,0x7B,0xFF], [0xFF,0x77,0xB7], [0xFF,0x77,0x63], [0xFF,0x9B,0x3B],
+	[0xF3,0xBF,0x3F], [0x83,0xD3,0x13], [0x4F,0xDF,0x4B], [0x58,0xF8,0x98],
+	[0x00,0xEB,0xDB], [0x66,0x66,0x66], [0x0D,0x0D,0x0D], [0x0D,0x0D,0x0D],
+	[0xFF,0xFF,0xFF], [0xAB,0xE7,0xFF], [0xC7,0xD7,0xFF], [0xD7,0xCB,0xFF],
+	[0xFF,0xC7,0xFF], [0xFF,0xC7,0xDB], [0xFF,0xBF,0xB3], [0xFF,0xDB,0xAB],
+	[0xFF,0xE7,0xA3], [0xE3,0xFF,0xA3], [0xAB,0xF3,0xBF], [0xB3,0xFF,0xCF],
+	[0x9F,0xFF,0xF3], [0xDD,0xDD,0xDD], [0x11,0x11,0x11], [0x11,0x11,0x11]
+];
+
+var shift, mapperValue, romRegion, largeRomSwap, largeChrSwap;
+var cmd, chrRegionA, chrRegionB, romRegionA, romRegionB, irqStartCounter, irqCounter, irqEnable, irqRequest, irqResetCounter;
+
+function Mapper0Init()
+{
+}
+
+function Mapper0Write(addr, value)
+{
+}
+
+function Mapper0Scanline()
+{
+}
+
+function Mapper0IRQRequest()
+{
+	return false;
+}
+
+function Mapper1Init()
+{
+	shift = 0;
+	mapperValue = 0;
+	romRegion = 0x8000;
+	largeRomSwap = false;
+	largeChrSwap = false;
+}
+
+function Mapper1Write(addr, value)
+{
+	if (value & 0x80)
+	{
+		shift = 0;
+		mapperValue = 0;
+		return;
+	}
+
+	mapperValue |= (value & 1) << shift;
+	shift += 1;
+	if (shift < 5)
+		return;
+
+	var reg = (addr - 0x8000) >> 13;
+	if (reg == 0)
+	{
+		if ((mapperValue & 3) == 0)
+			MapFourScreenMirror(0);
+		else if ((mapperValue & 3) == 1)
+			MapFourScreenMirror(0x400);
+		else if ((mapperValue & 3) == 2)
+			MapVertMirror();
+		else
+			MapHorizMirror();
+		romRegion = (mapperValue & 4) ? 0x8000 : 0xc000;
+		largeRomSwap = (mapperValue & 8) == 0;
+		largeChrSwap = (mapperValue & 0x10) == 0;
+		if (mapperValue & 4)
+			MapMemory(0xc000, 0x4000, (romBankCount - 1) * 0x4000);
+		else
+			MapMemory(0x8000, 0x4000, 0);
+	}
+	else if (reg == 1)
+	{
+		if (largeChrSwap)
+			MapChr(0, 0x2000, (mapperValue & ~1) * 0x1000);
+		else
+			MapChr(0, 0x1000, mapperValue * 0x1000);
+	}
+	else if (reg == 2)
+	{
+		if (!largeChrSwap)
+			MapChr(0x1000, 0x1000, mapperValue * 0x1000);
+	}
+	else if (reg == 3)
+	{
+		if (largeRomSwap)
+			MapMemory(0x8000, 0x8000, (mapperValue & 0xe) * 0x4000);
+		else
+			MapMemory(romRegion, 0x4000, (mapperValue & 0xf) * 0x4000);
+		sramEnable = (mapperValue & 0x10) == 0;
+	}
+
+	shift = 0;
+	mapperValue = 0;
+}
+
+function Mapper1Scanline()
+{
+}
+
+function Mapper1IRQRequest()
+{
+	return false;
+}
+
+function Mapper4Init()
+{
+	cmd = 0;
+	chrRegionA = 0;
+	chrRegionB = 0x1000;
+	romRegionA = 0x8000;
+	romRegionB = 0xc000;
+	irqStartCounter = 0;
+	irqCounter = 0xff;
+	irqEnable = false;
+	irqRequest = false;
+	irqResetCounter = false;
+}
+
+function Mapper4Write(addr, value)
+{
+	if (addr == 0x8000)
+	{
+		cmd = value & 7;
+		chrRegionA = (value & 0x80) ? 0x1000 : 0;
+		chrRegionB = (value & 0x80) ? 0 : 0x1000;
+		romRegionA = (value & 0x40) ? 0xc000 : 0x8000;
+		romRegionB = (value & 0x40) ? 0x8000 : 0xc000;
+		MapMemory(romRegionB, 0x2000, (romBankCount - 1) * 0x4000);
+	}
+	else if (addr == 0x8001)
+	{
+		if (cmd == 0)
+		{
+			value = value & (~1) & ((vromBankCount << 3) - 1);
+			MapChr(chrRegionA, 0x800, value * 0x400);
+		}
+		else if (cmd == 1)
+		{
+			value = value & (~1) & ((vromBankCount << 3) - 1);
+			MapChr(chrRegionA + 0x800, 0x800, value * 0x400);
+		}
+		else if (cmd == 2)
+		{
+			value &= (vromBankCount << 3) - 1;
+			MapChr(chrRegionB, 0x400, value * 0x400);
+		}
+		else if (cmd == 3)
+		{
+			value &= (vromBankCount << 3) - 1;
+			MapChr(chrRegionB + 0x400, 0x400, value * 0x400);
+		}
+		else if (cmd == 4)
+		{
+			value &= (vromBankCount << 3) - 1;
+			MapChr(chrRegionB + 0x800, 0x400, value * 0x400);
+		}
+		else if (cmd == 5)
+		{
+			value &= (vromBankCount << 3) - 1;
+			MapChr(chrRegionB + 0xc00, 0x400, value * 0x400);
+		}
+		else if (cmd == 6)
+			MapMemory(romRegionA, 0x2000, value * 0x2000);
+		else if (cmd == 7)
+			MapMemory(0xa000, 0x2000, value * 0x2000);
+	}
+	else if (addr == 0xa000)
+	{
+		if (value & 1)
+			MapHorizMirror();
+		else
+			MapVertMirror();
+	}
+	else if (addr == 0xa001)
+		sramEnable = (value & 0x80) != 0;
+	else if (addr == 0xc000)
+		irqStartCounter = value;
+	else if (addr == 0xc001)
+		irqResetCounter = true;
+	else if (addr == 0xe000)
+	{
+		irqRequest = false;
+		irqEnable = false;
+	}
+	else if (addr == 0xe001)
+	{
+		irqRequest = false;
+		irqEnable = true;
+	}
+}
+
+function Mapper4Scanline()
+{
+	if (irqResetCounter)
+	{
+		irqCounter = irqStartCounter;
+		irqResetCounter = false;
+	}
+	else
+	{
+		irqCounter--;
+		if (irqCounter <= 0)
+		{
+			if (irqEnable)
+				irqRequest = true;
+			irqResetCounter = true;
+		}
+	}
+}
+
+function Mapper4IRQRequest()
+{
+	return irqRequest;
+}
+
+var MAPPER_INIT = 0;
+var MAPPER_WRITE = 1;
+var MAPPER_SCANLINE = 2;
+var MAPPER_IRQ_REQUEST = 3;
+var Mappers = [];
+Mappers[0] = [Mapper0Init, Mapper0Write, Mapper0Scanline, Mapper0IRQRequest];
+Mappers[1] = [Mapper1Init, Mapper1Write, Mapper1Scanline, Mapper1IRQRequest];
+Mappers[4] = [Mapper4Init, Mapper4Write, Mapper4Scanline, Mapper4IRQRequest];
+
+function SetNZFlags(value)
+{
+	p = (p & ~(S_FLAG | Z_FLAG)) | NZFlags[value];
+}
+
+function SetCNZFlags(value)
+{
+	p = (p & ~(C_FLAG | S_FLAG | Z_FLAG)) | NZFlags[value];
+}
+
+function ADC(a, b)
+{
+	var value = a + b + (p & C_FLAG);
+	SetCNZFlags(value);
+	p = (p & ~V_FLAG) | (((b ^ a ^ 0x80) & (b ^ value) & 0x80) >> 1);
+	return value & 0xff;
+}
+
+function ASL(a)
+{
+	var value = (a << 1) & 0xff;
+	p = (p & ~C_FLAG) | (a >> 7);
+	SetNZFlags(value);
+	return value;
+}
+
+function BIT(a, b)
+{
+	var value = a & b;
+	p = (p & ~(Z_FLAG | S_FLAG | V_FLAG)) | (b & 0xc0);
+	if (value == 0)
+		p |= Z_FLAG;
+	return value;
+}
+
+function BRK()
+{
+	Push16((pc + 1) & 0xffff);
+	p |= B_FLAG;
+	Push8(p);
+	p |= I_FLAG;
+	pc = Read16(0xfffe);
+}
+
+function LSR(a)
+{
+	var value = a >> 1;
+	p = (p & ~C_FLAG) | (a & 1);
+	SetNZFlags(value);
+	return value;
+}
+
+function ROL(a)
+{
+	var value = ((a << 1) | (p & C_FLAG)) & 0xff;
+	p = (p & ~C_FLAG) | (a >> 7);
+	SetNZFlags(value);
+	return value;
+}
+
+function ROR(a)
+{
+	var value = (a >> 1) | ((p & C_FLAG) << 7);
+	p = (p & ~C_FLAG) | (a & 1);
+	SetNZFlags(value);
+	return value;
+}
+
+function SBC(a, b)
+{
+	var value = a - b - (1 - (p & C_FLAG));
+	SetCNZFlags(value + 0x100);
+	p = (p & ~V_FLAG) | (((b ^ a) & (a ^ value) & 0x80) >> 1);
+	return value & 0xff;
+}
+
+function Read8(addr)
+{
+	if (addr < 0x2000)
+		return ram[ramPages[addr >> 11] + (addr & 0x7ff)];
+	if (addr >= 0x8000)
+		return rom[romPages[(addr - 0x8000) >> 11] + (addr & 0x7ff)];
+	if (addr >= 0x6000)
+	{
+		if (sramEnable)
+			return sram[addr & 0x1fff];
+		return 0;
+	}
+	if (addr == 0x2000)
+		return ppuReg1;
+	if (addr == 0x2001)
+		return ppuReg2;
+	if (addr == 0x2002)
+	{
+		var value = vblankReg;
+		vblankReg &= ~VBLANK;
+		vramAddrWriteHigh = true;
+		writeToVertScroll = false;
+		return value;
+	}
+	if (addr == 0x2007)
+	{
+		var value = vramReadBuffer;
+		vramReadBuffer = VramRead(vramAddr);
+		if (ppuReg1 & VERTICAL_WRITE)
+			vramAddr = (vramAddr + 32) & 0x3fff;
+		else
+			vramAddr = (vramAddr + 1) & 0x3fff;
+		return value;
+	}
+	if (addr == 0x4016)
+	{
+		if ((joy1State < 0) || (joy1State >= 8))
+			return 0;
+		var value = joy1[joy1State];
+		joy1State++;
+		return value;
+	}
+	if (addr == 0x4017)
+	{
+		if ((joy2State < 0) || (joy2State >= 8))
+			return 0;
+		var value = joy2[joy2State];
+		joy2State++;
+		return value;
+	}
+	return 0;
+}
+
+function Read16(addr)
+{
+	return Read8(addr) | (Read8(addr + 1) << 8);
+}
+
+function ReadZeroPage16(addr)
+{
+	return Read8(addr) | (Read8((addr + 1) & 0xff) << 8);
+}
+
+function Write8(addr, value)
+{
+	if (addr < 0x2000)
+		ram[ramPages[addr >> 11] + (addr & 0x7ff)] = value;
+	else if (addr >= 0x8000)
+		mapper[MAPPER_WRITE](addr, value);
+	else if (addr >= 0x6000)
+	{
+		if (sramEnable)
+			sram[addr & 0x1fff] = value;
+	}
+	else if (addr == 0x2000)
+		ppuReg1 = value;
+	else if (addr == 0x2001)
+		ppuReg2 = value;
+	else if (addr == 0x2003)
+		spriteAddr = value;
+	else if (addr == 0x2004)
+	{
+		spriteMem[spriteAddr] = value;
+		spriteAddr = (spriteAddr + 1) & 0xff;
+	}
+	else if (addr == 0x2005)
+	{
+		if (writeToVertScroll)
+		{
+			if (value >= 240)
+				vertScroll = value - 256;
+			else
+				vertScroll = value;
+		}
+		else
+		{
+			horizScroll = value;
+		}
+		writeToVertScroll = !writeToVertScroll;
+	}
+	else if (addr == 0x2006)
+	{
+		if (vramAddrWriteHigh)
+			vramAddr = (vramAddr & 0xff) | ((value & 0x3f) << 8);
+		else
+		{
+			vramAddr = (vramAddr & 0xff00) | value;
+			ppuReg1 = (ppuReg1 & ~3) | ((vramAddr >> 10) & 3);
+		}
+		vramAddrWriteHigh = !vramAddrWriteHigh;
+	}
+	else if (addr == 0x2007)
+	{
+		VramWrite(vramAddr, value)
+		if (ppuReg1 & VERTICAL_WRITE)
+			vramAddr = (vramAddr + 32) & 0x3fff;
+		else
+			vramAddr = (vramAddr + 1) & 0x3fff;
+	}
+	else if (addr == 0x4014)
+	{
+		base = value << 8;
+		for (var i = 0; i < 256; i++)
+			Write8(0x2004, Read8(base + i));
+	}
+	else if (addr == 0x4016)
+	{
+		if ((value & 1) != 0)
+			joy1State = joy2State = -1;
+		else
+			joy1State = joy2State = 0;
+	}
+}
+
+function Write16(addr, value)
+{
+	Write8(addr, value & 0xff);
+	Write8(addr + 1, value >> 8);
+}
+
+function Code8()
+{
+	var value = Read8(pc);
+	pc++;
+	return value;
+}
+
+function SignedCode8()
+{
+	var value = Code8();
+	return value | ((value >> 7) * 0xff00);
+}
+
+function Code16()
+{
+	var value = Read16(pc);
+	pc += 2;
+	return value;
+}
+
+function Push8(value)
+{
+	Write8(0x100 + s, value);
+	s = (s - 1) & 0xff;
+}
+
+function Push16(value)
+{
+	Push8(value >> 8);
+	Push8(value & 0xff);
+}
+
+function Pop8()
+{
+	s = (s + 1) & 0xff;
+	return Read8(0x100 + s);
+}
+
+function Pop16()
+{
+	var value = Pop8();
+	value |= Pop8() << 8;
+	return value;
+}
+
+function MapMemory(addr, size, target)
+{
+	if (addr < 0x2000)
+	{
+		for (var i = 0; i < size; i += 0x800)
+			ramPages[(addr + i) >> 11] = target + i;
+	}
+	else
+	{
+		for (var i = 0; i < size; i += 0x800)
+			romPages[(addr + i - 0x8000) >> 11] = target + i;
+	}
+}
+
+function MapChr(addr, size, target)
+{
+	for (var i = 0; i < size; i += 0x400)
+		chrPages[(addr + i) >> 10] = target + i;
+}
+
+function MapVertMirror()
+{
+	nameTablePages = [0, 0x400, 0, 0x400];
+}
+
+function MapHorizMirror()
+{
+	nameTablePages = [0, 0, 0x400, 0x400];
+}
+
+function MapFourScreenMirror(table)
+{
+	nameTablePages = [table, table, table, table];
+}
+
+function VramRead(addr)
+{
+	if (addr < 0x2000)
+		return chr[chrPages[addr >> 10] + (addr & 0x3ff)];
+	else if (addr < 0x3f00)
+		return nameTable[nameTablePages[(addr & 0xfff) >> 10] + (addr & 0x3ff)];
+	else
+		return palette[addr & 0x1f];
+}
+
+function VramWrite(addr, value)
+{
+	if (addr < 0x2000)
+	{
+		if (chrWritable)
+			chr[chrPages[addr >> 10] + (addr & 0x3ff)] = value;
+	}
+	else if (addr < 0x3f00)
+	{
+		nameTable[nameTablePages[(addr & 0xfff) >> 10] + (addr & 0x3ff)] = value;
+	}
+	else
+	{
+		palette[addr & 0x1f] = value;
+	}
+}
+
+function Color(attr, bit0, bit1)
+{
+	var value = bit0 | (bit1 << 1) | (attr << 2);
+	if (!(value & 3))
+		value = 16;
+	return Palette[palette[value]];
+}
+
+function Scanline()
+{
+	scanline = (scanline + 1) % 262;
+
+	if (scanline >= 20)
+		mapper[MAPPER_SCANLINE]();
+
+	if (scanline == 261)
+	{
+		frameReady = true;
+		vblankReg |= VBLANK;
+		return;
+	}
+
+	if (scanline == 20)
+	{
+		vblankReg &= ~(VBLANK | HIT_DETECT);
+		vblankTriggered = false;
+		return;
+	}
+
+	if (scanline < 20)
+		return;
+
+	var y = scanline - 21;
+	var pixelRow = pixels[y];
+
+	// Draw background
+	var topLeft = 0x2000 + ((ppuReg1 & 3) * 0x400);
+	var topRight = topLeft ^ 0x400;
+	var botLeft = topLeft ^ 0x800;
+	var botRight = topLeft ^ 0xc00;
+
+	backgroundTransparent = new Array(256 + 8);
+	for (var i = 0; i < (256 + 8); i++)
+		backgroundTransparent[i] = true;
+
+	var tileY = (vertScroll + y) >> 3;
+	var yOfs = (vertScroll + y) & 7;
+	if ((tileY >= 0) && (tileY < 60) && (ppuReg2 & SCREEN_ENABLE))
+	{
+		var tileXStart = horizScroll >> 3;
+		var x = (tileXStart << 3) - horizScroll;
+		var left = (tileY >= 30) ? botLeft : topLeft;
+		var right = (tileY >= 30) ? botRight : topRight;
+		tileY %= 30;
+		var tileYOfs = tileY << 5;
+		var chrBase = ((ppuReg1 & BACKGROUND_TABLE) != 0) ? 0x1000 : 0;
+		for (var tileX = tileXStart; tileX < (tileXStart + 32); tileX++)
+		{
+			var nametable = (tileX >= 32) ? right : left;
+			var tile = VramRead(nametable + tileYOfs + (tileX & 31));
+			var chrAddr = chrBase + (tile << 4) + yOfs;
+			var attrOfs = ((tileY >> 2) << 3) + ((tileX & 31) >> 2);
+			var attrBits = (tileX & 2) + ((tileY & 2) << 1);
+			var attr = (VramRead(nametable + 0x3c0 + attrOfs) >> attrBits) & 3;
+			for (var xOfs = 0; xOfs < 8; xOfs++)
+			{
+				var value = ((VramRead(chrAddr) >> (7 - xOfs)) & 1) | (((VramRead(chrAddr + 8) >> (7 - xOfs)) & 1) << 1);
+				if (value == 0)
+					value = 16;
+				else
+				{
+					value |= attr << 2;
+					backgroundTransparent[x + xOfs] = false;
+				}
+				pixelRow[x + xOfs] = Palette[palette[value]];
+			}
+			x += 8;
+		}
+	}
+	else
+	{
+		for (var i = 0; i < 256; i++)
+			pixelRow[i] = [0, 0, 0];
+	}
+
+	// Draw sprites
+	if ((ppuReg2 & SCREEN_ENABLE) && ((ppuReg2 & SPRITE_ENABLE)))
+	{
+		for (var i = 63; i >= 0; i--)
+		{
+			var xOfs = spriteMem[(i * 4) + 3];
+			var yOfs = spriteMem[(i * 4)] + 1;
+			var tile = spriteMem[(i * 4) + 1];
+			var attr = spriteMem[(i * 4) + 2];
+			var spriteY = y - yOfs;
+
+			if ((!(ppuReg2 & LEFT_SPRITE_ENABLE)) && (xOfs < 8))
+				continue;
+
+			var chrBase;
+			if (ppuReg1 & LARGE_SPRITE)
+			{
+				if (((yOfs + 16) <= y) || (yOfs > y))
+					continue;
+				if (attr & FLIP_VERTICAL)
+					spriteY = 15 - spriteY;
+				if (tile & 1)
+					chrBase = (spriteY >= 8) ? 0x1000 : 0x1000 - 16;
+				else
+					chrBase = (spriteY >= 8) ? 16 : 0;
+				spriteY &= 7;
+			}
+			else
+			{
+				if (((yOfs + 8) <= y) || (yOfs > y))
+					continue;
+				if (attr & FLIP_VERTICAL)
+					spriteY = 7 - spriteY;
+				chrBase = (ppuReg1 & SPRITE_TABLE) ? 0x1000 : 0;
+			}
+
+			var tileOfs = chrBase + (tile << 4) + spriteY;
+			var tileBit;
+			if (attr & FLIP_HORIZONTAL)
+				tileBit = function(addr, x) { return (VramRead(addr) >> x) & 1; };
+			else
+				tileBit = function(addr, x) { return (VramRead(addr) >> (7 - x)) & 1; };
+
+			for (var x = 0; x < 8; x++)
+			{
+				var value = tileBit(tileOfs, x) | (tileBit(tileOfs + 8, x) << 1);
+				if (value == 0)
+					continue;
+				if (!backgroundTransparent[xOfs + x])
+				{
+					if (i == 0)
+						vblankReg |= HIT_DETECT;
+					if (attr & SPRITE_BEHIND)
+						continue;
+				}
+				value |= (attr & 3) << 2;
+				pixelRow[x + xOfs] = Palette[palette[value + 0x10]];
+			}
+		}
+	}
+}
+
+function Disassemble(addr)
+{
+	var opcode = Read8(addr);
+	var operandByte1 = Read8(addr + 1);
+	var operandByte2 = Read8(addr + 2);
+	result = DisassembleOperandProcs[InstructionOperandTypes[opcode]](addr, operandByte1, operandByte2);
+	var operands = result[0];
+	var operandLength = result[1];
+	if (operandLength == 0)
+		return [InstructionNames[opcode] + operands, [opcode]];
+	if (operandLength == 1)
+		return [InstructionNames[opcode] + operands, [opcode, operandByte1]];
+	return [InstructionNames[opcode] + operands, [opcode, operandByte1, operandByte2]];
+}
+
+function KeyDown(event)
+{
+	if (event.keyCode == 88) 
+		joy1[0] = 1;
+	if (event.keyCode == 90)
+		joy1[1] = 1;
+	if (event.keyCode == 32)
+		joy1[2] = 1;
+	if (event.keyCode == 13)
+		joy1[3] = 1;
+	if (event.keyCode == 38)
+		joy1[4] = 1;
+	if (event.keyCode == 40)
+		joy1[5] = 1;
+	if (event.keyCode == 37)
+		joy1[6] = 1;
+	if (event.keyCode == 39)
+		joy1[7] = 1;
+}
+
+function KeyUp(event)
+{
+	if (event.keyCode == 88)
+		joy1[0] = 0;
+	if (event.keyCode == 90)
+		joy1[1] = 0;
+	if (event.keyCode == 32)
+		joy1[2] = 0;
+	if (event.keyCode == 13)
+		joy1[3] = 0;
+	if (event.keyCode == 38)
+		joy1[4] = 0;
+	if (event.keyCode == 40)
+		joy1[5] = 0;
+	if (event.keyCode == 37)
+		joy1[6] = 0;
+	if (event.keyCode == 39)
+		joy1[7] = 0;
+}
+
+var imageData;
+function Init()
+{
+	document.addEventListener("keydown", KeyDown, false);
+	document.addEventListener("keyup", KeyUp, false);
+
+	ctxt = document.getElementById('canvas').getContext('2d');
+	imageData = ctxt.createImageData(480, 448);
+
+	data = imageData.data;
+	for (var y = 0; y < 448; y++)
+	{
+		var lineOfs = y * (480 * 4);
+		for (var x = 0; x < 480; x++)
+			data[lineOfs + (x * 4) + 3] = 255;
+	}
+
+	ExecuteFrame();
+}
+
+function SingleStep()
+{
+	Instructions[Code8()]();
+
+	if (cycles >= nextScanlineCycle)
+	{
+		Scanline();
+
+		nextScanlineCycle += 113;
+		scanlineCycleFraction += 2;
+		if (scanlineCycleFraction >= 3)
+		{
+			nextScanlineCycle += 1;
+			scanlineCycleFraction -= 3;
+		}
+
+		if ((!vblankTriggered) && (vblankReg & VBLANK) && (ppuReg1 & VBLANK_ENABLE))
+		{
+			vblankTriggered = true;
+			Push16(pc);
+			Push8(p);
+			p |= I_FLAG;
+			pc = Read16(0xfffa);
+		}
+	}
+
+	if (mapper[MAPPER_IRQ_REQUEST]() && (!(p & I_FLAG)))
+	{
+		Push16(pc);
+		p &= ~B_FLAG;
+		Push8(p);
+		p |= I_FLAG;
+		pc = Read16(0xfffe);
+	}
+}
+
+function ExecuteFrame()
+{
+	setTimeout(ExecuteFrame, 1000 / 60);
+
+	while (!frameReady)
+		SingleStep();
+	frameReady = false;
+
+	var data = imageData.data;
+	for (var y = 0; y < 224; y++)
+	{
+		var lineOfs = (y * 2) * (480 * 4);
+		var pixelRow = pixels[8 + y];
+		for (var x = 0; x < 240; x++)
+		{
+			var pixOfs = lineOfs + (x * 8);
+			var pixel = pixelRow[8 + x];
+			var r = pixel[0];
+			var g = pixel[1];
+			var b = pixel[2];
+			data[pixOfs] = r;
+			data[pixOfs + 1] = g;
+			data[pixOfs + 2] = b;
+			data[pixOfs + 4] = r;
+			data[pixOfs + 5] = g;
+			data[pixOfs + 6] = b;
+			data[pixOfs + 1920] = r;
+			data[pixOfs + 1921] = g;
+			data[pixOfs + 1922] = b;
+			data[pixOfs + 1924] = r;
+			data[pixOfs + 1925] = g;
+			data[pixOfs + 1926] = b;
+		}
+	}
+
+	var ctxt = document.getElementById('canvas').getContext('2d');
+	ctxt.putImageData(imageData, 0, 0);
+	}
+	
+	var rImage = [

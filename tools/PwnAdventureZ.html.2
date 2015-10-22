@@ -1,0 +1,210 @@
+	];
+
+var romBankCount = rImage[4];
+var vromBankCount = rImage[5];
+var romFlags = rImage[6];
+var mapperIndex = (romFlags >> 4) | (rImage[7] & 0xff);
+var ramBankCount = rImage[8];
+if (ramBankCount == 0)
+	ramBankCount = 1;
+
+var offset = 16;
+if (romFlags & 4)
+	offset += 512;
+var rom = rImage.slice(offset, offset + (romBankCount * 0x4000));
+var vrom = rImage.slice(offset + (romBankCount * 0x4000), offset + (romBankCount * 0x4000) + (vromBankCount * 0x2000));
+var ram = new Array(ramBankCount * 0x2000);
+var sram = new Array(0x2000);
+var sramEnable = false;
+for (var i = 0; i < (ramBankCount * 0x2000); i++)
+	ram[i] = 0;
+for (var i = 0; i < 0x2000; i++)
+	sram[i] = 0;
+
+var ramPages = [0, 0, 0, 0];
+var romPages = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+MapMemory(0x8000, 0x4000, 0);
+MapMemory(0xc000, 0x4000, 0x4000 * (romBankCount - 1));
+var mapper = Mappers[mapperIndex];
+
+var a = 0;
+var x = 0;
+var y = 0;
+var s = 0;
+var p = 0x20 | I_FLAG;
+var pc = Read16(0xfffc);
+var cycles = 0;
+
+var nextScanlineCycle = cycles;
+var scanlineCycleFraction = 0;
+var scanline = 0;
+var ppuReg1 = 0;
+var ppuReg2 = 0;
+var spriteAddr = 0;
+var vertScroll = 0;
+var horizScroll = 0;
+var writeToVertScroll = false;
+var vramAddr = 0;
+var vramAddrWriteHigh = true;
+var vramReadBuffer = 0;
+var vblankReg = 0x80;
+var vblankTriggered = false;
+var frameReady = false;
+
+var palette = new Array(32);
+var spriteMem = new Array(256);
+for (var i = 0; i < 32; i++)
+	palette[i] = 0;
+for (var i = 0; i < 256; i++)
+	spriteMem[i] = 0;
+
+var chr, chrWritable;
+if (vromBankCount == 0)
+{
+	chr = new Array(0x2000);
+	chrWritable = true;
+	for (var i = 0; i < 0x2000; i++)
+		chr[i] = 0;
+}
+else
+{
+	chr = vrom;
+	chrWritable = false;
+}
+var chrPages = new Array(8);
+for (var i = 0; i < 8; i++)
+	chrPages[i] = i * 0x400;
+
+var nameTable = new Array(0x1000);
+var nameTablePages = [0, 0, 0, 0];
+for (var i = 0; i < 0x1000; i++)
+	nameTable[i] = 0;
+if (romFlags & 8)
+	nameTablePages = [0, 0x400, 0x800, 0xc00];
+else if (romFlags & 1)
+	MapVertMirror();
+else
+	MapHorizMirror();
+
+var joy1 = [0, 0, 0, 0, 0, 0, 0, 0];
+var joy2 = [0, 0, 0, 0, 0, 0, 0, 0];
+var joy1State = 0;
+var joy2State = 0;
+
+var pixels = new Array(256 + 16);
+for (var y = 0; y < (256 + 16); y++)
+{
+	pixels[y] = new Array(256 + 8);
+	for (var x = 0; x < (256 + 8); x++)
+		pixels[y][x] = [0, 0, 0];
+}
+
+InstructionProcs = [];
+InstructionProcs["adc"] = function(arg) { a = ADC(a, arg); };
+InstructionProcs["asl"] = function(arg) { Write8(arg, ASL(Read8(arg))); };
+InstructionProcs["asl@"] = function(arg) { a = ASL(arg); };
+InstructionProcs["and"] = function(arg) { a = a & arg; SetNZFlags(a); };
+InstructionProcs["bcc"] = function(arg) { if (!(p & C_FLAG)) pc = arg; };
+InstructionProcs["bcs"] = function(arg) { if (p & C_FLAG) pc = arg; };
+InstructionProcs["beq"] = function(arg) { if (p & Z_FLAG) pc = arg; };
+InstructionProcs["bit"] = function(arg) { BIT(a, arg); };
+InstructionProcs["bmi"] = function(arg) { if (p & S_FLAG) pc = arg; };
+InstructionProcs["bne"] = function(arg) { if (!(p & Z_FLAG)) pc = arg; };
+InstructionProcs["bpl"] = function(arg) { if (!(p & S_FLAG)) pc = arg; };
+InstructionProcs["brk"] = function(arg) { BRK(); };
+InstructionProcs["bvc"] = function(arg) { if (!(p & V_FLAG)) pc = arg; };
+InstructionProcs["bvs"] = function(arg) { if (p & V_FLAG) pc = arg; };
+InstructionProcs["clc"] = function(arg) { p &= ~C_FLAG; };
+InstructionProcs["cld"] = function(arg) { p &= ~D_FLAG; };
+InstructionProcs["cli"] = function(arg) { p &= ~I_FLAG; };
+InstructionProcs["clv"] = function(arg) { p &= ~V_FLAG; };
+InstructionProcs["cmp"] = function(arg) { var value = 0x100 + a - arg; SetCNZFlags(value); };
+InstructionProcs["cpx"] = function(arg) { var value = 0x100 + x - arg; SetCNZFlags(value); };
+InstructionProcs["cpy"] = function(arg) { var value = 0x100 + y - arg; SetCNZFlags(value); };
+InstructionProcs["dec"] = function(arg) { var value = (Read8(arg) - 1) & 0xff; Write8(arg, value); SetNZFlags(value); };
+InstructionProcs["dex"] = function(arg) { x = (x - 1) & 0xff; SetNZFlags(x); };
+InstructionProcs["dey"] = function(arg) { y = (y - 1) & 0xff; SetNZFlags(y); };
+InstructionProcs["eor"] = function(arg) { a = a ^ arg; SetNZFlags(a); };
+InstructionProcs["inc"] = function(arg) { var value = (Read8(arg) + 1) & 0xff; Write8(arg, value); SetNZFlags(value); };
+InstructionProcs["inx"] = function(arg) { x = (x + 1) & 0xff; SetNZFlags(x); };
+InstructionProcs["iny"] = function(arg) { y = (y + 1) & 0xff; SetNZFlags(y); };
+InstructionProcs["invalid"] = function(arg) { alert("Invalid instruction, previous pc=" + Hex16(lastPC)); };
+InstructionProcs["jmp"] = function(arg) { pc = arg; };
+InstructionProcs["jsr"] = function(arg) { Push16((pc - 1) & 0xffff); pc = arg; };
+InstructionProcs["lda"] = function(arg) { a = arg; SetNZFlags(arg); };
+InstructionProcs["ldx"] = function(arg) { x = arg; SetNZFlags(arg); };
+InstructionProcs["ldy"] = function(arg) { y = arg; SetNZFlags(arg); };
+InstructionProcs["lsr"] = function(arg) { Write8(arg, LSR(Read8(arg))); };
+InstructionProcs["lsr@"] = function(arg) { a = LSR(arg); };
+InstructionProcs["nop"] = function(arg) {},
+InstructionProcs["ora"] = function(arg) { a = a | arg; SetNZFlags(a); };
+InstructionProcs["pha"] = function(arg) { Push8(a); };
+InstructionProcs["php"] = function(arg) { Push8(p); };
+InstructionProcs["pla"] = function(arg) { a = Pop8(); SetNZFlags(a); };
+InstructionProcs["plp"] = function(arg) { p = Pop8(); };
+InstructionProcs["rol"] = function(arg) { Write8(arg, ROL(Read8(arg))); };
+InstructionProcs["rol@"] = function(arg) { a = ROL(arg); };
+InstructionProcs["ror"] = function(arg) { Write8(arg, ROR(Read8(arg))); };
+InstructionProcs["ror@"] = function(arg) { a = ROR(arg); };
+InstructionProcs["rti"] = function(arg) { p = Pop8() | 0x20; pc = Pop16(); };
+InstructionProcs["rts"] = function(arg) { pc = (Pop16() + 1) & 0xffff; };
+InstructionProcs["sbc"] = function(arg) { a = SBC(a, arg); };
+InstructionProcs["sec"] = function(arg) { p |= C_FLAG; };
+InstructionProcs["sed"] = function(arg) { p |= D_FLAG; };
+InstructionProcs["sei"] = function(arg) { p |= I_FLAG; };
+InstructionProcs["sta"] = function(arg) { Write8(arg, a); };
+InstructionProcs["stx"] = function(arg) { Write8(arg, x); };
+InstructionProcs["sty"] = function(arg) { Write8(arg, y); };
+InstructionProcs["tax"] = function(arg) { x = a; SetNZFlags(x); };
+InstructionProcs["tay"] = function(arg) { y = a; SetNZFlags(y); };
+InstructionProcs["tsx"] = function(arg) { x = s; SetNZFlags(x); };
+InstructionProcs["txa"] = function(arg) { a = x; SetNZFlags(a); };
+InstructionProcs["txs"] = function(arg) { s = x; };
+InstructionProcs["tya"] = function(arg) { a = y; SetNZFlags(a); };
+
+ArgProcs = [
+	function() { return undefined; }, // NONE
+	function() { return Read8(Code16()); }, // ABS
+	function() { return Code16(); }, // ABS_DEST
+	function() { return Read8((Code16() + x) & 0xffff); }, // ABS_X
+	function() { return (Code16() + x) & 0xffff; }, // ABS_X_DEST
+	function() { return Read8((Code16() + y) & 0xffff); }, // ABS_Y
+	function() { return (Code16() + y) & 0xffff; }, // ABS_Y_DEST
+	function() { return a; }, // ACCUM
+	function() { return Code16(); }, // ADDR
+	function() { return Code8(); }, // IMMED
+	function() { var addr = Code16(); return Read8(addr) | (Read8((addr & 0xff00) | ((addr + 1) & 0xff)) << 8); }, // IND
+	function() { return Read8(ReadZeroPage16((Code8() + x) & 0xff)); }, // IND_X
+	function() { return ReadZeroPage16((Code8() + x) & 0xff); }, // IND_X_DEST
+	function() { return Read8((ReadZeroPage16(Code8()) + y) & 0xffff); }, // IND_Y
+	function() { return (ReadZeroPage16(Code8()) + y) & 0xffff; }, // IND_Y_DEST
+	function() { var ofs = SignedCode8(); return (pc + ofs) & 0xffff; }, // REL
+	function() { return Read8(Code8()); }, // ZERO
+	function() { return Code8(); }, // ZREO_DEST
+	function() { return Read8((Code8() + x) & 0xff); }, // ZERO_X
+	function() { return (Code8() + x) & 0xff; }, // ZERO_X_DEST
+	function() { return Read8((Code8() + y) & 0xff); }, // ZERO_Y
+	function() { return (Code8() + y) & 0xff; } // ZERO_Y_DEST
+];
+
+function MakeInstruction(instructionProc, argProc, clocks)
+{
+	return function() { instructionProc(argProc()); cycles += clocks; };
+}
+
+Instructions = new Array(256);
+for (var index = 0; index < 256; index++)
+{
+	var name = InstructionNames[index];
+	var instructionProc = InstructionProcs[name];
+	var argProc = ArgProcs[InstructionOperandTypes[index]];
+	var clocks = InstructionClocks[index];
+	Instructions[index] = MakeInstruction(instructionProc, argProc, clocks);
+}
+</script>
+</head>
+<body onload="Init()">
+<canvas id="canvas" width=480 height=448>Your browser does not support the canvas tag.  It's probably already pwned.</canvas>
+<p id="thanks">Thanks to schmilblick for the (Creative Commons 2.0 Deed licensed) photo. (http://www.flickr.com/photos/schmilblick/252772357/in/photostream/) </p>
+</body>
+
