@@ -35,6 +35,13 @@ newgame:
 	jsr new_game
 
 resume:
+	jsr update_controller
+	lda controller
+	cmp #JOY_UP | JOY_B
+	bne nomapviewer
+	jmp map_viewer
+
+nomapviewer:
 	LOAD_PTR neonstarlight_ptr
 	lda #<neonstarlight_bank
 	sta arg0
@@ -710,6 +717,8 @@ VAR equipped_armor_slot
 VAR cur_screen_x
 	.byte 0
 VAR cur_screen_y
+	.byte 0
+VAR inside
 	.byte 0
 VAR map_bank
 	.byte 0

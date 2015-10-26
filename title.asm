@@ -18,7 +18,7 @@ PROC title
 .endproc
 
 
-.segment "EXTRA"
+.segment "CHR1"
 
 PROC show_title
 	; Get the developer logo screen ready
@@ -254,7 +254,7 @@ VAR button_presses
 	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 
-.segment "EXTRA"
+.segment "CHR1"
 
 VAR vector35_logo
 	.byte 99, TILE_VECTOR, 0, 108

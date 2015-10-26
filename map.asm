@@ -105,7 +105,13 @@ clearloop:
 PROC map_viewer
 	jsr generate_map
 
-	jsr save
+	lda #$0f
+	ldy #16
+spritepalloop:
+	sta game_palette, y
+	iny
+	cpy #32
+	bne spritepalloop
 
 	LOAD_PTR game_palette
 	jsr fade_in
@@ -2124,6 +2130,35 @@ PROC gen_top_wall_always_thick
 .endproc
 
 
+PROC gen_top_wall_single
+	sta arg4
+
+	lda #0
+	sta arg3
+	sta top_wall_left_extent
+	lda #0
+	sta arg0
+	sta arg1
+	ldx top_opening_pos
+	dex
+	stx arg2
+	lda arg4
+	jsr fill_map_box
+
+	lda #0
+	sta arg3
+	sta top_wall_right_extent
+	lda top_opening_pos
+	sta arg0
+	lda #MAP_WIDTH - 1
+	sta arg2
+	lda arg4
+	jsr fill_map_box
+
+	rts
+.endproc
+
+
 PROC gen_bot_wall_small
 	sta arg4
 
@@ -2447,9 +2482,9 @@ VAR initial_map_generators
 	.word start
 	.word gen_cave_interior
 	.word gen_forest
-	.word start;gen_house
-	.word start;gen_shop
-	.word start;gen_park
+	.word gen_house
+	.word gen_shop
+	.word gen_park
 	.word start
 	.word start;gen_boss
 	.word start;gen_base_horde
