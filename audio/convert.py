@@ -37,7 +37,7 @@ for line in f:
 	for reg in regs:
 		if effect and ((reg[0] & 0xf) < 8):
 			continue
-		if (reg[1] != values[reg[0] & 0xf]) or (reg[1] == 3) or (reg[1] == 7):
+		if (reg[1] != values[reg[0] & 0xf]) or ((reg[0] & 3) == 3):
 			changed[reg[0] & 0xf] = reg[1]
 			values[reg[0] & 0xf] = reg[1]
 			total += 1

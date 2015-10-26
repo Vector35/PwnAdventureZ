@@ -92,6 +92,8 @@ PROC play_sound_effect
 	; Silence any notes from the music on the triangle and noise channels
 	lda #0
 	sta TRI_LINEAR
+	lda #0
+	sta TRI_HI
 	lda #$30
 	sta NOISE_VOL
 
@@ -311,6 +313,8 @@ nomusicaftereffect:
 	; No music and an effect is done, silence effect channels
 	lda #0
 	sta TRI_LINEAR
+	lda #0
+	sta TRI_HI
 	lda #$30
 	sta NOISE_VOL
 
