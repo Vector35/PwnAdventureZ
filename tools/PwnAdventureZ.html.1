@@ -8,16 +8,19 @@
 		/* Thanks to schmilblick for the (CC) Attribution Licensed Photo!
 		http://www.flickr.com/photos/schmilblick/252772357/sizes/o/in/photostream/
 		*/
-		background-image:url('oldtv.png');
+		background-image:url('tv.png');
+		/*
+		background-blend-mode: screen, darken;
+		*/
 		background-repeat:no-repeat;
 		color: #ccc;
 	}
 
 	#thanks {
-		margin-left: 80%;
 		border: solid 2px #ccc;
 		padding: 5px;
 		background-color: #222;
+		display:inline-block;
 		filter: alpha(opacity=50);
 	}
 
@@ -26,8 +29,11 @@
 	}
 
 	#canvas {
-		margin-left: 150px;
-		margin-top: 120px;
+		margin-left: 95px;
+		margin-top: 80px;
+		margin-bottom: 120px;
+		mix-blend-mode: lighten;
+		-webkit-blend-mode: lighten;
 	}
 </style>
 
@@ -1054,6 +1060,7 @@ function ExecuteFrame()
 	{
 		var lineOfs = (y * 2) * (480 * 4);
 		var pixelRow = pixels[8 + y];
+		var scanLines = 4/7;
 		for (var x = 0; x < 240; x++)
 		{
 			var pixOfs = lineOfs + (x * 8);
@@ -1067,12 +1074,12 @@ function ExecuteFrame()
 			data[pixOfs + 4] = r;
 			data[pixOfs + 5] = g;
 			data[pixOfs + 6] = b;
-			data[pixOfs + 1920] = r;
-			data[pixOfs + 1921] = g;
-			data[pixOfs + 1922] = b;
-			data[pixOfs + 1924] = r;
-			data[pixOfs + 1925] = g;
-			data[pixOfs + 1926] = b;
+			data[pixOfs + 1920] = r * scanLines;
+			data[pixOfs + 1921] = g * scanLines;
+			data[pixOfs + 1922] = b * scanLines;
+			data[pixOfs + 1924] = r * scanLines;
+			data[pixOfs + 1925] = g * scanLines;
+			data[pixOfs + 1926] = b * scanLines;
 		}
 	}
 
