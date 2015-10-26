@@ -52,7 +52,23 @@ PROC gen_cave_interior
 .endproc
 
 
+.segment "FIXED"
+
 PROC gen_cave_common
+	lda current_bank
+	pha
+	lda #^do_gen_cave_common
+	jsr bankswitch
+	jsr do_gen_cave_common & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+.segment "EXTRA"
+
+PROC do_gen_cave_common
 	; Load cave tiles
 	LOAD_ALL_TILES $080, cave_border_tiles
 
@@ -108,7 +124,7 @@ notstartcave:
 clutterloop:
 	lda clutter_count
 	bne placeclutter
-	jmp clutterend
+	jmp clutterend & $ffff
 placeclutter:
 
 	lda #4
@@ -142,7 +158,7 @@ cluttertry:
 	ldy arg1
 	iny
 	sty arg3
-	jmp checkclutter
+	jmp checkclutter & $ffff
 
 smallclutter:
 	lda arg0
@@ -238,7 +254,7 @@ clutterblank:
 	; Clutter is not blocking any paths, place it now
 	lda #$80 + BORDER_CENTER
 	jsr fill_map_box
-	jmp nextclutter
+	jmp nextclutter & $ffff
 
 clutterblock:
 	; Clutter was blocking, try again up to a max number of tries
@@ -246,13 +262,13 @@ clutterblock:
 	dex
 	stx arg5
 	beq nextclutter
-	jmp cluttertry
+	jmp cluttertry & $ffff
 
 nextclutter:
 	ldx clutter_count
 	dex
 	stx clutter_count
-	jmp clutterloop
+	jmp clutterloop & $ffff
 clutterend:
 
 	lda #$80
@@ -261,6 +277,8 @@ clutterend:
 	rts
 .endproc
 
+
+.segment "FIXED"
 
 PROC process_border_sides
 	sta border_tile_base

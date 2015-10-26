@@ -26,9 +26,21 @@ forest:
 .endproc
 
 
-.code
-
 PROC gen_forest
+	lda current_bank
+	pha
+	lda #^do_gen_forest
+	jsr bankswitch
+	jsr do_gen_forest & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+.segment "EXTRA"
+
+PROC do_gen_forest
 	; Load forest tiles
 	LOAD_ALL_TILES FOREST_TILES, forest_tiles
 
@@ -89,7 +101,7 @@ bordertypedone:
 	; Not a special border set, use trees to block
 	lda #MAP_FOREST
 	sta border_type
-	jmp borderloaded
+	jmp borderloaded & $ffff
 
 caveborderset:
 	; There is a cave next to this area, but it might be inaccessible, check path
@@ -119,7 +131,7 @@ rockborderset:
 	LOAD_ALL_TILES BORDER_TILES, forest_rock_border_tiles
 	LOAD_PTR forest_rock_border_palette
 	jsr load_game_palette_1
-	jmp borderloaded
+	jmp borderloaded & $ffff
 
 lakeborderset:
 	; There is a lake next to this area, load the lake border tile set
@@ -130,7 +142,7 @@ lakeborderset:
 	sta water_tile_start
 	lda #BORDER_TILES + 56
 	sta water_tile_end
-	jmp borderloaded
+	jmp borderloaded & $ffff
 
 borderloaded:
 	; Generate parameters for map generation
@@ -204,18 +216,18 @@ botnotforest:
 	beq cave_boundary
 	cmp #MAP_LAKE
 	beq lake_boundary
-	jmp boundarydone
+	jmp boundarydone & $ffff
 
 rock_boundary:
-	jsr gen_forest_rock_boundary
-	jmp boundarydone
+	jsr gen_forest_rock_boundary & $ffff
+	jmp boundarydone & $ffff
 
 cave_boundary:
 	; Place the cave entrance tile while generating the rocks
 	ldx top_opening_pos
 	dex
 	stx top_opening_pos
-	jsr gen_forest_rock_boundary
+	jsr gen_forest_rock_boundary & $ffff
 
 	ldx top_opening_pos
 	inx
@@ -225,11 +237,11 @@ cave_boundary:
 	sty entrance_y
 	jsr write_gen_map
 
-	jmp boundarydone
+	jmp boundarydone & $ffff
 
 lake_boundary:
-	jsr gen_forest_lake_boundary
-	jmp boundarydone
+	jsr gen_forest_lake_boundary & $ffff
+	jmp boundarydone & $ffff
 
 boundarydone:
 	; Create clutter in the middle of the forest
@@ -242,7 +254,7 @@ boundarydone:
 clutterloop:
 	lda clutter_count
 	bne placeclutter
-	jmp clutterend
+	jmp clutterend & $ffff
 placeclutter:
 
 	lda #8
@@ -323,7 +335,7 @@ clutterblank:
 	ldx arg0
 	ldy arg1
 	jsr write_gen_map
-	jmp nextclutter
+	jmp nextclutter & $ffff
 
 clutterblock:
 	; Clutter was blocking, try again up to a max number of tries
@@ -331,13 +343,13 @@ clutterblock:
 	dex
 	stx arg5
 	beq nextclutter
-	jmp cluttertry
+	jmp cluttertry & $ffff
 
 nextclutter:
 	ldx clutter_count
 	dex
 	stx clutter_count
-	jmp clutterloop
+	jmp clutterloop & $ffff
 clutterend:
 
 	; Convert tiles that have not been generated into grass
@@ -374,7 +386,7 @@ nextblank:
 	clc
 	adc #1
 	tax
-	jmp spawnloop
+	jmp spawnloop & $ffff
 
 hard:
 	lda #4
@@ -382,7 +394,7 @@ hard:
 	clc
 	adc #2
 	tax
-	jmp spawnloop
+	jmp spawnloop & $ffff
 
 veryhard:
 	lda #4
@@ -395,7 +407,7 @@ spawnloop:
 	txa
 	pha
 
-	jsr forest_has_water ;returns 1 or 0
+	jsr forest_has_water & $ffff ;returns 1 or 0
 	clc
 	adc #2
 	jsr rand_range
@@ -421,7 +433,7 @@ check_for_water:
 	bne found_water
 	cpx #0
 	beq no_water
-	jmp check_for_water
+	jmp check_for_water & $ffff
 found_water:
 	lda #1
 	rts
@@ -467,7 +479,7 @@ rightnotrock:
 rightcave:
 	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
 	jsr gen_top_wall_always_thick
-	jmp topnotrock
+	jmp topnotrock & $ffff
 rightnotcave:
 	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
 	jsr gen_top_wall_large

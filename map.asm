@@ -230,34 +230,6 @@ bitloopend:
 .endproc
 
 
-PROC read_water_collision_at
-	tya
-	asl
-	sta temp
-	txa
-	lsr
-	lsr
-	lsr
-	ora temp
-	tay
-
-	txa
-	and #7
-	tax
-	lda #$80
-bitloop:
-	cpx #0
-	beq bitloopend
-	lsr
-	dex
-	bne bitloop
-bitloopend:
-
-	and water_collision, y
-	rts
-.endproc
-
-
 PROC read_collision_left
 	lda player_x
 	lsr
@@ -906,6 +878,36 @@ PROC read_enemy_collision_down_right
 .endproc
 
 
+.segment "FIXED"
+
+PROC read_water_collision_at
+	tya
+	asl
+	sta temp
+	txa
+	lsr
+	lsr
+	lsr
+	ora temp
+	tay
+
+	txa
+	and #7
+	tax
+	lda #$80
+bitloop:
+	cpx #0
+	beq bitloopend
+	lsr
+	dex
+	bne bitloop
+bitloopend:
+
+	and water_collision, y
+	rts
+.endproc
+
+
 PROC read_spawnable_at
 	tya
 	asl
@@ -933,8 +935,6 @@ bitloopend:
 	rts
 .endproc
 
-
-.segment "FIXED"
 
 PROC get_flag
 	jsr disable_rendering

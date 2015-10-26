@@ -4,6 +4,15 @@
 .define LOCATION_TILES    $04
 .define DYNAMIC_TILES     $70
 
+.define STATUS_STATE_NORMAL                 0
+.define STATUS_STATE_NORMAL_DRAW            1
+.define STATUS_STATE_NEW_ITEM_CLEAR_BEFORE  2
+.define STATUS_STATE_NEW_ITEM_LOAD_ICON     3
+.define STATUS_STATE_NEW_ITEM_LOAD_HEADER   4
+.define STATUS_STATE_NEW_ITEM_DRAW          5
+.define STATUS_STATE_NEW_ITEM_WAIT          6
+.define STATUS_STATE_NEW_ITEM_CLEAR_AFTER   7
+
 .segment "FIXED"
 
 PROC load_area_name_tiles
@@ -338,11 +347,43 @@ renderitem:
 	ldy #26
 	jsr write_string
 
+	lda #0
+	sta status_display_state
+
 	rts
 .endproc
 
 
 PROC update_status_bar
+	lda status_display_state
+	asl
+	tax
+	lda status_state_func, x
+	sta ptr
+	lda status_state_func + 1, x
+	sta ptr + 1
+	jsr call_ptr
+	rts
+.endproc
+
+
+PROC update_status_bar_normal
+	lda new_item_queue_length
+	beq nonewitem
+
+	lda #STATUS_STATE_NEW_ITEM_CLEAR_BEFORE
+	sta status_display_state
+
+nonewitem:
+	jmp update_status_bar_health_and_ammo
+.endproc
+
+
+PROC update_status_bar_new_item_clear_before
+.endproc
+
+
+PROC update_status_bar_health_and_ammo
 	lda equipped_weapon
 	cmp #ITEM_NONE
 	beq noammo
@@ -473,6 +514,18 @@ VAR displayed_health
 VAR displayed_ammo
 	.byte 0
 
+VAR status_display_state
+	.byte 0
+VAR status_display_counter
+	.byte 0
+
+VAR new_item_queue_type
+	.byte 0, 0, 0, 0, 0, 0, 0, 0
+VAR new_item_queue_count
+	.byte 0, 0, 0, 0, 0, 0, 0, 0
+VAR new_item_queue_length
+	.byte 0
+
 
 .segment "FIXED"
 
@@ -524,6 +577,10 @@ VAR full_health_tiles
 	.byte $2d, $2d, $2d, $2d, $2d, $2d, $2d, $2d, $2d, $2d, $2d, $2d
 VAR partial_health_tile
 	.byte $2e
+
+VAR status_state_func
+	.word update_status_bar_normal
+	.word update_status_bar_new_item_clear_before
 
 
 TILES status_ui_tiles, 1, "tiles/status/ui.chr", 102

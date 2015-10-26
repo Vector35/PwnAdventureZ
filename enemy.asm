@@ -1,6 +1,6 @@
 .include "defines.inc"
 
-.code
+.segment "FIXED"
 
 PROC spawn_starting_enemy
 	sta arg5
@@ -239,6 +239,64 @@ done_failed:
 done:
 	rts
 .endproc
+
+
+PROC restore_enemies
+	;clear walking targets
+	ldx #ENEMY_MAX_COUNT
+	lda #0
+zeroloop:
+	dex
+	sta enemy_walk_target, x
+	cpx #0
+	bne zeroloop
+
+findloop:
+	lda saved_enemy_screen_x, x
+	cmp cur_screen_x
+	bne findnext
+	lda saved_enemy_screen_y, x
+	cmp cur_screen_y
+	beq found
+findnext:
+	inx
+	cpx #8
+	bne findloop
+	lda #0
+	rts
+
+found:
+	txa
+	asl
+	asl
+	asl
+	tax
+	ldy #0
+
+spawnloop:
+	txa
+	pha
+	tya
+	pha
+
+	lda saved_enemy_types, x
+	jsr spawn_starting_enemy
+
+	pla
+	tay
+	pla
+	tax
+	inx
+	iny
+	cpy #8
+	bne spawnloop
+
+	lda #1
+	rts
+.endproc
+
+
+.code
 
 PROC update_enemies
 	lda #0
@@ -1446,61 +1504,6 @@ saveloop:
 	cpx #8
 	bne saveloop
 
-	rts
-.endproc
-
-
-PROC restore_enemies
-	;clear walking targets
-	ldx #ENEMY_MAX_COUNT
-	lda #0
-zeroloop:
-	dex
-	sta enemy_walk_target, x
-	cpx #0
-	bne zeroloop
-
-findloop:
-	lda saved_enemy_screen_x, x
-	cmp cur_screen_x
-	bne findnext
-	lda saved_enemy_screen_y, x
-	cmp cur_screen_y
-	beq found
-findnext:
-	inx
-	cpx #8
-	bne findloop
-	lda #0
-	rts
-
-found:
-	txa
-	asl
-	asl
-	asl
-	tax
-	ldy #0
-
-spawnloop:
-	txa
-	pha
-	tya
-	pha
-
-	lda saved_enemy_types, x
-	jsr spawn_starting_enemy
-
-	pla
-	tay
-	pla
-	tax
-	inx
-	iny
-	cpy #8
-	bne spawnloop
-
-	lda #1
 	rts
 .endproc
 

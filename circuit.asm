@@ -1,6 +1,6 @@
 .include "defines.inc"
 
-.segment "FIXED"
+.code
 
 PROC in_bit
 	txa
