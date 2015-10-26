@@ -15,6 +15,13 @@ PROC gen_shop
 	lda inside
 	beq outside
 
+	lda current_bank
+	pha
+	lda #^do_gen_shop_inside
+	jsr bankswitch
+	jsr do_gen_shop_inside & $ffff
+	pla
+	jsr bankswitch
 	rts
 
 outside:
@@ -199,6 +206,11 @@ botwalldone:
 	lda #HOUSE_EXT_TILES + 40
 	jsr write_gen_map
 
+	lda #7
+	sta entrance_x
+	lda #6
+	sta entrance_y
+
 	; Pick house paint color
 	lda #3
 	jsr genrange_cur
@@ -247,6 +259,12 @@ nextblank:
 	iny
 	cpy #MAP_HEIGHT
 	bne yloop
+	rts
+.endproc
+
+
+PROC do_gen_shop_inside
+	jsr gen_house_inside_common & $ffff
 	rts
 .endproc
 

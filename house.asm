@@ -4,6 +4,8 @@
 .define FENCE_TILES     $88
 .define HOUSE_EXT_TILES $a8
 
+.define WALL_TILES $80
+
 .define HOUSE_ROOF_PALETTE  1
 .define HOUSE_FRONT_PALETTE 2
 
@@ -14,6 +16,13 @@ PROC gen_house
 	lda inside
 	beq outside
 
+	lda current_bank
+	pha
+	lda #^do_gen_house_inside
+	jsr bankswitch
+	jsr do_gen_house_inside & $ffff
+	pla
+	jsr bankswitch
 	rts
 
 outside:
@@ -150,6 +159,8 @@ botfencedone:
 	beq smallhouseright
 	jmp smallhouseleft & $ffff
 
+smallhouseright:
+	jmp gensmallhouseright & $ffff
 bighouse:
 	jmp genbighouse & $ffff
 
@@ -210,9 +221,16 @@ smallhouseleft:
 	lda #HOUSE_EXT_TILES + 40
 	jsr write_gen_map
 
+	lda arg0
+	clc
+	adc #1
+	sta entrance_x
+	lda #6
+	sta entrance_y
+
 	jmp housedone & $ffff
 
-smallhouseright:
+gensmallhouseright:
 	lda #3
 	jsr genrange_cur
 	clc
@@ -268,6 +286,13 @@ smallhouseright:
 	inx
 	lda #HOUSE_EXT_TILES + 40
 	jsr write_gen_map
+
+	lda arg0
+	clc
+	adc #2
+	sta entrance_x
+	lda #6
+	sta entrance_y
 
 	jmp housedone & $ffff
 
@@ -335,6 +360,13 @@ genbighouse:
 	inx
 	lda #HOUSE_EXT_TILES + 40
 	jsr write_gen_map
+
+	lda arg0
+	clc
+	adc #2
+	sta entrance_x
+	lda #6
+	sta entrance_y
 
 housedone:
 	; Pick house paint color
@@ -439,6 +471,110 @@ restoredspawn:
 .endproc
 
 
+PROC do_gen_house_inside
+	jsr gen_house_inside_common & $ffff
+	rts
+.endproc
+
+
+PROC gen_house_inside_common
+	LOAD_ALL_TILES WALL_TILES, wood_wall_tiles
+
+	LOAD_PTR house_interior_palette
+	jsr load_background_game_palette
+
+	lda #WALL_TILES + 32
+	sta traversable_tiles
+	lda #WALL_TILES + 36
+	sta traversable_tiles + 1
+	lda #WALL_TILES + 28
+	sta traversable_tiles + 2
+	lda #WALL_TILES + 32
+	sta spawnable_tiles
+	lda #WALL_TILES + 36
+	sta spawnable_tiles + 1
+
+	ldx #1
+	ldy #1
+	lda #WALL_TILES + 0
+	jsr write_gen_map
+
+	ldx #2
+topwallloop:
+	lda #WALL_TILES + 24
+	jsr write_gen_map
+	inx
+	cpx #13
+	bne topwallloop
+
+	lda #WALL_TILES + 4
+	jsr write_gen_map
+
+	ldx #1
+	ldy #2
+	lda #WALL_TILES + 8
+	jsr write_gen_map
+
+	ldx #2
+firstxloop:
+	lda #WALL_TILES + 36
+	jsr write_gen_map
+	inx
+	cpx #13
+	bne firstxloop
+
+	lda #WALL_TILES + 20
+	jsr write_gen_map
+
+	ldy #3
+centeryloop:
+	ldx #1
+	lda #WALL_TILES + 8
+	jsr write_gen_map
+
+	ldx #2
+centerxloop:
+	lda #WALL_TILES + 32
+	jsr write_gen_map
+	inx
+	cpx #13
+	bne centerxloop
+
+	lda #WALL_TILES + 20
+	jsr write_gen_map
+
+	iny
+	cpy #10
+	bne centeryloop
+
+	ldx #1
+	lda #WALL_TILES + 12
+	jsr write_gen_map
+
+	ldx #2
+botloop:
+	lda #WALL_TILES + 24
+	jsr write_gen_map
+	inx
+	cpx #13
+	bne botloop
+
+	lda #WALL_TILES + 16
+	jsr write_gen_map
+
+	ldx #7
+	lda #WALL_TILES + 28
+	jsr write_gen_map
+
+	stx entrance_x
+	sty entrance_y
+	lda #1
+	sta entrance_down
+
+	rts
+.endproc
+
+
 VAR house_paint_colors
 	.byte $30, $38, $31
 
@@ -451,6 +587,14 @@ VAR roof_light_colors
 VAR house_exterior_enemy_types
 	.byte ENEMY_NORMAL_MALE_ZOMBIE, ENEMY_NORMAL_FEMALE_ZOMBIE
 
+VAR house_interior_palette
+	.byte $0f, $07, $17, $27
+	.byte $0f, $07, $17, $27
+	.byte $0f, $07, $17, $27
+	.byte $0f, $07, $17, $27
+
 
 TILES fence_tiles, 3, "tiles/house/fence.chr", 32
 TILES house_exterior_tiles, 3, "tiles/house/exterior.chr", 44
+
+TILES wood_wall_tiles, 3, "tiles/house/woodwalls.chr", 40

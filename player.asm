@@ -241,23 +241,25 @@ downpressed:
 	jmp down
 
 up:
-	; Check for cave entrance
+	; Check for cave/house entrance
+	lda entrance_down
+	bne notentranceup
 	lda entrance_x
 	asl
 	asl
 	asl
 	asl
 	cmp player_x
-	bne notentrance
+	bne notentranceup
 	lda entrance_y
 	asl
 	asl
 	asl
 	asl
 	cmp player_y
-	bne notentrance
-	jmp transitionup
-notentrance:
+	bne notentranceup
+	jmp transitionenterup
+notentranceup:
 	; Check for top of map
 	ldy player_y
 	bne nottopbounds
@@ -334,6 +336,25 @@ noupdirchange:
 	jmp checkhoriz
 
 down:
+	; Check for cave/house entrance
+	lda entrance_down
+	beq notentrancedown
+	lda entrance_x
+	asl
+	asl
+	asl
+	asl
+	cmp player_x
+	bne notentrancedown
+	lda entrance_y
+	asl
+	asl
+	asl
+	asl
+	cmp player_y
+	bne notentrancedown
+	jmp transitionenterdown
+notentrancedown:
 	; Check for bottom of map
 	ldy player_y
 	cpy #(MAP_HEIGHT - 1) * 16
@@ -622,9 +643,70 @@ transitionright:
 	lda #1
 	rts
 
+transitionenterup:
+	jsr read_overworld_cur
+	and #$3f
+	cmp #MAP_HOUSE
+	beq transitionhouseinside
+	cmp #MAP_SHOP
+	beq transitionshopinside
+	jmp transitionup
+
+transitionhouseinside:
+	jsr fade_out
+	lda #1
+	sta inside
+
+	; Entering house, place player at entrance
+	jsr prepare_map_gen
+	jsr gen_house
+	lda entrance_x
+	asl
+	asl
+	asl
+	asl
+	sta player_x
+	lda entrance_y
+	asl
+	asl
+	asl
+	asl
+	sta player_y
+	lda #DIR_UP
+	sta player_direction
+	lda #1
+	rts
+
+transitionshopinside:
+	jsr fade_out
+	lda #1
+	sta inside
+
+	; Entering house, place player at entrance
+	jsr prepare_map_gen
+	jsr gen_shop
+	lda entrance_x
+	asl
+	asl
+	asl
+	asl
+	sta player_x
+	lda entrance_y
+	asl
+	asl
+	asl
+	asl
+	sta player_y
+	lda #DIR_UP
+	sta player_direction
+	lda #1
+	rts
+
 transitionup:
 	lda knockback_time
-	bne moveanimdone
+	beq dotransitionup
+	jmp moveanimdone
+dotransitionup:
 	jsr fade_out
 	dec cur_screen_y
 	lda #(MAP_HEIGHT - 1) * 16
@@ -634,10 +716,70 @@ transitionup:
 	lda #1
 	rts
 
+transitionenterdown:
+	jsr read_overworld_cur
+	and #$3f
+	cmp #MAP_HOUSE
+	beq transitionhouseoutside
+	cmp #MAP_SHOP
+	beq transitionshopoutside
+	jmp transitiondown
+
+transitionhouseoutside:
+	jsr fade_out
+	lda #0
+	sta inside
+
+	; Exiting house, place player at entrance
+	jsr prepare_map_gen
+	jsr gen_house
+	lda entrance_x
+	asl
+	asl
+	asl
+	asl
+	sta player_x
+	lda entrance_y
+	asl
+	asl
+	asl
+	asl
+	sta player_y
+	lda #DIR_DOWN
+	sta player_direction
+	lda #1
+	rts
+
+transitionshopoutside:
+	jsr fade_out
+	lda #0
+	sta inside
+
+	; Exiting shop, place player at entrance
+	jsr prepare_map_gen
+	jsr gen_shop
+	lda entrance_x
+	asl
+	asl
+	asl
+	asl
+	sta player_x
+	lda entrance_y
+	asl
+	asl
+	asl
+	asl
+	sta player_y
+	lda #DIR_DOWN
+	sta player_direction
+	lda #1
+	rts
+
 transitiondown:
 	lda knockback_time
-	bne moveanimdone
-
+	beq dotransitiondown
+	jmp moveanimdone
+dotransitiondown:
 	jsr fade_out
 
 	jsr read_overworld_cur

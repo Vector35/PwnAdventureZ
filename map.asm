@@ -97,6 +97,8 @@ clearloop:
 	lda #$ff
 	sta entrance_x
 	sta entrance_y
+	lda #0
+	sta entrance_down
 
 	rts
 .endproc
@@ -2452,6 +2454,8 @@ VAR spawnable
 VAR entrance_x
 	.byte 0
 VAR entrance_y
+	.byte 0
+VAR entrance_down
 	.byte 0
 
 
