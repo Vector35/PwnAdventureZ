@@ -84,9 +84,7 @@ prepare:
 	sta player_entry_y
 
 	jsr generate_map
-	jsr init_player_sprites
-	jsr init_zombie_sprites
-	jsr init_shark_sprites
+	jsr update_player_sprite
 	jsr init_effect_sprites
 	jsr init_status_tiles
 

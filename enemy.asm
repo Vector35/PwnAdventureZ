@@ -1804,6 +1804,14 @@ VAR enemy_descriptors
 	.word normal_female_zombie_descriptor
 	.word shark_descriptor 
 	.word fat_zombie_descriptor
+	.word male_npc_1_descriptor
+	.word female_npc_1_descriptor
+	.word male_thin_npc_1_descriptor
+	.word female_thin_npc_1_descriptor
+	.word male_npc_2_descriptor
+	.word female_npc_2_descriptor
+	.word male_thin_npc_2_descriptor
+	.word female_thin_npc_2_descriptor
 
 
 VAR enemy_death_descriptor

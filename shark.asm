@@ -1,18 +1,21 @@
 .include "defines.inc"
 
 
-.code
-
 .define SHARK_TILES $100
 .define TILE1 0
 .define TILE2 4
 .define TILE3 8
 .define SHARK_FIN 12
 
+.segment "FIXED"
+
 PROC init_shark_sprites
 	LOAD_ALL_TILES SHARK_TILES + SPRITE_TILE_SHARK, shark_tiles
 	rts
 .endproc
+
+
+.code
 
 PROC shark_move
 	ldx cur_enemy

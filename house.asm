@@ -49,6 +49,7 @@ PROC do_gen_house_outside
 	LOAD_ALL_TILES FOREST_TILES, forest_tiles
 	LOAD_ALL_TILES FENCE_TILES, fence_tiles
 	LOAD_ALL_TILES HOUSE_EXT_TILES, house_exterior_tiles
+	jsr init_zombie_sprites
 
 	; Set up collision and spawning info
 	lda #FOREST_TILES + FOREST_GRASS
@@ -478,6 +479,7 @@ restoredspawn:
 
 PROC do_gen_house_inside
 	jsr gen_house_inside_common & $ffff
+	jsr init_zombie_sprites
 
 	; Pick random positions for furniture
 	lda #2

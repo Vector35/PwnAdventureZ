@@ -1,7 +1,6 @@
 .include "defines.inc"
 
-.code
-
+.segment "FIXED"
 
 PROC init_zombie_sprites
 	LOAD_ALL_TILES $100 + SPRITE_TILE_NORMAL_MALE_ZOMBIE, normal_male_zombie_tiles
@@ -14,6 +13,8 @@ PROC init_zombie_sprites
 	rts
 .endproc
 
+
+.code
 
 PROC normal_zombie_die
 	PLAY_SOUND_EFFECT effect_enemydie

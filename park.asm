@@ -28,6 +28,7 @@ PROC do_gen_park
 	LOAD_ALL_TILES FOREST_TILES, forest_tiles
 	LOAD_ALL_TILES FENCE_TILES, fence_tiles
 	LOAD_ALL_TILES BORDER_TILES, forest_lake_border_tiles
+	jsr init_zombie_sprites
 
 	; Set up collision and spawning info
 	lda #FOREST_TILES + FOREST_GRASS

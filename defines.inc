@@ -265,6 +265,14 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define ENEMY_NORMAL_FEMALE_ZOMBIE 1
 .define ENEMY_SHARK                2
 .define ENEMY_FAT_ZOMBIE           3
+.define ENEMY_MALE_NPC_1           4
+.define ENEMY_FEMALE_NPC_1         5
+.define ENEMY_MALE_THIN_NPC_1      6
+.define ENEMY_FEMALE_THIN_NPC_1    7
+.define ENEMY_MALE_NPC_2           8
+.define ENEMY_FEMALE_NPC_2         9
+.define ENEMY_MALE_THIN_NPC_2      10
+.define ENEMY_FEMALE_THIN_NPC_2    11
 .define ENEMY_NONE                 $ff
 
 .define ENEMY_MAX_COUNT          8
@@ -285,6 +293,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define INTERACT_URN			  1
 .define INTERACT_BIGDOOR          2
 .define INTERACT_BLOCKY_CHEST     3
+.define INTERACT_SHOP_NPC         4
 .define INTERACT_NONE             $ff
 
 .define INTERACT_DESC_IS_VALID 0
@@ -305,6 +314,11 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define SPRITE_TILE_NORMAL_FEMALE_ZOMBIE $40
 .define SPRITE_TILE_FAT_ZOMBIE           $60
 .define SPRITE_TILE_SHARK                $80
+
+.define SPRITE_TILE_MALE_NPC        $20
+.define SPRITE_TILE_FEMALE_NPC      $40
+.define SPRITE_TILE_MALE_THIN_NPC   $60
+.define SPRITE_TILE_FEMALE_THIN_NPC $80
 
 .define SPRITE_TILE_SPLAT         $e0
 .define SPRITE_TILE_ORB           $ee

@@ -6,6 +6,7 @@
 .define HOUSE_EXT_TILES $b0
 
 .define TABLE_TILES     $a8
+.define NPC_FLOOR_TILE  $d8
 
 .define HOUSE_ROOF_PALETTE  1
 .define HOUSE_FRONT_PALETTE 2
@@ -269,6 +270,7 @@ nextblank:
 
 PROC do_gen_shop_inside
 	jsr gen_house_inside_common & $ffff
+	jsr init_npc_sprites
 
 	LOAD_ALL_TILES TABLE_TILES, small_table_tiles
 
@@ -406,9 +408,70 @@ PROC do_gen_shop_inside
 	lda #TABLE_TILES + 32 + FURNITURE_PALETTE
 	jsr write_gen_map
 
+	; Load a special tile for underneath the NPCs.  This looks exactly like a floor
+	; but will collide and be interactable.  This is simply a way to make the NPC
+	; interactable without a special NPC system.
+	LOAD_ALL_TILES NPC_FLOOR_TILE, npc_floor_tiles
+
+	lda #INTERACT_SHOP_NPC
+	sta interactive_tile_types
+	lda #NPC_FLOOR_TILE
+	sta interactive_tile_values
+
+	ldx #7
+	ldy #3
+	lda #NPC_FLOOR_TILE
+	jsr write_gen_map
+	ldx #3
+	ldy #6
+	lda #NPC_FLOOR_TILE
+	jsr write_gen_map
+	ldx #12
+	ldy #5
+	lda #NPC_FLOOR_TILE
+	jsr write_gen_map
+
+	; Spawn NPCs as "enemies"
+	jsr prepare_spawn
+	lda #ENEMY_MALE_NPC_1
+	sta arg0
+	lda #DIR_DOWN
+	sta arg1
+	ldx #$70
+	ldy #$30
+	lda #0
+	jsr spawn_npc
+
+	lda #ENEMY_FEMALE_NPC_1
+	sta arg0
+	lda #DIR_RIGHT
+	sta arg1
+	ldx #$30
+	ldy #$60
+	lda #1
+	jsr spawn_npc
+
+	lda #ENEMY_MALE_THIN_NPC_2
+	sta arg0
+	lda #DIR_DOWN
+	sta arg1
+	ldx #$c0
+	ldy #$50
+	lda #2
+	jsr spawn_npc
+
 	rts
 .endproc
 
+
+.code
+
+PROC shop_npc_interact
+	rts
+.endproc
+
+
+.segment "EXTRA"
 
 VAR shop_exterior_palette
 	.byte $0f, $09, $19, $00
@@ -417,5 +480,13 @@ VAR shop_exterior_palette
 	.byte $0f, $09, $19, $00
 
 
+.data
+
+VAR shop_npc_descriptor
+	.word always_interactable
+	.word shop_npc_interact
+
+
 TILES shop_wall_tiles, 3, "tiles/house/shopwall.chr", 32
 TILES shop_sign_tiles, 3, "tiles/house/shopsign.chr", 8
+TILES npc_floor_tiles, 3, "tiles/house/npcfloor.chr", 4

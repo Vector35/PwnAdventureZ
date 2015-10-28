@@ -28,6 +28,7 @@ PROC gen_blocky_puzzle
 	; Load cave palette
 	LOAD_PTR blocky_palette
 	jsr load_background_game_palette
+	jsr init_zombie_sprites
 
 	jsr gen_map_opening_locations
 	; Generate the sides of the cave wall
