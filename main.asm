@@ -390,7 +390,7 @@ nocode:
 .endproc
 
 
-.segment "EXTRA"
+.segment "CHR1"
 
 PROC show_game_over
 	; Update number of deaths

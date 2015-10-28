@@ -5,8 +5,12 @@
 .define SHOP_SIGN_TILES $a8
 .define HOUSE_EXT_TILES $b0
 
+.define TABLE_TILES     $a8
+
 .define HOUSE_ROOF_PALETTE  1
 .define HOUSE_FRONT_PALETTE 2
+
+.define FURNITURE_PALETTE   1
 
 
 .segment "FIXED"
@@ -265,6 +269,143 @@ nextblank:
 
 PROC do_gen_shop_inside
 	jsr gen_house_inside_common & $ffff
+
+	LOAD_ALL_TILES TABLE_TILES, small_table_tiles
+
+	ldx #3
+	ldy #3
+	lda #TABLE_TILES + 0 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 4 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 8 + FURNITURE_PALETTE
+	jsr write_gen_map
+
+	iny
+	ldx #3
+	lda #TABLE_TILES + 12 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 16 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 20 + FURNITURE_PALETTE
+	jsr write_gen_map
+
+	iny
+	ldx #3
+	lda #TABLE_TILES + 24 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 28 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 32 + FURNITURE_PALETTE
+	jsr write_gen_map
+
+	iny
+	iny
+	ldx #3
+	lda #TABLE_TILES + 0 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 4 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 8 + FURNITURE_PALETTE
+	jsr write_gen_map
+
+	iny
+	ldx #3
+	lda #TABLE_TILES + 12 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 16 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 20 + FURNITURE_PALETTE
+	jsr write_gen_map
+
+	iny
+	ldx #3
+	lda #TABLE_TILES + 24 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 28 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 32 + FURNITURE_PALETTE
+	jsr write_gen_map
+
+	ldx #9
+	ldy #3
+	lda #TABLE_TILES + 0 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 4 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 8 + FURNITURE_PALETTE
+	jsr write_gen_map
+
+	iny
+	ldx #9
+	lda #TABLE_TILES + 12 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 16 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 20 + FURNITURE_PALETTE
+	jsr write_gen_map
+
+	iny
+	ldx #9
+	lda #TABLE_TILES + 24 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 28 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 32 + FURNITURE_PALETTE
+	jsr write_gen_map
+
+	iny
+	iny
+	ldx #9
+	lda #TABLE_TILES + 0 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 4 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 8 + FURNITURE_PALETTE
+	jsr write_gen_map
+
+	iny
+	ldx #9
+	lda #TABLE_TILES + 12 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 16 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 20 + FURNITURE_PALETTE
+	jsr write_gen_map
+
+	iny
+	ldx #9
+	lda #TABLE_TILES + 24 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 28 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 32 + FURNITURE_PALETTE
+	jsr write_gen_map
+
 	rts
 .endproc
 
