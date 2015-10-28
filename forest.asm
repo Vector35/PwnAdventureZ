@@ -43,6 +43,8 @@ PROC gen_forest
 PROC do_gen_forest
 	; Load forest tiles
 	LOAD_ALL_TILES FOREST_TILES, forest_tiles
+	jsr init_zombie_sprites
+	jsr init_shark_sprites
 
 	; Set up collision and spawning info
 	lda #FOREST_TILES + FOREST_GRASS

@@ -4,10 +4,15 @@
 .define FENCE_TILES     $88
 .define HOUSE_EXT_TILES $a8
 
-.define WALL_TILES $80
+.define WALL_TILES        $80
+.define TABLE_TILES       $a8
+.define BED_TILES         $d8
 
 .define HOUSE_ROOF_PALETTE  1
 .define HOUSE_FRONT_PALETTE 2
+
+.define FURNITURE_PALETTE   1
+.define BED_PALETTE         2
 
 
 .segment "FIXED"
@@ -44,6 +49,7 @@ PROC do_gen_house_outside
 	LOAD_ALL_TILES FOREST_TILES, forest_tiles
 	LOAD_ALL_TILES FENCE_TILES, fence_tiles
 	LOAD_ALL_TILES HOUSE_EXT_TILES, house_exterior_tiles
+	jsr init_zombie_sprites
 
 	; Set up collision and spawning info
 	lda #FOREST_TILES + FOREST_GRASS
@@ -473,6 +479,261 @@ restoredspawn:
 
 PROC do_gen_house_inside
 	jsr gen_house_inside_common & $ffff
+	jsr init_zombie_sprites
+
+	; Pick random positions for furniture
+	lda #2
+	jsr genrange_cur
+	cmp #0
+	beq tableleft
+
+	lda #8
+	sta arg0
+	lda #3
+	sta arg2
+	jmp tabletype & $ffff
+
+tableleft:
+	lda #3
+	sta arg0
+	lda #10
+	sta arg2
+
+tabletype:
+	lda #4
+	jsr genrange_cur
+	cmp #0
+	beq bigtable
+	cmp #1
+	beq bigtable
+
+	jmp smalltable & $ffff
+
+bigtable:
+	LOAD_ALL_TILES TABLE_TILES, big_table_tiles
+
+	lda #5
+	jsr genrange_cur
+	clc
+	adc #3
+	tay
+
+	ldx arg0
+	lda #TABLE_TILES + 0 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 4 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 8 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 12 + FURNITURE_PALETTE
+	jsr write_gen_map
+
+	iny
+	ldx arg0
+	lda #TABLE_TILES + 16 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 20 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 24 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 28 + FURNITURE_PALETTE
+	jsr write_gen_map
+
+	iny
+	ldx arg0
+	lda #TABLE_TILES + 32 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 36 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 40 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 44 + FURNITURE_PALETTE
+	jsr write_gen_map
+
+	jmp tabledone & $ffff
+
+smalltable:
+	LOAD_ALL_TILES TABLE_TILES, small_table_tiles
+
+	lda arg0
+	cmp #8
+	bne notrighttable
+
+	lda #9
+	sta arg0
+
+notrighttable:
+	ldx arg0
+	ldy #3
+	lda #TABLE_TILES + 0 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 4 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 8 + FURNITURE_PALETTE
+	jsr write_gen_map
+
+	iny
+	ldx arg0
+	lda #TABLE_TILES + 12 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 16 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 20 + FURNITURE_PALETTE
+	jsr write_gen_map
+
+	iny
+	ldx arg0
+	lda #TABLE_TILES + 24 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 28 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 32 + FURNITURE_PALETTE
+	jsr write_gen_map
+
+	iny
+	iny
+	ldx arg0
+	lda #TABLE_TILES + 0 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 4 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 8 + FURNITURE_PALETTE
+	jsr write_gen_map
+
+	iny
+	ldx arg0
+	lda #TABLE_TILES + 12 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 16 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 20 + FURNITURE_PALETTE
+	jsr write_gen_map
+
+	iny
+	ldx arg0
+	lda #TABLE_TILES + 24 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 28 + FURNITURE_PALETTE
+	jsr write_gen_map
+	inx
+	lda #TABLE_TILES + 32 + FURNITURE_PALETTE
+	jsr write_gen_map
+
+tabledone:
+	lda #4
+	jsr genrange_cur
+	cmp #0
+	beq bedtop
+	cmp #1
+	beq bedtop
+
+	lda #6
+	sta arg3
+	jmp genbed & $ffff
+
+bedtop:
+	lda #3
+	sta arg3
+
+genbed:
+	LOAD_ALL_TILES BED_TILES, bed_tiles
+
+	ldx arg2
+	ldy arg3
+	lda #BED_TILES + 0 + BED_PALETTE
+	jsr write_gen_map
+
+	inx
+	lda #BED_TILES + 4 + BED_PALETTE
+	jsr write_gen_map
+
+	iny
+	ldx arg2
+	lda #BED_TILES + 8 + BED_PALETTE
+	jsr write_gen_map
+
+	inx
+	lda #BED_TILES + 12 + BED_PALETTE
+	jsr write_gen_map
+
+	iny
+	ldx arg2
+	lda #BED_TILES + 16 + BED_PALETTE
+	jsr write_gen_map
+
+	inx
+	lda #BED_TILES + 20 + BED_PALETTE
+	jsr write_gen_map
+
+	; Create enemies
+	jsr prepare_spawn
+	jsr restore_enemies
+	bne restoredspawn
+
+	lda difficulty
+	cmp #1
+	beq hard
+	cmp #2
+	beq veryhard
+
+	lda #2
+	jsr rand_range
+	clc
+	adc #1
+	tax
+	jmp spawnloop & $ffff
+
+hard:
+	lda #3
+	jsr rand_range
+	clc
+	adc #2
+	tax
+	jmp spawnloop & $ffff
+
+veryhard:
+	lda #3
+	jsr rand_range
+	clc
+	adc #3
+	tax
+
+spawnloop:
+	txa
+	pha
+
+	lda #3
+	jsr rand_range
+	tax
+	lda house_interior_enemy_types & $ffff, x
+	jsr spawn_starting_enemy
+
+	pla
+	tax
+	dex
+	bne spawnloop
+
+restoredspawn:
 	rts
 .endproc
 
@@ -494,6 +755,7 @@ PROC gen_house_inside_common
 	lda #WALL_TILES + 36
 	sta spawnable_tiles + 1
 
+	; Generate surrounding wall
 	ldx #1
 	ldy #1
 	lda #WALL_TILES + 0
@@ -587,10 +849,13 @@ VAR roof_light_colors
 VAR house_exterior_enemy_types
 	.byte ENEMY_NORMAL_MALE_ZOMBIE, ENEMY_NORMAL_FEMALE_ZOMBIE
 
+VAR house_interior_enemy_types
+	.byte ENEMY_NORMAL_MALE_ZOMBIE, ENEMY_NORMAL_FEMALE_ZOMBIE, ENEMY_FAT_ZOMBIE
+
 VAR house_interior_palette
 	.byte $0f, $07, $17, $27
-	.byte $0f, $07, $17, $27
-	.byte $0f, $07, $17, $27
+	.byte $0f, $07, $17, $37
+	.byte $0f, $07, $17, $10
 	.byte $0f, $07, $17, $27
 
 
@@ -598,3 +863,6 @@ TILES fence_tiles, 3, "tiles/house/fence.chr", 32
 TILES house_exterior_tiles, 3, "tiles/house/exterior.chr", 44
 
 TILES wood_wall_tiles, 3, "tiles/house/woodwalls.chr", 40
+TILES big_table_tiles, 3, "tiles/house/bigtable.chr", 48
+TILES small_table_tiles, 3, "tiles/house/smalltable.chr", 36
+TILES bed_tiles, 3, "tiles/house/bed.chr", 24

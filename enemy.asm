@@ -257,6 +257,9 @@ findloop:
 	bne findnext
 	lda saved_enemy_screen_y, x
 	cmp cur_screen_y
+	bne findnext
+	lda saved_enemy_inside, x
+	cmp inside
 	beq found
 findnext:
 	inx
@@ -1446,6 +1449,9 @@ findloop:
 	bne findnext
 	lda saved_enemy_screen_y, x
 	cmp cur_screen_y
+	bne findnext
+	lda saved_enemy_inside, x
+	cmp inside
 	beq found
 findnext:
 	inx
@@ -1458,6 +1464,8 @@ found:
 	sta saved_enemy_screen_x, x
 	lda saved_enemy_screen_y
 	sta saved_enemy_screen_y, x
+	lda saved_enemy_inside
+	sta saved_enemy_inside, x
 	txa
 	asl
 	asl
@@ -1480,6 +1488,8 @@ moveloop:
 	sta saved_enemy_screen_x, x
 	lda saved_enemy_screen_y - 1, x
 	sta saved_enemy_screen_y, x
+	lda saved_enemy_inside - 1, x
+	sta saved_enemy_inside, x
 	dex
 	bne moveloop
 
@@ -1496,6 +1506,8 @@ save:
 	sta saved_enemy_screen_x
 	lda cur_screen_y
 	sta saved_enemy_screen_y
+	lda inside
+	sta saved_enemy_inside
 	ldx #0
 saveloop:
 	lda enemy_type, x
@@ -1686,6 +1698,8 @@ VAR saved_enemy_screen_x
 	.byte 0, 0, 0, 0, 0, 0, 0, 0
 VAR saved_enemy_screen_y
 	.byte 0, 0, 0, 0, 0, 0, 0, 0
+VAR saved_enemy_inside
+	.byte 0, 0, 0, 0, 0, 0, 0, 0
 VAR saved_enemy_types
 	.byte 0, 0, 0, 0, 0, 0, 0, 0
 	.byte 0, 0, 0, 0, 0, 0, 0, 0
@@ -1790,6 +1804,14 @@ VAR enemy_descriptors
 	.word normal_female_zombie_descriptor
 	.word shark_descriptor 
 	.word fat_zombie_descriptor
+	.word male_npc_1_descriptor
+	.word female_npc_1_descriptor
+	.word male_thin_npc_1_descriptor
+	.word female_thin_npc_1_descriptor
+	.word male_npc_2_descriptor
+	.word female_npc_2_descriptor
+	.word male_thin_npc_2_descriptor
+	.word female_thin_npc_2_descriptor
 
 
 VAR enemy_death_descriptor

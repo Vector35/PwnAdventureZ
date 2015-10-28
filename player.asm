@@ -70,8 +70,6 @@ loadpal:
 	jsr load_sprite_palette_2
 	LOAD_PTR fire_palette
 	jsr load_sprite_palette_3
-
-	jsr update_player_sprite
 	rts
 .endproc
 
@@ -1040,6 +1038,13 @@ notup:
 
 
 PROC player_attack
+	jsr read_overworld_cur
+	and #$3f
+	cmp #MAP_SHOP
+	bne notshop
+	rts
+
+notshop:
 	lda attack_cooldown
 	beq nocooldown
 	rts
@@ -1386,6 +1391,7 @@ VAR interaction_descriptors
 	.word blocky_urn 
 	.word blocky_bigdoor
 	.word blocky_chest
+	.word shop_npc_descriptor
 
 VAR player_bullet_descriptor
 	.word player_bullet_tick

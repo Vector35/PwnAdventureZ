@@ -30,7 +30,7 @@ PROC enter_name
 .endproc
 
 
-.segment "EXTRA"
+.segment "CHR1"
 
 PROC save_select_worker
 	jsr clear_screen
@@ -1136,7 +1136,7 @@ VAR name_entry_col
 	.byte 0
 
 
-.segment "EXTRA"
+.segment "CHR1"
 
 VAR save_select_palette
 	.byte $0f, $21, $31, $37

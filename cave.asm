@@ -71,6 +71,7 @@ PROC gen_cave_common
 PROC do_gen_cave_common
 	; Load cave tiles
 	LOAD_ALL_TILES $080, cave_border_tiles
+	jsr init_zombie_sprites
 
 	; Set up collision and spawning info
 	lda #$80 + BORDER_INTERIOR

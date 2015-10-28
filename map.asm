@@ -1320,6 +1320,7 @@ PROC mark_visited
 
 PROC generate_map
 	jsr prepare_map_gen
+	jsr init_player_sprites
 
 	ldx cur_screen_x
 	dex
