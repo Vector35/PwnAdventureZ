@@ -452,3 +452,6 @@ VAR music_loop_bank_ptr
 .include "audio/playerhit.asm"
 .include "audio/select.asm"
 .include "audio/uimove.asm"
+
+.segment "CHR1"
+.include "audio/cave.asm"
