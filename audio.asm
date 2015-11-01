@@ -440,7 +440,7 @@ VAR music_loop_bank_ptr
 .include "audio/neonstarlight.asm"
 .include "audio/neonstarlight_loop.asm"
 
-.segment "CHR5"
+.segment "AUDIO0"
 .include "audio/craft.asm"
 .include "audio/enemydie.asm"
 .include "audio/enemyhit.asm"
@@ -455,5 +455,5 @@ VAR music_loop_bank_ptr
 .include "audio/buy.asm"
 .include "audio/sell.asm"
 
-.segment "CHR1"
+.segment "AUDIO1"
 .include "audio/cave.asm"

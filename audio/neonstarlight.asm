@@ -1,4 +1,4 @@
-.segment "CHR4"
+.segment "AUDIO7"
 
 VAR neonstarlight_ptr
 	.word neonstarlight_page_0 & $ffff

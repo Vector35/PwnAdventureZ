@@ -1,4 +1,4 @@
-.include "../defines.inc"
+.include "defines.inc"
 
 .segment "FIXED"
 
@@ -1863,7 +1863,7 @@ loop:
 
 .segment "HEADER"
 	.byte "NES", $1a
-	.byte 8 ; 128kb program ROM
+	.byte 16 ; 256kb program ROM
 	.byte 0 ; CHR-RAM
 	.byte $12 ; Mapper 1 (SNROM) with battery-backed RAM
 	.byte 0

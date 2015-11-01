@@ -332,5 +332,29 @@ VAR current_bank
 .segment "CHR5IDENT"
 .byte 5
 
-.segment "EXTRAIDENT"
+.segment "AUDIO0IDENT"
 .byte 6
+
+.segment "AUDIO1IDENT"
+.byte 7
+
+.segment "AUDIO2IDENT"
+.byte 8
+
+.segment "AUDIO3IDENT"
+.byte 9
+
+.segment "AUDIO4IDENT"
+.byte 10
+
+.segment "AUDIO5IDENT"
+.byte 11
+
+.segment "AUDIO6IDENT"
+.byte 12
+
+.segment "AUDIO7IDENT"
+.byte 13
+
+.segment "EXTRAIDENT"
+.byte 14
