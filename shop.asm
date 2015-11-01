@@ -269,6 +269,18 @@ nextblank:
 
 
 PROC do_gen_shop_inside
+	; When entering a shop, set spawn point
+	lda cur_screen_x
+	sta spawn_screen_x
+	lda cur_screen_y
+	sta spawn_screen_y
+	lda inside
+	sta spawn_inside
+	lda player_entry_x
+	sta spawn_pos_x
+	lda player_entry_y
+	sta spawn_pos_y
+
 	jsr gen_house_inside_common & $ffff
 	jsr init_npc_sprites
 
@@ -467,6 +479,68 @@ PROC do_gen_shop_inside
 .code
 
 PROC shop_npc_interact
+	lda interaction_tile_x
+	cmp #7
+	beq shopkeeper
+	rts
+
+shopkeeper:
+	lda #ITEM_PISTOL
+	sta purchase_items
+	lda #0
+	sta purchase_price_high
+	lda #2
+	sta purchase_price_mid
+	lda #5
+	sta purchase_price_low
+
+	lda #ITEM_SMG
+	sta purchase_items + 1
+	lda #1
+	sta purchase_price_high + 1
+	lda #5
+	sta purchase_price_mid + 1
+	lda #0
+	sta purchase_price_low + 1
+
+	lda #ITEM_METAL
+	sta purchase_items + 2
+	lda #0
+	sta purchase_price_high + 2
+	lda #0
+	sta purchase_price_mid + 2
+	lda #2
+	sta purchase_price_low + 2
+
+	lda #ITEM_GUNPOWDER
+	sta purchase_items + 3
+	lda #0
+	sta purchase_price_high + 3
+	lda #0
+	sta purchase_price_mid + 3
+	lda #2
+	sta purchase_price_low + 3
+
+	lda #ITEM_HEALTH_KIT
+	sta purchase_items + 4
+	lda #0
+	sta purchase_price_high + 4
+	lda #3
+	sta purchase_price_mid + 4
+	lda #0
+	sta purchase_price_low + 4
+
+	lda #ITEM_FUEL
+	lda #0
+	sta purchase_price_high + 5
+	lda #4
+	sta purchase_price_mid + 5
+	lda #0
+	sta purchase_price_low + 5
+
+	lda #5
+	sta purchase_item_count
+	jsr show_shop
 	rts
 .endproc
 

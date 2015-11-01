@@ -19,9 +19,35 @@
 .define BIGDOOR_PALETTE 1
 .define URN_PALETTE     0
 .define CHEST_PALETTE   0
-.code
+
+.segment "FIXED"
 
 PROC gen_blocky_puzzle
+	lda current_bank
+	pha
+	lda #^do_gen_blocky_puzzle
+	jsr bankswitch
+	jsr do_gen_blocky_puzzle & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+PROC gen_blocky_treasure
+	lda current_bank
+	pha
+	lda #^do_gen_blocky_treasure
+	jsr bankswitch
+	jsr do_gen_blocky_treasure & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+.segment "EXTRA"
+
+PROC do_gen_blocky_puzzle
 	LOAD_ALL_TILES CAVE_TILE, cave_border_tiles
 	LOAD_ALL_TILES BIGDOOR_TILE, bigdoor_tiles
 	LOAD_ALL_TILES URN_TILE, urn_tiles 
@@ -33,16 +59,16 @@ PROC gen_blocky_puzzle
 	jsr gen_map_opening_locations
 	; Generate the sides of the cave wall
 	lda #CAVE_TILE + BORDER_CENTER + CAVE_PALETTE
-	jsr gen_left_wall_1
+	jsr gen_left_wall_1 & $ffff
 	lda #CAVE_TILE + BORDER_CENTER + CAVE_PALETTE
-	jsr gen_right_wall_1
+	jsr gen_right_wall_1 & $ffff
 	lda #CAVE_TILE + BORDER_CENTER + CAVE_PALETTE
-	jsr gen_top_wall_bigdoor
+	jsr gen_top_wall_bigdoor & $ffff
 	lda #CAVE_TILE + BORDER_CENTER + CAVE_PALETTE
-	jsr gen_bot_wall_1
+	jsr gen_bot_wall_1 & $ffff
 
 	lda #0
-	jsr gen_walkable_bot_path
+	jsr gen_walkable_bot_path & $ffff
 
 	; Write our door in the open space
 	; and make it interactive
@@ -106,13 +132,13 @@ PROC gen_blocky_puzzle
 	sta interactive_tile_values + 1
 
 	ldy #2
-	jsr write_urn_row
+	jsr write_urn_row & $ffff
 	ldy #4
-	jsr write_urn_row
+	jsr write_urn_row & $ffff
 	ldy #7
-	jsr write_urn_row
+	jsr write_urn_row & $ffff
 	ldy #9
-	jsr write_urn_row
+	jsr write_urn_row & $ffff
 	rts
 .endproc
 
@@ -129,7 +155,7 @@ loop_write_urn:
 	cmp #0
 	beq urn_off
 	lda #URN_TILE + TILE1 + URN_PALETTE
-	jmp write_urn
+	jmp write_urn & $ffff
 urn_off:
 	lda #URN_TILE + TILE2 + URN_PALETTE
 write_urn:
@@ -138,12 +164,12 @@ write_urn:
 	jsr write_gen_map
 	inx
 	inx
-	jmp loop_write_urn
+	jmp loop_write_urn & $ffff
 done:
 	rts
 .endproc
 
-PROC gen_blocky_treasure
+PROC do_gen_blocky_treasure
 	LOAD_ALL_TILES CAVE_TILE, cave_border_tiles
 	LOAD_ALL_TILES CHEST_TILE, treasure_tiles
 	LOAD_ALL_TILES URN_TILE, urn_tiles 
@@ -153,13 +179,13 @@ PROC gen_blocky_treasure
 
 	; Generate the sides of the cave wall
 	lda #CAVE_TILE + BORDER_CENTER + CAVE_PALETTE
-	jsr gen_left_wall_1
+	jsr gen_left_wall_1 & $ffff
 	lda #CAVE_TILE + BORDER_CENTER + CAVE_PALETTE
-	jsr gen_right_wall_1
+	jsr gen_right_wall_1 & $ffff
 	lda #CAVE_TILE + BORDER_CENTER + CAVE_PALETTE
-	jsr gen_top_wall_1
+	jsr gen_top_wall_1 & $ffff
 	lda #CAVE_TILE + BORDER_CENTER + CAVE_PALETTE
-	jsr gen_bot_wall_bigdoor
+	jsr gen_bot_wall_bigdoor & $ffff
 
 	lda #CAVE_TILE
 	jsr process_border_sides
@@ -374,6 +400,9 @@ PROC gen_walkable_bot_path
 	rts
 .endproc
 
+
+.code
+
 PROC urn_interact
 	PLAY_SOUND_EFFECT effect_light
 
@@ -439,6 +468,8 @@ PROC toggle_urn
 .endproc
 
 
+.segment "FIXED"
+
 ;x = urns x value
 ;y = urns y value
 ; return 0 or non-zero in a
@@ -474,6 +505,8 @@ PROC is_urn_on
 	rts
 .endproc
 
+
+.code
 
 PROC bigdoor_interact
 	jsr check_blocky_state

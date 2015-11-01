@@ -266,6 +266,8 @@ failed:
 PROC fire_smg
 	jsr use_one_ammo
 
+	PLAY_SOUND_EFFECT effect_pistol
+
 	lda player_x
 	clc
 	adc #7

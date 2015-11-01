@@ -42,20 +42,20 @@ resume:
 	jmp map_viewer
 
 nomapviewer:
-	LOAD_PTR neonstarlight_ptr
-	lda #<neonstarlight_bank
+	LOAD_PTR music_cave_ptr
+	lda #<music_cave_bank
 	sta arg0
-	lda #>neonstarlight_bank
+	lda #>music_cave_bank
 	sta arg1
-	lda #<neonstarlight_loop_ptr
+	lda #<music_cave_ptr
 	sta arg2
-	lda #>neonstarlight_loop_ptr
+	lda #>music_cave_ptr
 	sta arg3
-	lda #<neonstarlight_loop_bank
+	lda #<music_cave_bank
 	sta arg4
-	lda #>neonstarlight_loop_bank
+	lda #>music_cave_bank
 	sta arg5
-	lda #^neonstarlight_ptr
+	lda #^music_cave_ptr
 	jsr play_music
 
 	jsr game_loop
@@ -425,6 +425,8 @@ deathupdatedone:
 	sta cur_screen_x
 	lda spawn_screen_y
 	sta cur_screen_y
+	lda spawn_inside
+	sta inside
 	lda spawn_pos_x
 	sta player_x
 	sta player_entry_x
@@ -732,6 +734,8 @@ VAR spawn_screen_y
 VAR spawn_pos_x
 	.byte 0
 VAR spawn_pos_y
+	.byte 0
+VAR spawn_inside
 	.byte 0
 
 VAR active_save_slot

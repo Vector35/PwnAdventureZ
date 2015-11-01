@@ -179,7 +179,7 @@ selectloop:
 	and #JOY_RIGHT
 	bne salvage
 	lda controller
-	and #JOY_SELECT
+	and #JOY_SELECT | JOY_START
 	beq nobutton
 	jmp done
 

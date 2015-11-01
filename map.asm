@@ -24,6 +24,8 @@ genloop:
 	lda #17
 	sta cur_screen_y
 	sta spawn_screen_y
+	lda #0
+	sta spawn_inside
 
 	lda #^normal_overworld_map
 	sta map_bank
@@ -41,6 +43,8 @@ veryhard:
 	lda #11
 	sta cur_screen_y
 	sta spawn_screen_y
+	lda #0
+	sta spawn_inside
 
 	lda #^hard_overworld_map
 	sta map_bank

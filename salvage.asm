@@ -335,7 +335,7 @@ emptyloop:
 	and #JOY_RIGHT
 	bne emptyinventory
 	lda controller
-	and #JOY_SELECT
+	and #JOY_SELECT | JOY_START
 	beq emptyloop
 	jmp done
 

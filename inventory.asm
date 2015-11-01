@@ -153,7 +153,7 @@ selectloop:
 	and #JOY_RIGHT
 	bne craft
 	lda controller
-	and #JOY_SELECT
+	and #JOY_SELECT | JOY_START
 	beq nobutton
 	jmp done
 
