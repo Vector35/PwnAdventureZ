@@ -285,8 +285,8 @@ done:
 PROC remove_buyback_item
 	ldx selection
 moveloop:
-	lda buyback_item + 1, x
-	sta buyback_item, x
+	lda buyback_items + 1, x
+	sta buyback_items, x
 	lda buyback_price_low + 1, x
 	sta buyback_price_low, x
 	lda buyback_price_mid + 1, x
@@ -791,7 +791,7 @@ even:
 palettedone:
 	jsr wait_for_vblank
 
-	lda selection
+	ldx selection
 	lda buyback_items, x
 	jsr get_item_description
 	ldx #2

@@ -123,7 +123,7 @@ up:
 
 	jsr deselect_inventory_item
 	dec selection
-	jsr select_shop_item
+	jsr select_buy_item
 attop:
 	jmp waitfordepress
 
@@ -138,7 +138,7 @@ down:
 
 	jsr deselect_inventory_item
 	inc selection
-	jsr select_shop_item
+	jsr select_buy_item
 atbottom:
 	jmp waitfordepress
 
@@ -414,12 +414,12 @@ PROC render_buy_items
 	rts
 .endproc
 
-PROC select_shop_item
+PROC select_buy_item
 	lda current_bank
 	pha
-	lda #^do_select_shop_item
+	lda #^do_select_buy_item
 	jsr bankswitch
-	jsr do_select_shop_item & $ffff
+	jsr do_select_buy_item & $ffff
 	pla
 	jsr bankswitch
 	rts
@@ -519,7 +519,7 @@ itemend:
 	ldy #32 + 23
 	jsr write_string
 
-	jsr select_shop_item
+	jsr select_buy_item
 
 	LOAD_PTR inventory_palette
 	jsr fade_in
@@ -817,7 +817,7 @@ itemend:
 .endproc
 
 
-PROC do_select_shop_item
+PROC do_select_buy_item
 	lda selection
 	and #1
 	beq even

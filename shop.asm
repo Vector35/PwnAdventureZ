@@ -629,6 +629,7 @@ PROC do_setup_town_gun_shop
 	sta sell_price_low + 4
 
 	lda #ITEM_FUEL
+	sta sell_items + 5
 	lda #0
 	sta sell_price_high + 5
 	lda #2

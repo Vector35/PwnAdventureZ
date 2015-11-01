@@ -41,7 +41,7 @@ nextitem:
 
 	lda valid_shop_count
 	beq nosetupselect
-	jsr select_shop_item
+	jsr select_sell_item
 nosetupselect:
 
 	lda #30
@@ -102,7 +102,7 @@ up:
 
 	jsr deselect_inventory_item
 	dec selection
-	jsr select_shop_item
+	jsr select_sell_item
 attop:
 	jmp waitfordepress
 
@@ -117,7 +117,7 @@ down:
 
 	jsr deselect_inventory_item
 	inc selection
-	jsr select_shop_item
+	jsr select_sell_item
 atbottom:
 	jmp waitfordepress
 
@@ -245,9 +245,6 @@ invalidsell:
 	rts
 
 validsell:
-	ldx arg2
-	jsr add_buyback_item
-
 	; Take away item
 	sec
 	sbc #1
@@ -256,9 +253,6 @@ validsell:
 	jmp deleteitem
 
 sellgun:
-	ldx arg2
-	jsr add_buyback_item
-
 	; Selling a gun will remove the item no matter what the ammo count is
 	ldx arg2
 	lda sell_items, x
@@ -330,6 +324,9 @@ nocarry1:
 	sta gold + 2
 	sta gold + 3
 notmax:
+
+	ldx arg2
+	jsr add_buyback_item
 
 	; Refresh item indexes as they may have changed
 	lda #0
@@ -442,6 +439,17 @@ PROC render_sell_items
 	rts
 .endproc
 
+PROC select_sell_item
+	lda current_bank
+	pha
+	lda #^do_select_sell_item
+	jsr bankswitch
+	jsr do_select_sell_item & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
 
 .segment "UI"
 
@@ -543,7 +551,7 @@ hasitems:
 
 notempty:
 	jsr render_sell_items
-	jsr select_shop_item
+	jsr select_sell_item
 
 itemend:
 	LOAD_PTR inventory_palette
@@ -839,6 +847,152 @@ nextitem:
 	jmp itemloop & $ffff
 
 itemend:
+	rts
+.endproc
+
+
+PROC do_select_sell_item
+	lda selection
+	and #1
+	beq even
+
+	lda selection
+	lsr
+	sta temp
+	asl
+	clc
+	adc temp
+	adc #16 + 3
+	sta temp
+
+	lda #3
+	sta arg0
+	lda temp
+	sta arg1
+	lda #13
+	sta arg2
+	lda temp
+	sta arg3
+	lda #0
+	sta arg4
+	jsr wait_for_vblank
+	jsr set_box_palette
+	jsr prepare_for_rendering
+	jmp palettedone & $ffff
+
+even:
+	lda selection
+	lsr
+	sta temp
+	asl
+	clc
+	adc temp
+	adc #16 + 1
+	sta temp
+
+	lda #3
+	sta arg0
+	lda temp
+	sta arg1
+	lda #13
+	sta arg2
+	lda temp
+	sta arg3
+	lda #0
+	sta arg4
+	jsr wait_for_vblank
+	jsr set_box_palette
+	jsr prepare_for_rendering
+
+	lda selection
+	lsr
+	sta temp
+	asl
+	clc
+	adc temp
+	adc #16 + 2
+	sta temp
+
+	lda #3
+	sta arg0
+	lda temp
+	sta arg1
+	lda #13
+	sta arg2
+	lda temp
+	sta arg3
+	lda #0
+	sta arg4
+	jsr wait_for_vblank
+	jsr set_box_palette
+	jsr prepare_for_rendering
+	jmp palettedone & $ffff
+
+palettedone:
+	jsr wait_for_vblank
+
+	lda selection
+	tax
+	lda valid_shop_list, x
+	tax
+	lda sell_items, x
+	jsr get_item_description
+	ldx #2
+	ldy #32 + 21
+	jsr write_string
+
+	jsr prepare_for_rendering
+
+	lda selection
+	sta temp
+	asl
+	clc
+	adc temp
+	asl
+	asl
+	asl
+	adc #24
+	sta temp
+
+	sta sprites
+	lda #$5c
+	sta sprites + 1
+	lda #0
+	sta sprites + 2
+	lda #58
+	sta sprites + 3
+
+	lda temp
+	clc
+	adc #13
+	sta sprites + 4
+	lda #$5c
+	sta sprites + 5
+	lda #SPRITE_FLIP_VERT
+	sta sprites + 6
+	lda #58
+	sta sprites + 7
+
+	lda temp
+	sta sprites + 8
+	lda #$5c
+	sta sprites + 9
+	lda #SPRITE_FLIP_HORIZ
+	sta sprites + 10
+	lda #222
+	sta sprites + 11
+
+	lda temp
+	clc
+	adc #13
+	sta sprites + 12
+	lda #$5c
+	sta sprites + 13
+	lda #SPRITE_FLIP_HORIZ | SPRITE_FLIP_VERT
+	sta sprites + 14
+	lda #222
+	sta sprites + 15
+
 	rts
 .endproc
 
