@@ -11,7 +11,7 @@ PwnAdventureZ.nes: $(OBJS) flagemu.o Makefile mapper1.cfg PwnAdventureZ_prg.bin
 	python usage.py
 	python tools/map2nl.py PwnAdventureZ.map
 	tools/makehtml.sh
-	zip PwnAdventureZ.zip PwnAdventureZ.nes* PwnAdventureZ.map instructions.txt
+	zip -q PwnAdventureZ.zip PwnAdventureZ.nes* PwnAdventureZ.map instructions.txt
 
 PwnAdventureZ_prg.bin: $(OBJS) flagreal.o Makefile mapper1.cfg
 	$(LD65) -C mapper1.cfg -o PwnAdventureZ_physical.nes $(OBJS) flagreal.o -vm --mapfile PwnAdventureZ.map
