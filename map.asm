@@ -952,6 +952,8 @@ PROC get_flag
 	jsr disable_rendering
 	jsr clear_screen
 
+	LOAD_ALL_TILES $0, inventory_ui_tiles
+
 	; Draw text
 	LOAD_PTR flag_strings
 	ldx #8
@@ -971,6 +973,7 @@ PROC get_flag
 	jsr fade_in
 
 end:
+	jsr wait_for_vblank
 	jmp end
 .endproc
 

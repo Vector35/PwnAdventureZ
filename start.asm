@@ -310,7 +310,14 @@ VAR version_hash
 .segment "CHR2"
 .segment "CHR3"
 .segment "CHR4"
-.segment "CHR5"
+.segment "AUDIO0"
+.segment "AUDIO1"
+.segment "AUDIO2"
+.segment "AUDIO3"
+.segment "AUDIO4"
+.segment "AUDIO5"
+.segment "AUDIO6"
+.segment "AUDIO7"
 
 
 .segment "CODEIDENT"
@@ -329,31 +336,31 @@ VAR current_bank
 .segment "CHR4IDENT"
 .byte 4
 
-.segment "CHR5IDENT"
+.segment "AUDIO0IDENT"
 .byte 5
 
-.segment "AUDIO0IDENT"
+.segment "AUDIO1IDENT"
 .byte 6
 
-.segment "AUDIO1IDENT"
+.segment "AUDIO2IDENT"
 .byte 7
 
-.segment "AUDIO2IDENT"
+.segment "AUDIO3IDENT"
 .byte 8
 
-.segment "AUDIO3IDENT"
+.segment "AUDIO4IDENT"
 .byte 9
 
-.segment "AUDIO4IDENT"
+.segment "AUDIO5IDENT"
 .byte 10
 
-.segment "AUDIO5IDENT"
+.segment "AUDIO6IDENT"
 .byte 11
 
-.segment "AUDIO6IDENT"
+.segment "AUDIO7IDENT"
 .byte 12
 
-.segment "AUDIO7IDENT"
+.segment "UIIDENT"
 .byte 13
 
 .segment "EXTRAIDENT"

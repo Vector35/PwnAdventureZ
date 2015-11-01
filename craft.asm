@@ -43,118 +43,11 @@ nextitem:
 	cpx #12
 	bne checkloop
 
-	; Draw box around inventory screen
-	lda #1
-	sta arg0
-	lda #32 + 1
-	sta arg1
-	lda #28
-	sta arg2
-	lda #32 + 22
-	sta arg3
-	jsr draw_large_box
-
-	LOAD_PTR crafting_str
-	ldx #4
-	ldy #32 + 1
-	jsr write_string
-
-	; Set palette for title
-	lda #2
-	sta arg0
-	lda #16 + 0
-	sta arg1
-	lda #4
-	sta arg2
-	lda #16 + 0
-	sta arg3
-	lda #2
-	sta arg4
-	jsr set_box_palette
-
-	lda #10
-	sta arg0
-	lda #16 + 0
-	sta arg1
-	lda #13
-	sta arg2
-	lda #16 + 0
-	sta arg3
-	lda #2
-	sta arg4
-	jsr set_box_palette
-
-	; Set palette for inside of box
-	lda #1
-	sta arg0
-	lda #16 + 1
-	sta arg1
-	lda #13
-	sta arg2
-	lda #16 + 9
-	sta arg3
-	lda #1
-	sta arg4
-	jsr set_box_palette
-
-	; Set palette for components
-	lda #1
-	sta arg0
-	lda #16 + 10
-	sta arg1
-	lda #13
-	sta arg2
-	lda #16 + 10
-	sta arg3
-	lda #3
-	sta arg4
-	jsr set_box_palette
-
-	; Set palette for status area
-	lda #0
-	sta arg0
-	lda #16 + 12
-	sta arg1
-	lda #14
-	sta arg2
-	lda #16 + 13
-	sta arg3
-	lda #1
-	sta arg4
-	jsr set_box_palette
-
-	jsr render_inventory_status_bar
-
-	; Draw help text
-	LOAD_PTR crafting_help_str
-	ldx #2
-	ldy #32 + 23
-	jsr write_string
-
-	; Draw requirements text
-	LOAD_PTR requirements_tiles
-	ldx #2
-	ldy #32 + 19
-	lda #6
-	jsr write_tiles
-
-	LOAD_PTR crafting_have_tiles
-	ldx #25
-	ldy #32 + 19
-	lda #3
-	jsr write_tiles
-
-	; Draw initial items
 	lda #0
 	sta selection
 	lda #0
 	sta scroll
-	jsr render_crafting_items
-	jsr select_crafting_item
-
-	LOAD_PTR inventory_palette
-	jsr fade_in
-
+	jsr render_crafting_screen
 	jsr select_crafting_item
 
 	lda #30
@@ -538,6 +431,17 @@ getcountstr:
 
 .segment "FIXED"
 
+PROC render_crafting_screen
+	lda current_bank
+	pha
+	lda #^do_render_crafting_screen
+	jsr bankswitch
+	jsr do_render_crafting_screen & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
 PROC render_crafting_items
 	lda current_bank
 	pha
@@ -561,7 +465,120 @@ PROC select_crafting_item
 .endproc
 
 
-.segment "EXTRA"
+.segment "UI"
+
+PROC do_render_crafting_screen
+	; Draw box around inventory screen
+	lda #1
+	sta arg0
+	lda #32 + 1
+	sta arg1
+	lda #28
+	sta arg2
+	lda #32 + 22
+	sta arg3
+	jsr draw_large_box
+
+	LOAD_PTR crafting_str
+	ldx #4
+	ldy #32 + 1
+	jsr write_string
+
+	; Set palette for title
+	lda #2
+	sta arg0
+	lda #16 + 0
+	sta arg1
+	lda #4
+	sta arg2
+	lda #16 + 0
+	sta arg3
+	lda #2
+	sta arg4
+	jsr set_box_palette
+
+	lda #10
+	sta arg0
+	lda #16 + 0
+	sta arg1
+	lda #13
+	sta arg2
+	lda #16 + 0
+	sta arg3
+	lda #2
+	sta arg4
+	jsr set_box_palette
+
+	; Set palette for inside of box
+	lda #1
+	sta arg0
+	lda #16 + 1
+	sta arg1
+	lda #13
+	sta arg2
+	lda #16 + 9
+	sta arg3
+	lda #1
+	sta arg4
+	jsr set_box_palette
+
+	; Set palette for components
+	lda #1
+	sta arg0
+	lda #16 + 10
+	sta arg1
+	lda #13
+	sta arg2
+	lda #16 + 10
+	sta arg3
+	lda #3
+	sta arg4
+	jsr set_box_palette
+
+	; Set palette for status area
+	lda #0
+	sta arg0
+	lda #16 + 12
+	sta arg1
+	lda #14
+	sta arg2
+	lda #16 + 13
+	sta arg3
+	lda #1
+	sta arg4
+	jsr set_box_palette
+
+	jsr render_inventory_status_bar
+
+	; Draw help text
+	LOAD_PTR crafting_help_str
+	ldx #2
+	ldy #32 + 23
+	jsr write_string
+
+	; Draw requirements text
+	LOAD_PTR requirements_tiles
+	ldx #2
+	ldy #32 + 19
+	lda #6
+	jsr write_tiles
+
+	LOAD_PTR crafting_have_tiles
+	ldx #25
+	ldy #32 + 19
+	lda #3
+	jsr write_tiles
+
+	; Draw initial items
+	jsr render_crafting_items
+	jsr select_crafting_item
+
+	LOAD_PTR inventory_palette
+	jsr fade_in
+
+	rts
+.endproc
+
 
 PROC do_render_crafting_items
 	lda #0

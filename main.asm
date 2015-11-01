@@ -323,7 +323,7 @@ namedone:
 	lda secret_code
 ;	beq nocode
 
-	lda #1
+	lda #5
 	sta gold
 
 	lda #ITEM_PISTOL

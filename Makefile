@@ -7,7 +7,7 @@ CHR = $(wildcard *.chr)
 
 PwnAdventureZ.nes: $(OBJS) flagemu.o Makefile mapper1.cfg PwnAdventureZ_prg.bin
 	$(LD65) -C mapper1.cfg -o $@ $(OBJS) flagemu.o -vm --mapfile PwnAdventureZ.map
-	md5 -q PwnAdventureZ.map | xxd -r -p | dd of=PwnAdventureZ.nes bs=1 seek=131078 count=4 conv=notrunc
+	md5 -q PwnAdventureZ.map | xxd -r -p | dd of=PwnAdventureZ.nes bs=1 seek=262150 count=4 conv=notrunc
 	python usage.py
 	python tools/map2nl.py PwnAdventureZ.map
 	tools/makehtml.sh
@@ -15,7 +15,7 @@ PwnAdventureZ.nes: $(OBJS) flagemu.o Makefile mapper1.cfg PwnAdventureZ_prg.bin
 
 PwnAdventureZ_prg.bin: $(OBJS) flagreal.o Makefile mapper1.cfg
 	$(LD65) -C mapper1.cfg -o PwnAdventureZ_physical.nes $(OBJS) flagreal.o -vm --mapfile PwnAdventureZ.map
-	md5 -q PwnAdventureZ.map | xxd -r -p | dd of=PwnAdventureZ_physical.nes bs=1 seek=131078 count=4 conv=notrunc
+	md5 -q PwnAdventureZ.map | xxd -r -p | dd of=PwnAdventureZ_physical.nes bs=1 seek=262150 count=4 conv=notrunc
 	dd if=PwnAdventureZ_physical.nes of=PwnAdventureZ_prg.bin bs=1 skip=16
 
 $(CA65) $(LD65):

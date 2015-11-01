@@ -481,10 +481,51 @@ PROC do_gen_shop_inside
 PROC shop_npc_interact
 	lda interaction_tile_x
 	cmp #7
-	beq shopkeeper
+	beq guns
+	cmp #3
+	beq drinks
 	rts
 
-shopkeeper:
+guns:
+	jsr setup_town_gun_shop
+	jsr show_shop
+	rts
+
+drinks:
+	jsr setup_town_coffee_shop
+	jsr show_shop
+	rts
+.endproc
+
+
+.segment "FIXED"
+
+PROC setup_town_gun_shop
+	lda current_bank
+	pha
+	lda #^do_setup_town_gun_shop
+	jsr bankswitch
+	jsr do_setup_town_gun_shop & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+PROC setup_town_coffee_shop
+	lda current_bank
+	pha
+	lda #^do_setup_town_coffee_shop
+	jsr bankswitch
+	jsr do_setup_town_coffee_shop & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+.segment "EXTRA"
+
+PROC do_setup_town_gun_shop
 	lda #ITEM_PISTOL
 	sta purchase_items
 	lda #0
@@ -531,6 +572,7 @@ shopkeeper:
 	sta purchase_price_low + 4
 
 	lda #ITEM_FUEL
+	sta purchase_items + 5
 	lda #0
 	sta purchase_price_high + 5
 	lda #4
@@ -538,9 +580,137 @@ shopkeeper:
 	lda #0
 	sta purchase_price_low + 5
 
-	lda #5
+	lda #6
 	sta purchase_item_count
-	jsr show_shop
+
+	lda #ITEM_PISTOL
+	sta sell_items
+	lda #0
+	sta sell_price_high
+	lda #2
+	sta sell_price_mid
+	lda #0
+	sta sell_price_low
+
+	lda #ITEM_SMG
+	sta sell_items + 1
+	lda #1
+	sta sell_price_high + 1
+	lda #0
+	sta sell_price_mid + 1
+	lda #0
+	sta sell_price_low + 1
+
+	lda #ITEM_ROCKET
+	sta sell_items + 2
+	lda #1
+	sta sell_price_high + 2
+	lda #0
+	sta sell_price_mid + 2
+	lda #0
+	sta sell_price_low + 2
+
+	lda #ITEM_METAL
+	sta sell_items + 3
+	lda #0
+	sta sell_price_high + 3
+	lda #0
+	sta sell_price_mid + 3
+	lda #1
+	sta sell_price_low + 3
+
+	lda #ITEM_GUNPOWDER
+	sta sell_items + 4
+	lda #0
+	sta sell_price_high + 4
+	lda #0
+	sta sell_price_mid + 4
+	lda #1
+	sta sell_price_low + 4
+
+	lda #ITEM_FUEL
+	lda #0
+	sta sell_price_high + 5
+	lda #2
+	sta sell_price_mid + 5
+	lda #5
+	sta sell_price_low + 5
+
+	lda #6
+	sta sell_item_count
+	rts
+.endproc
+
+
+PROC do_setup_town_coffee_shop
+	lda #ITEM_COFFEE
+	sta purchase_items
+	lda #0
+	sta purchase_price_high
+	lda #1
+	sta purchase_price_mid
+	lda #0
+	sta purchase_price_low
+
+	lda #ITEM_WINE
+	sta purchase_items + 1
+	lda #0
+	sta purchase_price_high + 1
+	lda #7
+	sta purchase_price_mid + 1
+	lda #5
+	sta purchase_price_low + 1
+
+	lda #2
+	sta purchase_item_count
+
+	lda #ITEM_HEALTH_KIT
+	sta sell_items
+	lda #0
+	sta sell_price_high
+	lda #2
+	sta sell_price_mid
+	lda #0
+	sta sell_price_low
+
+	lda #ITEM_CLOTH
+	sta sell_items + 1
+	lda #0
+	sta sell_price_high + 1
+	lda #0
+	sta sell_price_mid + 1
+	lda #1
+	sta sell_price_low + 1
+
+	lda #ITEM_GEM
+	sta sell_items + 2
+	lda #0
+	sta sell_price_high + 2
+	lda #3
+	sta sell_price_mid + 2
+	lda #5
+	sta sell_price_low + 2
+
+	lda #ITEM_COFFEE
+	sta sell_items + 3
+	lda #0
+	sta sell_price_high + 3
+	lda #0
+	sta sell_price_mid + 3
+	lda #5
+	sta sell_price_low + 3
+
+	lda #ITEM_WINE
+	sta sell_items + 4
+	lda #0
+	sta sell_price_high + 4
+	lda #4
+	sta sell_price_mid + 4
+	lda #0
+	sta sell_price_low + 4
+
+	lda #5
+	sta sell_item_count
 	rts
 .endproc
 

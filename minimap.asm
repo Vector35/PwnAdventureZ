@@ -42,7 +42,7 @@ clearsprites:
 .endproc
 
 
-.segment "EXTRA"
+.segment "UI"
 
 PROC show_minimap
 	ldx #0

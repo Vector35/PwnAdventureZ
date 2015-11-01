@@ -2,75 +2,27 @@
 
 .code
 
-PROC show_shop
-	ldx #0
-palettesaveloop:
-	lda active_palette, x
-	sta saved_palette, x
-	inx
-	cpx #32
-	bne palettesaveloop
-
-	lda ppu_settings
-	sta saved_ppu_settings
-
-	jsr fade_out
-
-	lda #PPUCTRL_ENABLE_NMI | PPUCTRL_SPRITE_SIZE | PPUCTRL_NAMETABLE_2000
-	sta ppu_settings
-
-	jmp show_buy_tab
-.endproc
-
-PROC show_buy_tab
+PROC show_buyback_tab
 	jsr clear_alt_screen
 	LOAD_ALL_TILES $000, inventory_ui_tiles
-
-	; Determine which items are possible to buy (don't imclude guns the player already has)
-	lda #0
-	sta arg0
-	sta valid_shop_count
-
-checkloop:
-	ldx arg0
-	lda purchase_items, x
-	jsr find_item
-	ldx valid_shop_count
-	sta valid_shop_index, x
-	cmp #$ff
-	beq noitem
-
-	ldx arg0
-	lda purchase_items, x
-	jsr get_item_type
-	cmp #ITEM_TYPE_GUN
-	bne noitem
-
-	; Item is a gun that is already owned by the player, do not include in list
-	jmp nextitem
-
-noitem:
-	lda arg0
-	ldx valid_shop_count
-	sta valid_shop_list, x
-	inc valid_shop_count
-
-nextitem:
-	ldx arg0
-	inx
-	stx arg0
-	cpx purchase_item_count
-	bne checkloop
 
 	lda #0
 	sta selection
 	lda #0
 	sta scroll
-	jsr render_buy_screen
+	jsr render_buyback_screen
+
+	lda buyback_count
+	beq nosetupselect
+	jsr select_buyback_item
+nosetupselect:
 
 	lda #30
 	sta repeat_time
 
+	lda buyback_count
+	bne selectloop
+	jmp emptyloop
 selectloop:
 	jsr update_controller
 	jsr wait_for_vblank
@@ -85,19 +37,19 @@ selectloop:
 	bne buypressed
 	lda controller
 	and #JOY_LEFT
-	bne buyback
+	bne sell
 	lda controller
 	and #JOY_RIGHT
-	bne sell
+	bne buy
 	lda controller
 	and #JOY_SELECT | JOY_START
 	beq nobutton
 	jmp done
 
-buyback:
+buy:
 	PLAY_SOUND_EFFECT effect_uimove
 	jsr fade_out
-	jmp show_buyback_tab
+	jmp show_buy_tab
 
 sell:
 	PLAY_SOUND_EFFECT effect_uimove
@@ -113,7 +65,7 @@ downpressed:
 	jmp down
 
 buypressed:
-	jmp buy
+	jmp buyback
 
 up:
 	lda selection
@@ -123,7 +75,7 @@ up:
 
 	jsr deselect_inventory_item
 	dec selection
-	jsr select_shop_item
+	jsr select_buyback_item
 attop:
 	jmp waitfordepress
 
@@ -131,25 +83,20 @@ down:
 	lda selection
 	clc
 	adc #1
-	cmp valid_shop_count
+	cmp buyback_count
 	beq atbottom
 
 	PLAY_SOUND_EFFECT effect_uimove
 
 	jsr deselect_inventory_item
 	inc selection
-	jsr select_shop_item
+	jsr select_buyback_item
 atbottom:
 	jmp waitfordepress
 
-buy:
-	lda selection
-	tax
-	lda valid_shop_list, x
-	tax
-	stx arg0
-
-	lda purchase_items, x
+buyback:
+	ldx selection
+	lda buyback_items, x
 	jsr find_item
 	cmp #$ff
 	beq notfull
@@ -162,19 +109,19 @@ buy:
 	jmp waitfordepress
 
 notfull:
-	ldx arg0
+	ldx selection
 	lda gold
 	bne buyok
 	lda gold + 1
-	cmp purchase_price_high, x
+	cmp buyback_price_high, x
 	bcc notenough
 	bne buyok
 	lda gold + 2
-	cmp purchase_price_mid, x
+	cmp buyback_price_mid, x
 	bcc notenough
 	bne buyok
 	lda gold + 3
-	cmp purchase_price_low, x
+	cmp buyback_price_low, x
 	bcc notenough
 	jmp buyok
 
@@ -184,21 +131,21 @@ notenough:
 buyok:
 	lda gold + 3
 	sec
-	sbc purchase_price_low, x
+	sbc buyback_price_low, x
 	bcs nocarry3
 	sbc #$f5
 	clc
 nocarry3:
 	sta gold + 3
 	lda gold + 2
-	sbc purchase_price_mid, x
+	sbc buyback_price_mid, x
 	bcs nocarry2
 	sbc #$f5
 	clc
 nocarry2:
 	sta gold + 2
 	lda gold + 1
-	sbc purchase_price_high, x
+	sbc buyback_price_high, x
 	bcs nocarry1
 	sbc #$f5
 	clc
@@ -208,18 +155,16 @@ nocarry1:
 	sbc #0
 	sta gold
 
-	lda purchase_items, x
-	sta arg0
+	lda buyback_items, x
 	jsr get_item_type
 	cmp #ITEM_TYPE_GUN
 	bne notgun
 
-	lda arg0
-	jsr buy_gun
+	jsr buyback_gun
 	jmp buydone & $ffff
 
 notgun:
-	jsr buy_item
+	jsr buyback_item
 
 buydone:
 	PLAY_SOUND_EFFECT effect_buy
@@ -232,11 +177,37 @@ buydone:
 	jsr write_string
 	jsr prepare_for_rendering
 
-	lda controller
-	and #JOY_B
-	beq waitfordepresslong
-	jmp selectloop
-	jmp shortwaitfordepress
+	jsr deselect_inventory_item
+	jsr remove_buyback_item
+
+	lda selection
+	cmp buyback_count
+	bne notlast
+	cmp #0
+	beq nowempty
+
+	dec selection
+
+notlast:
+	jsr select_buyback_item
+	jmp waitfordepress
+
+nowempty:
+	jsr wait_for_vblank_if_rendering
+	LOAD_PTR no_items_str
+	ldx #11
+	ldy #32 + 11
+	jsr write_string
+	jsr prepare_for_rendering
+
+	jsr wait_for_vblank_if_rendering
+	LOAD_PTR clear_item_description_str
+	ldx #2
+	ldy #32 + 21
+	jsr write_string
+	jsr prepare_for_rendering
+
+	jmp emptyloop
 
 shortwaitfordepress:
 	lda repeat_time
@@ -246,9 +217,6 @@ shortwaitfordepress:
 	jsr wait_for_frame_count
 	lda #3
 	sta repeat_time
-
-	ldx #8
-	jsr wait_for_frame_count
 	jmp selectloop
 
 waitfordepresslong:
@@ -277,6 +245,25 @@ waitfordepresstimeout:
 	sta repeat_time
 	jmp selectloop
 
+emptyloop:
+	jsr update_controller
+	jsr wait_for_vblank
+	lda controller
+	and #JOY_LEFT
+	bne emptysell
+	lda controller
+	and #JOY_RIGHT
+	bne emptybuy
+	lda controller
+	and #JOY_SELECT | JOY_START
+	beq emptyloop
+	jmp done
+
+emptysell:
+	jmp sell
+emptybuy:
+	jmp buy
+
 done:
 	PLAY_SOUND_EFFECT effect_select
 
@@ -295,142 +282,88 @@ done:
 .endproc
 
 
-PROC buy_gun
-	ldx #12
-	jsr give_weapon
-
-	; Guns can only be bought once
+PROC remove_buyback_item
 	ldx selection
 moveloop:
-	lda valid_shop_list + 1, x
-	sta valid_shop_list, x
+	lda buyback_item + 1, x
+	sta buyback_item, x
+	lda buyback_price_low + 1, x
+	sta buyback_price_low, x
+	lda buyback_price_mid + 1, x
+	sta buyback_price_mid, x
+	lda buyback_price_high + 1, x
+	sta buyback_price_high, x
 
 	inx
-	cpx valid_shop_count
+	cpx buyback_count
 	bne moveloop
 
-	dec valid_shop_count
+	dec buyback_count
 
-	; Refresh item indexes as they may have changed
-	lda #0
-	sta arg0
-refreshloop:
-	ldx arg0
-	lda valid_shop_list, x
-	tax
-	lda purchase_items, x
-	jsr find_item
-	ldx arg0
-	sta valid_shop_index, x
-	ldx arg0
-	inx
-	stx arg0
-	cpx valid_shop_count
-	bne refreshloop
-
-	jsr render_buy_items
-	jsr clear_last_buy_item
+	jsr render_buyback_items
+	jsr clear_last_buyback_item
 	rts
 .endproc
 
 
-PROC buy_item
-	lda arg0
+PROC buyback_gun
+	ldx selection
+	lda buyback_items, x
+	ldx #12
+	jsr give_weapon
+	rts
+.endproc
+
+
+PROC buyback_item
+	ldx selection
+	lda buyback_items, x
 	jsr give_item
-
-	; Refresh item indexes as they may have changed
-	lda #0
-	sta arg0
-refreshloop:
-	ldx arg0
-	lda valid_shop_list, x
-	tax
-	lda purchase_items, x
-	jsr find_item
-	ldx arg0
-	sta valid_shop_index, x
-	ldx arg0
-	inx
-	stx arg0
-	cpx valid_shop_count
-	bne refreshloop
-
-	; Get string with item count
-	lda selection
-	tax
-	lda valid_shop_index, x
-	cmp #$ff
-	bne nonzerocount
-	lda #0
-	jmp getcountstr & $ffff
-nonzerocount:
-	asl
-	tax
-	lda inventory, x
-getcountstr:
-	jsr byte_to_padded_str
-
-	; Draw item count
-	jsr wait_for_vblank
-
-	LOAD_PTR scratch
-	ldx #7
-	lda selection
-	sta arg0
-	asl
-	clc
-	adc arg0
-	adc #32 + 3
-	tay
-	jsr write_string
-
-	jsr prepare_for_rendering
-
 	rts
 .endproc
 
 
 .segment "FIXED"
 
-PROC render_buy_screen
+PROC render_buyback_screen
 	lda current_bank
 	pha
-	lda #^do_render_buy_screen
+	lda #^do_render_buyback_screen
 	jsr bankswitch
-	jsr do_render_buy_screen & $ffff
+	jsr do_render_buyback_screen & $ffff
 	pla
 	jsr bankswitch
 	rts
 .endproc
 
-PROC render_buy_items
+PROC render_buyback_items
 	lda current_bank
 	pha
-	lda #^do_render_buy_items
+	lda #^do_render_buyback_items
 	jsr bankswitch
-	jsr do_render_buy_items & $ffff
+	jsr do_render_buyback_items & $ffff
 	pla
 	jsr bankswitch
 	rts
 .endproc
 
-PROC select_shop_item
+PROC select_buyback_item
 	lda current_bank
 	pha
-	lda #^do_select_shop_item
+	lda #^do_select_buyback_item
 	jsr bankswitch
-	jsr do_select_shop_item & $ffff
+	jsr do_select_buyback_item & $ffff
 	pla
 	jsr bankswitch
 	rts
 .endproc
 
-PROC clear_last_buy_item
+PROC clear_last_buyback_item
 	lda current_bank
 	pha
-	lda #^do_clear_last_buy_item
+	lda #^do_clear_last_buyback_item
 	jsr bankswitch
-	jsr do_clear_last_buy_item & $ffff
+	jsr do_clear_last_buyback_item & $ffff
 	pla
 	jsr bankswitch
 	rts
@@ -439,7 +372,7 @@ PROC clear_last_buy_item
 
 .segment "UI"
 
-PROC do_render_buy_screen
+PROC do_render_buyback_screen
 	; Draw box around buy screen
 	lda #1
 	sta arg0
@@ -451,7 +384,7 @@ PROC do_render_buy_screen
 	sta arg3
 	jsr draw_large_box
 
-	LOAD_PTR buy_str
+	LOAD_PTR buyback_str
 	ldx #4
 	ldy #32 + 1
 	jsr write_string
@@ -461,7 +394,7 @@ PROC do_render_buy_screen
 	sta arg0
 	lda #16 + 0
 	sta arg1
-	lda #5
+	lda #4
 	sta arg2
 	lda #16 + 0
 	sta arg3
@@ -469,7 +402,7 @@ PROC do_render_buy_screen
 	sta arg4
 	jsr set_box_palette
 
-	lda #10
+	lda #11
 	sta arg0
 	lda #16 + 0
 	sta arg1
@@ -508,7 +441,17 @@ PROC do_render_buy_screen
 	jsr set_box_palette
 
 	; Draw initial items
-	jsr render_buy_items
+	lda buyback_count
+	bne notempty
+
+	LOAD_PTR no_items_str
+	ldx #11
+	ldy #32 + 11
+	jsr write_string
+	jmp itemend & $ffff
+
+notempty:
+	jsr render_buyback_items
 
 itemend:
 	jsr render_inventory_status_bar
@@ -519,20 +462,18 @@ itemend:
 	ldy #32 + 23
 	jsr write_string
 
-	jsr select_shop_item
-
 	LOAD_PTR inventory_palette
 	jsr fade_in
 
 	rts
 .endproc
 
-PROC do_render_buy_items
+PROC do_render_buyback_items
 	lda #0
 	sta arg0
 itemloop:
 	lda arg0
-	cmp valid_shop_count
+	cmp buyback_count
 	bne hasitem
 	jmp itemend & $ffff
 
@@ -588,9 +529,7 @@ count:
 	tax
 	lda arg0
 	tay
-	lda valid_shop_list, y
-	tay
-	lda purchase_items, y
+	lda buyback_items, y
 	jsr load_item_sprite_tiles
 
 	jsr prepare_for_rendering
@@ -630,60 +569,17 @@ count:
 
 	jsr wait_for_vblank_if_rendering
 
-	; Get string with item count
-	lda arg0
-	tax
-	lda valid_shop_index, x
-	cmp #$ff
-	bne nonzerocount
-	lda #0
-	jmp getcountstr & $ffff
-nonzerocount:
-	asl
-	tax
-	lda inventory, x
-getcountstr:
-	jsr byte_to_padded_str
-
 	; Get the item type
 	lda arg0
 	tax
-	lda valid_shop_list, x
-	tax
-	lda purchase_items, x
+	lda buyback_items, x
 	jsr get_item_type
 	sta arg2
-	cmp #ITEM_TYPE_GUN
-	bne notgun
-	lda #' '
-	sta scratch
-	sta scratch + 1
-	lda #'1'
-	sta scratch + 2
-notgun:
-
-	lda #$40
-	sta scratch + 3
-	lda #0
-	sta scratch + 4
-
-	; Draw item count
-	LOAD_PTR scratch
-	ldx #7
-	lda arg0
-	asl
-	clc
-	adc arg0
-	adc #32 + 3
-	tay
-	jsr write_string
 
 	; Draw item name
 	lda arg0
 	tax
-	lda valid_shop_list, x
-	tax
-	lda purchase_items, x
+	lda buyback_items, x
 	jsr get_item_name
 	ldx #12
 	lda arg0
@@ -744,18 +640,16 @@ drawtype:
 	; Draw item price
 	lda arg0
 	tax
-	lda valid_shop_list, x
-	tax
-	lda purchase_price_high, x
+	lda buyback_price_high, x
 	beq twodigit
 
 	clc
 	adc #$30
 	sta scratch + 1
-	lda purchase_price_mid, x
+	lda buyback_price_mid, x
 	adc #$30
 	sta scratch + 2
-	lda purchase_price_low, x
+	lda buyback_price_low, x
 	adc #$30
 	sta scratch + 3
 	lda #'$'
@@ -766,13 +660,13 @@ drawtype:
 	jmp renderprice & $ffff
 
 twodigit:
-	lda purchase_price_mid, x
+	lda buyback_price_mid, x
 	beq onedigit
 
 	clc
 	adc #$30
 	sta scratch + 2
-	lda purchase_price_low, x
+	lda buyback_price_low, x
 	adc #$30
 	sta scratch + 3
 	lda #' '
@@ -785,7 +679,7 @@ twodigit:
 	jmp renderprice & $ffff
 
 onedigit:
-	lda purchase_price_low, x
+	lda buyback_price_low, x
 	clc
 	adc #$30
 	sta scratch + 3
@@ -817,7 +711,7 @@ itemend:
 .endproc
 
 
-PROC do_select_shop_item
+PROC do_select_buyback_item
 	lda selection
 	and #1
 	beq even
@@ -898,10 +792,7 @@ palettedone:
 	jsr wait_for_vblank
 
 	lda selection
-	tax
-	lda valid_shop_list, x
-	tax
-	lda purchase_items, x
+	lda buyback_items, x
 	jsr get_item_description
 	ldx #2
 	ldy #32 + 21
@@ -963,10 +854,10 @@ palettedone:
 .endproc
 
 
-PROC do_clear_last_buy_item
+PROC do_clear_last_buyback_item
 	jsr wait_for_vblank_if_rendering
 
-	lda valid_shop_count
+	lda buyback_count
 	beq noitems
 	LOAD_PTR clear_item_tiles
 	jmp renderbox & $ffff
@@ -975,10 +866,10 @@ noitems:
 
 renderbox:
 	ldx #2
-	lda valid_shop_count
+	lda buyback_count
 	asl
 	clc
-	adc valid_shop_count
+	adc buyback_count
 	adc #32 + 2
 	sta arg1
 	tay
@@ -1008,10 +899,10 @@ renderbox:
 
 	LOAD_PTR clear_item_str
 	ldx #7
-	lda valid_shop_count
+	lda buyback_count
 	asl
 	clc
-	adc valid_shop_count
+	adc buyback_count
 	adc #32 + 3
 	sta arg1
 	tay
@@ -1042,32 +933,20 @@ renderbox:
 
 .data
 
-VAR buy_str
-	.byte "BUYBACK", $3c, $3c, $3b, " BUY ", $3d, $3c, $3c, "SELL", 0
-
-VAR buy_help_str
-	.byte "A:BUY  B:REPEAT  ", $23, "/", $25, ":TAB", 0
+VAR buyback_str
+	.byte "SELL", $3c, $3c, $3b, " BUYBACK ", $3d, $3c, $3c, "BUY", 0
 
 
-.segment "TEMP"
+.bss
 
-VAR valid_shop_list
+VAR buyback_items
+	.byte 0, 0, 0, 0, 0, 0
+VAR buyback_price_high
+	.byte 0, 0, 0, 0, 0, 0
+VAR buyback_price_mid
+	.byte 0, 0, 0, 0, 0, 0
+VAR buyback_price_low
 	.byte 0, 0, 0, 0, 0, 0
 
-VAR valid_shop_index
-	.byte 0, 0, 0, 0, 0, 0
-
-VAR valid_shop_count
-	.byte 0
-
-VAR purchase_items
-	.byte 0, 0, 0, 0, 0, 0
-VAR purchase_price_high
-	.byte 0, 0, 0, 0, 0, 0
-VAR purchase_price_mid
-	.byte 0, 0, 0, 0, 0, 0
-VAR purchase_price_low
-	.byte 0, 0, 0, 0, 0, 0
-
-VAR purchase_item_count
+VAR buyback_count
 	.byte 0

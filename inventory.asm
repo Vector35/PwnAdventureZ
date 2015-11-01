@@ -26,107 +26,11 @@ PROC show_inventory_tab
 	jsr clear_alt_screen
 	LOAD_ALL_TILES $000, inventory_ui_tiles
 
-	; Draw box around inventory screen
-	lda #1
-	sta arg0
-	lda #32 + 1
-	sta arg1
-	lda #28
-	sta arg2
-	lda #32 + 22
-	sta arg3
-	jsr draw_large_box
-
-	LOAD_PTR inventory_str
-	ldx #3
-	ldy #32 + 1
-	jsr write_string
-
-	; Set palette for title
-	lda #1
-	sta arg0
-	lda #16 + 0
-	sta arg1
-	lda #4
-	sta arg2
-	lda #16 + 0
-	sta arg3
-	lda #2
-	sta arg4
-	jsr set_box_palette
-
-	lda #10
-	sta arg0
-	lda #16 + 0
-	sta arg1
-	lda #13
-	sta arg2
-	lda #16 + 0
-	sta arg3
-	lda #2
-	sta arg4
-	jsr set_box_palette
-
-	; Set palette for inside of box
-	lda #1
-	sta arg0
-	lda #16 + 1
-	sta arg1
-	lda #13
-	sta arg2
-	lda #16 + 10
-	sta arg3
-	lda #1
-	sta arg4
-	jsr set_box_palette
-
-	; Set palette for status area
-	lda #0
-	sta arg0
-	lda #16 + 12
-	sta arg1
-	lda #14
-	sta arg2
-	lda #16 + 13
-	sta arg3
-	lda #1
-	sta arg4
-	jsr set_box_palette
-
-	; Draw initial items
 	lda #0
 	sta selection
 	lda #0
 	sta scroll
-
-	lda inventory_count
-	bne notempty
-
-	LOAD_PTR no_items_str
-	ldx #11
-	ldy #32 + 11
-	jsr write_string
-	jmp itemend
-
-notempty:
-	jsr render_inventory_items
-
-itemend:
-	jsr render_inventory_status_bar
-
-	; Draw help text
-	LOAD_PTR inventory_help_str
-	ldx #1
-	ldy #32 + 23
-	jsr write_string
-
-	lda inventory_count
-	beq nosetupselect
-	jsr select_inventory_item
-nosetupselect:
-
-	LOAD_PTR inventory_palette
-	jsr fade_in
+	jsr render_inventory_screen
 
 	lda #30
 	sta repeat_time
@@ -523,6 +427,17 @@ done:
 
 .segment "FIXED"
 
+PROC render_inventory_screen
+	lda current_bank
+	pha
+	lda #^do_render_inventory_screen
+	jsr bankswitch
+	jsr do_render_inventory_screen & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
 PROC render_inventory_status_bar
 	lda current_bank
 	pha
@@ -590,7 +505,109 @@ PROC deselect_inventory_item
 .endproc
 
 
-.segment "EXTRA"
+.segment "UI"
+
+PROC do_render_inventory_screen
+	; Draw box around inventory screen
+	lda #1
+	sta arg0
+	lda #32 + 1
+	sta arg1
+	lda #28
+	sta arg2
+	lda #32 + 22
+	sta arg3
+	jsr draw_large_box
+
+	LOAD_PTR inventory_str
+	ldx #3
+	ldy #32 + 1
+	jsr write_string
+
+	; Set palette for title
+	lda #1
+	sta arg0
+	lda #16 + 0
+	sta arg1
+	lda #4
+	sta arg2
+	lda #16 + 0
+	sta arg3
+	lda #2
+	sta arg4
+	jsr set_box_palette
+
+	lda #10
+	sta arg0
+	lda #16 + 0
+	sta arg1
+	lda #13
+	sta arg2
+	lda #16 + 0
+	sta arg3
+	lda #2
+	sta arg4
+	jsr set_box_palette
+
+	; Set palette for inside of box
+	lda #1
+	sta arg0
+	lda #16 + 1
+	sta arg1
+	lda #13
+	sta arg2
+	lda #16 + 10
+	sta arg3
+	lda #1
+	sta arg4
+	jsr set_box_palette
+
+	; Set palette for status area
+	lda #0
+	sta arg0
+	lda #16 + 12
+	sta arg1
+	lda #14
+	sta arg2
+	lda #16 + 13
+	sta arg3
+	lda #1
+	sta arg4
+	jsr set_box_palette
+
+	; Draw initial items
+	lda inventory_count
+	bne notempty
+
+	LOAD_PTR no_items_str
+	ldx #11
+	ldy #32 + 11
+	jsr write_string
+	jmp itemend & $ffff
+
+notempty:
+	jsr render_inventory_items
+
+itemend:
+	jsr render_inventory_status_bar
+
+	; Draw help text
+	LOAD_PTR inventory_help_str
+	ldx #1
+	ldy #32 + 23
+	jsr write_string
+
+	lda inventory_count
+	beq nosetupselect
+	jsr select_inventory_item
+nosetupselect:
+
+	LOAD_PTR inventory_palette
+	jsr fade_in
+
+	rts
+.endproc
+
 
 PROC do_render_inventory_status_bar
 	jsr load_area_name_tiles
