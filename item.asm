@@ -730,7 +730,7 @@ TILES pants_tiles, 3, "tiles/items/pants.chr", 4
 TILES shirt_tiles, 3, "tiles/items/shirt.chr", 4
 TILES sneakers_tiles, 3, "tiles/items/sneakers.chr", 4
 TILES sticks_tiles, 3, "tiles/items/sticks.chr", 4
-TILES wine_tiles, 3, "tiles/items/wine.chr", 4
+TILES wine_tiles, 3, "tiles/items/bottle.chr", 4
 TILES axe_tiles, 3, "tiles/weapons/axe.chr", 4
 TILES grenade_tiles, 3, "tiles/weapons/grenade.chr", 4
 TILES ak_tiles, 3, "tiles/weapons/ak.chr", 4
