@@ -1812,6 +1812,7 @@ VAR enemy_descriptors
 	.word female_npc_2_descriptor
 	.word male_thin_npc_2_descriptor
 	.word female_thin_npc_2_descriptor
+	.word spider_descriptor
 
 
 VAR enemy_death_descriptor

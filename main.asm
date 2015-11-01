@@ -42,22 +42,6 @@ resume:
 	jmp map_viewer
 
 nomapviewer:
-	LOAD_PTR music_cave_ptr
-	lda #<music_cave_bank
-	sta arg0
-	lda #>music_cave_bank
-	sta arg1
-	lda #<music_cave_ptr
-	sta arg2
-	lda #>music_cave_ptr
-	sta arg3
-	lda #<music_cave_bank
-	sta arg4
-	lda #>music_cave_bank
-	sta arg5
-	lda #^music_cave_ptr
-	jsr play_music
-
 	jsr game_loop
 	rts
 .endproc

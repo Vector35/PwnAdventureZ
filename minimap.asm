@@ -339,6 +339,13 @@ done:
 	lda controller
 	bne done
 
+	lda selection
+	cmp #1
+	bne noquit
+
+	jsr stop_music
+
+noquit:
 	PLAY_SOUND_EFFECT effect_select
 
 	jsr fade_out
@@ -360,6 +367,9 @@ done:
 
 quit:
 	jsr save
+
+	ldx #20
+	jsr wait_for_frame_count
 	jmp start
 .endproc
 

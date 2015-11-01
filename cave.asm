@@ -48,6 +48,90 @@ PROC gen_starting_cave
 
 PROC gen_cave_interior
 	jsr gen_cave_common
+
+	; Create enemies
+	jsr prepare_spawn
+	jsr restore_enemies
+	bne restoredspawn
+
+	lda difficulty
+	cmp #1
+	beq hard
+	cmp #2
+	beq veryhard
+
+	lda #4
+	jsr rand_range
+	clc
+	adc #1
+	tax
+	jmp spawnloop & $ffff
+
+hard:
+	lda #5
+	jsr rand_range
+	clc
+	adc #2
+	tax
+	jmp spawnloop & $ffff
+
+veryhard:
+	lda #3
+	jsr rand_range
+	clc
+	adc #5
+	tax
+
+spawnloop:
+	txa
+	pha
+
+	lda #5
+	jsr rand_range
+	tax
+	lda cave_enemy_types, x
+	jsr spawn_starting_enemy
+
+	pla
+	tax
+	dex
+	bne spawnloop
+
+restoredspawn:
+	rts
+.endproc
+
+
+PROC gen_blocky_cave_interior
+	jsr gen_cave_common
+
+	; Create enemies
+	jsr prepare_spawn
+	jsr restore_enemies
+	bne restoredspawn
+
+	lda #2
+	jsr rand_range
+	clc
+	adc #1
+	tax
+
+spawnloop:
+	txa
+	pha
+
+	lda #3
+	jsr rand_range
+	tax
+	lda cave_enemy_types, x
+	jsr spawn_starting_enemy
+
+	pla
+	tax
+	dex
+	bne spawnloop
+
+restoredspawn:
 	rts
 .endproc
 
@@ -69,9 +153,13 @@ PROC gen_cave_common
 .segment "EXTRA"
 
 PROC do_gen_cave_common
+	lda #MUSIC_CAVE
+	jsr play_music
+
 	; Load cave tiles
 	LOAD_ALL_TILES $080, cave_border_tiles
 	jsr init_zombie_sprites
+	jsr init_spider_sprites
 
 	; Set up collision and spawning info
 	lda #$80 + BORDER_INTERIOR
@@ -470,6 +558,10 @@ VAR cave_palette
 VAR starting_chest_descriptor
 	.word is_starting_chest_interactable
 	.word starting_chest_interact
+
+
+VAR cave_enemy_types
+	.byte ENEMY_NORMAL_MALE_ZOMBIE, ENEMY_NORMAL_FEMALE_ZOMBIE, ENEMY_SPIDER, ENEMY_SPIDER, ENEMY_SPIDER
 
 
 TILES cave_border_tiles, 2, "tiles/cave/border.chr", 60

@@ -2,7 +2,7 @@
 
 .segment "FIXED"
 
-PROC play_music
+PROC play_music_ptr
 	sta temp
 
 	lda #0
@@ -69,6 +69,91 @@ PROC play_music
 
 	lda #1
 	sta music_playing
+	rts
+.endproc
+
+
+PROC play_music
+	cmp #0
+	bne hasmusic
+
+	jsr stop_music
+	rts
+
+hasmusic:
+	cmp music_index
+	bne newmusic
+	rts
+
+newmusic:
+	sta music_index
+
+	sec
+	sbc #1
+	asl
+	tay
+	lda music_descriptors, y
+	sta temp
+	lda music_descriptors + 1, y
+	sta temp + 1
+
+	ldy #0
+	lda (temp), y
+	sta ptr
+	iny
+	lda (temp), y
+	sta ptr + 1
+
+	iny
+	lda (temp), y
+	sta arg0
+	iny
+	lda (temp), y
+	sta arg1
+
+	iny
+	lda (temp), y
+	sta arg2
+	iny
+	lda (temp), y
+	sta arg3
+	iny
+	lda (temp), y
+	sta arg4
+	iny
+	lda (temp), y
+	sta arg5
+
+	iny
+	lda (temp), y
+	jsr play_music_ptr
+	rts
+.endproc
+
+
+PROC stop_music
+	lda #0
+	sta music_playing
+
+	lda #MUSIC_NONE
+	sta music_index
+
+	; Silence any notes from the music
+	lda #$30
+	sta SQ1_VOL
+	sta SQ2_VOL
+
+	lda sound_effect_playing
+	bne soundeffect
+
+	lda #0
+	sta TRI_LINEAR
+	lda #0
+	sta TRI_HI
+	lda #$30
+	sta NOISE_VOL
+
+soundeffect:
 	rts
 .endproc
 
@@ -408,6 +493,8 @@ VAR music_reg_state_ptr
 
 VAR music_playing
 	.byte 0
+VAR music_index
+	.byte 0
 VAR music_page_list_bank
 	.byte 0
 VAR music_page_bank
@@ -440,7 +527,7 @@ VAR music_loop_bank_ptr
 .include "audio/neonstarlight.asm"
 .include "audio/neonstarlight_loop.asm"
 
-.segment "AUDIO0"
+.segment "AUDIO1"
 .include "audio/craft.asm"
 .include "audio/enemydie.asm"
 .include "audio/enemyhit.asm"
@@ -457,3 +544,20 @@ VAR music_loop_bank_ptr
 
 .segment "AUDIO1"
 .include "audio/cave.asm"
+
+
+.data
+
+VAR cave_music_desc
+	.word music_cave_ptr & $ffff, music_cave_bank & $ffff
+	.word music_cave_ptr & $ffff, music_cave_bank & $ffff
+	.byte ^music_cave_ptr
+
+VAR forest_music_desc
+	.word neonstarlight_ptr & $ffff, neonstarlight_bank & $ffff
+	.word neonstarlight_loop_ptr & $ffff, neonstarlight_loop_bank & $ffff
+	.byte ^neonstarlight_ptr
+
+VAR music_descriptors
+	.word cave_music_desc
+	.word forest_music_desc

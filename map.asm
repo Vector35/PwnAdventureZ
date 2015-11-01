@@ -2491,19 +2491,19 @@ VAR flag_palette
 
 VAR initial_map_generators
 	.word gen_cave_start
-	.word start
+	.word gen_cave_interior
 	.word gen_cave_interior
 	.word gen_forest
 	.word gen_house
 	.word gen_shop
 	.word gen_park
-	.word start
+	.word gen_cave_interior
 	.word start;gen_boss
 	.word start;gen_base_horde
 	.word start;gen_base_interior
 	.word gen_blocky_treasure 
 	.word gen_blocky_puzzle
-	.word gen_cave_interior
+	.word gen_blocky_cave_interior
 	.word gen_starting_cave
 	.word gen_cave_interior
 	.word gen_cave_interior

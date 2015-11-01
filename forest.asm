@@ -41,6 +41,9 @@ PROC gen_forest
 .segment "EXTRA"
 
 PROC do_gen_forest
+	lda #MUSIC_FOREST
+	jsr play_music
+
 	; Load forest tiles
 	LOAD_ALL_TILES FOREST_TILES, forest_tiles
 	jsr init_zombie_sprites

@@ -48,6 +48,9 @@ PROC gen_blocky_treasure
 .segment "EXTRA"
 
 PROC do_gen_blocky_puzzle
+	lda #MUSIC_CAVE
+	jsr play_music
+
 	LOAD_ALL_TILES CAVE_TILE, cave_border_tiles
 	LOAD_ALL_TILES BIGDOOR_TILE, bigdoor_tiles
 	LOAD_ALL_TILES URN_TILE, urn_tiles 
@@ -170,6 +173,9 @@ done:
 .endproc
 
 PROC do_gen_blocky_treasure
+	lda #MUSIC_CAVE
+	jsr play_music
+
 	LOAD_ALL_TILES CAVE_TILE, cave_border_tiles
 	LOAD_ALL_TILES CHEST_TILE, treasure_tiles
 	LOAD_ALL_TILES URN_TILE, urn_tiles 
