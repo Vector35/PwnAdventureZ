@@ -330,17 +330,20 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define SPRITE_TILE_LASER         $100
 
 ; Effects
-.define EFFECT_PLAYER_BULLET        0
-.define EFFECT_DROP                 1
-.define EFFECT_ENEMY_DEATH          2
-.define EFFECT_PLAYER_BULLET_DAMAGE 3
-.define EFFECT_PLAYER_BULLET_HIT    4
-.define EFFECT_PLAYER_LMG_BULLET    5
-.define EFFECT_PLAYER_AK_BULLET     6
-.define EFFECT_PLAYER_SNIPER_BULLET 7
-.define EFFECT_SHARK_LASER          8
-.define EFFECT_SHARK_LASER_HIT      9
-.define EFFECT_SHARK_LASER_DAMAGE   10
+.define EFFECT_PLAYER_BULLET         0
+.define EFFECT_PLAYER_LMG_BULLET     1
+.define EFFECT_PLAYER_AK_BULLET      2
+.define EFFECT_PLAYER_SNIPER_BULLET  3
+.define EFFECT_PLAYER_SHOTGUN_BULLET 4
+.define EFFECT_PLAYER_LEFT_BULLET    5
+.define EFFECT_PLAYER_RIGHT_BULLET   6
+.define EFFECT_DROP                  7
+.define EFFECT_ENEMY_DEATH           8
+.define EFFECT_PLAYER_BULLET_DAMAGE  9
+.define EFFECT_PLAYER_BULLET_HIT     10
+.define EFFECT_SHARK_LASER           11
+.define EFFECT_SHARK_LASER_HIT       12
+.define EFFECT_SHARK_LASER_DAMAGE    13
 .define EFFECT_NONE                 $ff
 
 .define EFFECT_MAX_COUNT     16

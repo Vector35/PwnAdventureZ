@@ -523,13 +523,16 @@ VAR x_or_y_dominate
 
 VAR effect_descriptors
 	.word player_bullet_descriptor
+	.word player_lmg_bullet_descriptor
+	.word player_ak_bullet_descriptor
+	.word player_sniper_bullet_descriptor
+	.word player_shotgun_bullet_descriptor
+	.word player_left_bullet_descriptor
+	.word player_right_bullet_descriptor
 	.word drop_descriptor
 	.word enemy_death_descriptor
 	.word player_bullet_damage_descriptor
 	.word player_bullet_hit_descriptor
-	.word player_lmg_bullet_descriptor
-	.word player_ak_bullet_descriptor
-	.word player_sniper_bullet_descriptor
 	.word shark_laser_descriptor
 	.word shark_laser_hit_descriptor
 	.word shark_laser_damage_descriptor

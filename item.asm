@@ -399,6 +399,64 @@ failed:
 .endproc
 
 
+PROC fire_shotgun
+	jsr use_one_ammo
+
+	PLAY_SOUND_EFFECT effect_pistol
+
+	lda player_x
+	clc
+	adc #7
+	sta arg0
+	lda player_y
+	clc
+	adc #7
+	sta arg1
+	lda #EFFECT_PLAYER_SHOTGUN_BULLET
+	sta arg2
+	jsr get_player_direction_bits
+	sta arg3
+	jsr create_effect
+
+	lda player_x
+	clc
+	adc #7
+	sta arg0
+	lda player_y
+	clc
+	adc #7
+	sta arg1
+	lda #EFFECT_PLAYER_LEFT_BULLET
+	sta arg2
+	jsr get_player_direction_bits
+	sta arg3
+	jsr create_effect
+
+	lda player_x
+	clc
+	adc #7
+	sta arg0
+	lda player_y
+	clc
+	adc #7
+	sta arg1
+	lda #EFFECT_PLAYER_RIGHT_BULLET
+	sta arg2
+	jsr get_player_direction_bits
+	sta arg3
+	jsr create_effect
+
+	cmp #$ff
+	beq failed
+
+	lda #30
+	sta attack_cooldown
+
+failed:
+	rts
+.endproc
+
+
 .segment "FIXED"
 
 PROC find_item
@@ -616,7 +674,7 @@ VAR ak_item
 	.byte "FAMOUS FOR RELIABILITY    ", 0
 
 VAR shotgun_item
-	.word 0
+	.word fire_shotgun
 	.word shotgun_tiles & $ffff
 	.byte ITEM_TYPE_GUN
 	.byte "SHOTGUN        ", 0
