@@ -1660,6 +1660,7 @@ VAR interaction_descriptors
 	.word blocky_bigdoor
 	.word blocky_chest
 	.word shop_npc_descriptor
+	.word starting_note_descriptor
 
 VAR player_bullet_descriptor
 	.word player_bullet_tick

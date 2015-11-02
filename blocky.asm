@@ -19,6 +19,7 @@
 .define BIGDOOR_PALETTE 1
 .define URN_PALETTE     0
 .define CHEST_PALETTE   0
+.define NOTE_PALETTE    2
 
 .segment "FIXED"
 
@@ -649,7 +650,7 @@ VAR blocky_chest
 VAR blocky_palette
 	.byte $0f, $07, $17, $27
 	.byte $0f, $1d, $3d, $2d
-	.byte $0f, $07, $17, $27
+	.byte $0f, $16, $27, $37
 	.byte $0f, $07, $17, $27
 
 

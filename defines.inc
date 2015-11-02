@@ -313,6 +313,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define INTERACT_BIGDOOR          2
 .define INTERACT_BLOCKY_CHEST     3
 .define INTERACT_SHOP_NPC         4
+.define INTERACT_STARTING_NOTE    5
 .define INTERACT_NONE             $ff
 
 .define INTERACT_DESC_IS_VALID 0
