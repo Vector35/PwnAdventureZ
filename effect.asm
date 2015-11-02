@@ -6,6 +6,7 @@ PROC init_effect_sprites
 	LOAD_ALL_TILES $100 + SPRITE_TILE_BULLET, bullet_tiles
 	LOAD_ALL_TILES $100 + SPRITE_TILE_SPLAT, splat_tiles
 	LOAD_ALL_TILES $100 + SPRITE_TILE_ORB, orb_tiles
+;	LOAD_ALL_TILES $100 + SPRITE_TILE_LASER, laser_tiles
 
 	ldx #0
 	lda #EFFECT_NONE
@@ -369,13 +370,14 @@ done:
 .endproc
 
 
+.segment "FIXED"
+
 PROC remove_effect
 	ldx cur_effect
 	lda #EFFECT_NONE
 	sta effect_type, x
 	rts
 .endproc
-
 
 PROC create_effect
 	; Find a free effect slot
@@ -502,16 +504,20 @@ VAR effect_time
 	.byte 0
 	.endrepeat
 
+;Laser uses to store fractional pixel
 VAR effect_data_0
 	.repeat EFFECT_MAX_COUNT
 	.byte 0
 	.endrepeat
-
+;Laser uses to store accumulator
 VAR effect_data_1
 	.repeat EFFECT_MAX_COUNT
 	.byte 0
 	.endrepeat
 
+; used to determine if delta x or delta y is larger one bit per EFFECT
+VAR x_or_y_dominate
+	.byte 0, 0
 
 .data
 
@@ -521,6 +527,10 @@ VAR effect_descriptors
 	.word enemy_death_descriptor
 	.word player_bullet_damage_descriptor
 	.word player_bullet_hit_descriptor
+	.word shark_laser_descriptor
+	.word shark_laser_hit_descriptor
+	.word shark_laser_damage_descriptor
 
 
 TILES bullet_tiles, 2, "tiles/effects/bullet.chr", 6
+TILES laser_tiles, 2, "tiles/effects/laser.chr", 7

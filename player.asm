@@ -1,5 +1,27 @@
 .include "defines.inc"
 
+.segment "FIXED"
+
+PROC get_player_tile
+	lda player_x
+	lsr
+	lsr
+	lsr
+	lsr
+	adc #0 ; Round to nearest
+	tax
+
+	lda player_y
+	lsr
+	lsr
+	lsr
+	lsr
+	adc #0 ; Round to nearest
+	tay
+
+	rts
+.endproc
+
 .code
 
 PROC init_player_sprites
@@ -881,27 +903,6 @@ PROC update_player_surroundings
 	lda PPUDATA
 	lda PPUDATA
 	sta player_down_tile
-
-	rts
-.endproc
-
-
-PROC get_player_tile
-	lda player_x
-	lsr
-	lsr
-	lsr
-	lsr
-	adc #0 ; Round to nearest
-	tax
-
-	lda player_y
-	lsr
-	lsr
-	lsr
-	lsr
-	adc #0 ; Round to nearest
-	tay
 
 	rts
 .endproc
