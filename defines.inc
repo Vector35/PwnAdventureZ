@@ -163,7 +163,8 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define MAP_SECRET_SHOP        39
 .define MAP_OUTPOST_SHOP       40
 .define MAP_SEWER_DOWN         41
-.define MAP_TYPE_COUNT         42
+.define MAP_OUTPOST_SHOP       42
+.define MAP_TYPE_COUNT         43
 
 ; Map parameters
 .define MAP_WIDTH  15
