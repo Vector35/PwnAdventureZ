@@ -730,3 +730,6 @@ VAR secret_code
 
 VAR gold
 	.byte 0, 0, 0, 0
+
+.segment "CHR4"
+.incbin "simple-forensics-challenge/flag-comment.png"
