@@ -6,6 +6,7 @@
 .define BIGDOOR_TILE3 $0d4
 .define BIGDOOR_TILE4 $0e0
 .define URN_TILE      $0ec
+.define NOTE_TILE     $0fc
 
 ;bigdoor and chest tile are not in the same room so
 ; no overlap actually exists
@@ -180,6 +181,7 @@ PROC do_gen_blocky_treasure
 	LOAD_ALL_TILES CAVE_TILE, cave_border_tiles
 	LOAD_ALL_TILES CHEST_TILE, treasure_tiles
 	LOAD_ALL_TILES URN_TILE, urn_tiles 
+	LOAD_ALL_TILES NOTE_TILE, note_tiles
 	; Load cave palette
 	LOAD_PTR blocky_palette
 	jsr load_background_game_palette
@@ -198,15 +200,26 @@ PROC do_gen_blocky_treasure
 	jsr process_border_sides
 
 
-	lda #INTERACT_BLOCKY_CHEST 
+	lda #INTERACT_BLOCKY_CHEST
 	sta interactive_tile_types
 	lda #CHEST_TILE + TILE1
 	sta interactive_tile_values
+
+	lda #INTERACT_BLOCKY_NOTE
+	sta interactive_tile_types + 1
+	lda #NOTE_TILE
+	sta interactive_tile_values + 1
 
 	; Place the treasure chest
 	ldx #7
 	ldy #3
 	lda #CHEST_TILE + TILE1 + CHEST_PALETTE
+	jsr write_gen_map
+
+	; Place the flag note
+	ldx #7
+	ldy #5
+	lda #NOTE_TILE + NOTE_PALETTE
 	jsr write_gen_map
 
 	; Place some urns around the room for some ambiance
@@ -616,6 +629,14 @@ done:
 	;TODO: HAX they got here without solving the puzzle kill them with FIRE!
 	rts
 .endproc
+
+PROC blocky_note_interact
+	LOAD_PTR blocky_flag_text
+	lda #^blocky_flag_text
+	jsr show_chat_text
+	rts
+.endproc
+
 .bss
 
 VAR blocky_state
@@ -646,6 +667,10 @@ VAR blocky_bigdoor
 VAR blocky_chest
 	.word always_interactable
 	.word blocky_chest_interact
+
+VAR blocky_note_descriptor
+	.word always_interactable
+	.word blocky_note_interact
 
 VAR blocky_palette
 	.byte $0f, $07, $17, $27
