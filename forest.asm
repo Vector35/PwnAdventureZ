@@ -62,6 +62,16 @@ PROC do_gen_forest
 	jsr load_background_game_palette
 
 	; Determine which kind of border (if there is one) needs to be generated
+	jsr read_overworld_cur
+	and #$3f
+	cmp #MAP_DEAD_WOOD
+	bne notdeadwood
+
+	lda #MAP_LAKE
+	sta temp
+	jmp bordertypedone & $ffff
+
+notdeadwood:
 	jsr read_overworld_up
 	and #$3f
 	sta temp
@@ -245,6 +255,15 @@ cave_boundary:
 	jmp boundarydone & $ffff
 
 lake_boundary:
+	jsr read_overworld_cur
+	and #$3f
+	cmp #MAP_DEAD_WOOD
+	bne normallake
+
+	jsr gen_forest_dead_wood_boundary & $ffff
+	jmp boundarydone & $ffff
+
+normallake:
 	jsr gen_forest_lake_boundary & $ffff
 	jmp boundarydone & $ffff
 
@@ -507,13 +526,13 @@ botnotrock:
 
 
 PROC gen_forest_lake_boundary
-	; Generate borders of rock type with the rock tile set
+	; Generate borders of lake type with the lake tile set
 	jsr read_overworld_left
 	and #$3f
 	jsr is_map_type_forest
 	bne leftnotlake
 	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
-	jsr gen_left_wall_large
+	jsr gen_left_wall_very_large
 
 leftnotlake:
 	jsr read_overworld_right
@@ -521,7 +540,7 @@ leftnotlake:
 	jsr is_map_type_forest
 	bne rightnotlake
 	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
-	jsr gen_right_wall_large
+	jsr gen_right_wall_very_large
 
 rightnotlake:
 	jsr read_overworld_up
@@ -529,7 +548,7 @@ rightnotlake:
 	jsr is_map_type_forest
 	bne topnotlake
 	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
-	jsr gen_top_wall_large
+	jsr gen_top_wall_very_large
 
 topnotlake:
 	jsr read_overworld_down
@@ -537,7 +556,40 @@ topnotlake:
 	jsr is_map_type_forest
 	bne botnotlake
 	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
-	jsr gen_bot_wall_large
+	jsr gen_bot_wall_very_large
+
+botnotlake:
+	; Process the lake tiles to give them a contoured appearance
+	lda #BORDER_TILES + BORDER_PALETTE
+	jsr process_border_sides
+	rts
+.endproc
+
+
+PROC gen_forest_dead_wood_boundary
+	; Generate borders of lake type with the lake tile set
+	jsr can_travel_left
+	beq leftnotlake
+	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
+	jsr gen_left_wall_very_large
+
+leftnotlake:
+	jsr can_travel_right
+	beq rightnotlake
+	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
+	jsr gen_right_wall_very_large
+
+rightnotlake:
+	jsr can_travel_up
+	beq topnotlake
+	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
+	jsr gen_top_wall_very_large
+
+topnotlake:
+	jsr can_travel_down
+	beq botnotlake
+	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
+	jsr gen_bot_wall_very_large
 
 botnotlake:
 	; Process the lake tiles to give them a contoured appearance

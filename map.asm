@@ -1959,6 +1959,41 @@ PROC gen_left_wall_large
 .endproc
 
 
+PROC gen_left_wall_very_large
+	sta arg4
+
+	lda #2
+	jsr genrange_cur
+	clc
+	adc #1
+	sta arg2
+	sta left_wall_top_extent
+	lda #0
+	sta arg0
+	sta arg1
+	ldx left_opening_pos
+	dex
+	stx arg3
+	lda arg4
+	jsr fill_map_box
+
+	lda #2
+	jsr genrange_cur
+	clc
+	adc #1
+	sta arg2
+	sta left_wall_bot_extent
+	lda left_opening_pos
+	sta arg1
+	lda #MAP_HEIGHT - 1
+	sta arg3
+	lda arg4
+	jsr fill_map_box
+
+	rts
+.endproc
+
+
 PROC gen_right_wall_small
 	sta arg4
 
@@ -2045,6 +2080,49 @@ PROC gen_right_wall_large
 .endproc
 
 
+PROC gen_right_wall_very_large
+	sta arg4
+
+	lda #2
+	jsr genrange_cur
+	clc
+	adc #2
+	sta temp
+	lda #MAP_WIDTH
+	sec
+	sbc temp
+	sta arg0
+	sta right_wall_top_extent
+	lda #MAP_WIDTH
+	sta arg2
+	lda #0
+	sta arg1
+	ldx right_opening_pos
+	stx arg3
+	lda arg4
+	jsr fill_map_box
+
+	lda #2
+	jsr genrange_cur
+	clc
+	adc #2
+	sta temp
+	lda #MAP_WIDTH
+	sec
+	sbc temp
+	sta arg0
+	sta right_wall_bot_extent
+	lda right_opening_pos
+	sta arg1
+	lda #MAP_HEIGHT - 1
+	sta arg3
+	lda arg4
+	jsr fill_map_box
+
+	rts
+.endproc
+
+
 PROC gen_top_wall_small
 	sta arg4
 
@@ -2094,6 +2172,41 @@ PROC gen_top_wall_large
 
 	lda #3
 	jsr genrange_cur
+	sta arg3
+	sta top_wall_right_extent
+	lda top_opening_pos
+	sta arg0
+	lda #MAP_WIDTH - 1
+	sta arg2
+	lda arg4
+	jsr fill_map_box
+
+	rts
+.endproc
+
+
+PROC gen_top_wall_very_large
+	sta arg4
+
+	lda #2
+	jsr genrange_cur
+	clc
+	adc #1
+	sta arg3
+	sta top_wall_left_extent
+	lda #0
+	sta arg0
+	sta arg1
+	ldx top_opening_pos
+	dex
+	stx arg2
+	lda arg4
+	jsr fill_map_box
+
+	lda #2
+	jsr genrange_cur
+	clc
+	adc #1
 	sta arg3
 	sta top_wall_right_extent
 	lda top_opening_pos
@@ -2238,6 +2351,49 @@ PROC gen_bot_wall_large
 	jsr genrange_cur
 	clc
 	adc #1
+	sta temp
+	lda #MAP_HEIGHT
+	sec
+	sbc temp
+	sta arg1
+	sta bot_wall_right_extent
+	lda bot_opening_pos
+	sta arg0
+	lda #MAP_WIDTH - 1
+	sta arg2
+	lda arg4
+	jsr fill_map_box
+
+	rts
+.endproc
+
+
+PROC gen_bot_wall_very_large
+	sta arg4
+
+	lda #2
+	jsr genrange_cur
+	clc
+	adc #2
+	sta temp
+	lda #MAP_HEIGHT
+	sec
+	sbc temp
+	sta arg1
+	sta bot_wall_left_extent
+	lda #MAP_HEIGHT
+	sta arg3
+	lda #0
+	sta arg0
+	ldx bot_opening_pos
+	stx arg2
+	lda arg4
+	jsr fill_map_box
+
+	lda #2
+	jsr genrange_cur
+	clc
+	adc #2
 	sta temp
 	lda #MAP_HEIGHT
 	sec
