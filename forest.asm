@@ -48,6 +48,7 @@ PROC do_gen_forest
 	LOAD_ALL_TILES FOREST_TILES, forest_tiles
 	jsr init_zombie_sprites
 	jsr init_shark_sprites
+	jsr init_spider_sprites
 
 	; Set up collision and spawning info
 	lda #FOREST_TILES + FOREST_GRASS
@@ -395,10 +396,20 @@ nextblank:
 	bne yloop
 
 	; Create enemies
+	jsr read_overworld_cur
+	and #$3f
+	cmp #MAP_DEAD_WOOD
+	bne notdeadwoodspawn
+
+	jmp deadwoodspawn & $ffff
+
+notdeadwoodspawn:
 	jsr prepare_spawn
 	jsr restore_enemies
-	bne restoredspawn
+	beq notrestoredspawn
+	jmp restoredspawn & $ffff
 
+notrestoredspawn:
 	lda difficulty
 	cmp #1
 	beq hard
@@ -443,6 +454,55 @@ spawnloop:
 	tax
 	dex
 	bne spawnloop
+	jmp restoredspawn & $ffff
+
+deadwoodspawn:
+	jsr prepare_spawn
+	jsr restore_enemies
+	bne restoredspawn
+
+	lda difficulty
+	cmp #1
+	beq deadwoodhard
+	cmp #2
+	beq deadwoodveryhard
+
+	lda #3
+	jsr rand_range
+	clc
+	adc #2
+	tax
+	jmp deadwoodspawnloop & $ffff
+
+deadwoodhard:
+	lda #4
+	jsr rand_range
+	clc
+	adc #3
+	tax
+	jmp deadwoodspawnloop & $ffff
+
+deadwoodveryhard:
+	lda #3
+	jsr rand_range
+	clc
+	adc #5
+	tax
+
+deadwoodspawnloop:
+	txa
+	pha
+
+	lda #6
+	jsr rand_range
+	tax
+	lda forest_enemy_types, x
+	jsr spawn_starting_enemy
+
+	pla
+	tax
+	dex
+	bne deadwoodspawnloop
 
 restoredspawn:
 	rts
@@ -614,6 +674,9 @@ VAR forest_lake_border_palette
 
 VAR forest_enemy_types
 	.byte ENEMY_NORMAL_MALE_ZOMBIE, ENEMY_NORMAL_FEMALE_ZOMBIE, ENEMY_SHARK
+
+VAR dead_wood_enemy_types
+	.byte ENEMY_NORMAL_MALE_ZOMBIE, ENEMY_NORMAL_FEMALE_ZOMBIE, ENEMY_SPIDER, ENEMY_SPIDER, ENEMY_SHARK, ENEMY_SHARK
 
 
 TILES forest_tiles, 2, "tiles/forest/forest.chr", 8
