@@ -1143,6 +1143,15 @@ veryhard:
 	sta temp
 
 ok:
+	lda equipped_armor
+	cmp #ITEM_ARMOR
+	bne noarmor
+
+	lda temp
+	lsr
+	sta temp
+
+noarmor:
 	lda player_health
 	sec
 	sbc temp
@@ -1188,6 +1197,84 @@ PROC bullet_hit_enemy
 .endproc
 
 
+PROC lmg_bullet_hit_enemy
+	PLAY_SOUND_EFFECT effect_enemyhit
+
+	lda #20
+	jsr enemy_damage
+
+	jsr player_bullet_tick
+
+	ldx cur_effect
+	dec effect_x, x
+	dec effect_x, x
+	dec effect_x, x
+	dec effect_y, x
+	dec effect_y, x
+	dec effect_y, x
+	lda #EFFECT_PLAYER_BULLET_DAMAGE
+	sta effect_type, x
+	lda #SPRITE_TILE_BULLET_DAMAGE
+	sta effect_tile, x
+	lda #0
+	sta effect_time, x
+
+	rts
+.endproc
+
+
+PROC ak_bullet_hit_enemy
+	PLAY_SOUND_EFFECT effect_enemyhit
+
+	lda #12
+	jsr enemy_damage
+
+	jsr player_bullet_tick
+
+	ldx cur_effect
+	dec effect_x, x
+	dec effect_x, x
+	dec effect_x, x
+	dec effect_y, x
+	dec effect_y, x
+	dec effect_y, x
+	lda #EFFECT_PLAYER_BULLET_DAMAGE
+	sta effect_type, x
+	lda #SPRITE_TILE_BULLET_DAMAGE
+	sta effect_tile, x
+	lda #0
+	sta effect_time, x
+
+	rts
+.endproc
+
+
+PROC sniper_bullet_hit_enemy
+	PLAY_SOUND_EFFECT effect_enemyhit
+
+	lda #60
+	jsr enemy_damage
+
+	jsr player_bullet_tick
+
+	ldx cur_effect
+	dec effect_x, x
+	dec effect_x, x
+	dec effect_x, x
+	dec effect_y, x
+	dec effect_y, x
+	dec effect_y, x
+	lda #EFFECT_PLAYER_BULLET_DAMAGE
+	sta effect_type, x
+	lda #SPRITE_TILE_BULLET_DAMAGE
+	sta effect_tile, x
+	lda #0
+	sta effect_time, x
+
+	rts
+.endproc
+
+
 PROC bullet_hit_world
 	ldx cur_effect
 	dec effect_x, x
@@ -1198,6 +1285,35 @@ PROC bullet_hit_world
 	sta effect_tile, x
 	lda #0
 	sta effect_time, x
+	rts
+.endproc
+
+
+PROC sniper_bullet_hit_world
+	ldx cur_effect
+
+	lda effect_x, x
+	cmp #16
+	bcc collide
+	cmp #$e0
+	bcs collide
+	lda effect_y, x
+	cmp #16
+	bcc collide
+	cmp #$b0
+	bcc nocollide
+
+collide:
+	dec effect_x, x
+	dec effect_y, x
+	lda #EFFECT_PLAYER_BULLET_HIT
+	sta effect_type, x
+	lda #SPRITE_TILE_BULLET_HIT
+	sta effect_tile, x
+	lda #0
+	sta effect_time, x
+
+nocollide:
 	rts
 .endproc
 
@@ -1240,6 +1356,13 @@ notup:
 	inc effect_y, x
 
 notdown:
+	rts
+.endproc
+
+
+PROC player_ak_bullet_tick
+	jsr player_bullet_tick
+	jsr player_bullet_tick
 	rts
 .endproc
 
@@ -1398,6 +1521,33 @@ VAR player_bullet_descriptor
 	.word nothing
 	.word bullet_hit_enemy
 	.word bullet_hit_world
+	.byte SPRITE_TILE_BULLET, 0
+	.byte 2
+	.byte 3, 3
+
+VAR player_lmg_bullet_descriptor
+	.word player_bullet_tick
+	.word nothing
+	.word lmg_bullet_hit_enemy
+	.word bullet_hit_world
+	.byte SPRITE_TILE_BULLET, 0
+	.byte 2
+	.byte 3, 3
+
+VAR player_ak_bullet_descriptor
+	.word player_ak_bullet_tick
+	.word nothing
+	.word ak_bullet_hit_enemy
+	.word bullet_hit_world
+	.byte SPRITE_TILE_BULLET, 0
+	.byte 2
+	.byte 3, 3
+
+VAR player_sniper_bullet_descriptor
+	.word player_ak_bullet_tick
+	.word nothing
+	.word sniper_bullet_hit_enemy
+	.word sniper_bullet_hit_world
 	.byte SPRITE_TILE_BULLET, 0
 	.byte 2
 	.byte 3, 3

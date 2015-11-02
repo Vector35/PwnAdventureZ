@@ -521,6 +521,9 @@ VAR effect_descriptors
 	.word enemy_death_descriptor
 	.word player_bullet_damage_descriptor
 	.word player_bullet_hit_descriptor
+	.word player_lmg_bullet_descriptor
+	.word player_ak_bullet_descriptor
+	.word player_sniper_bullet_descriptor
 
 
 TILES bullet_tiles, 2, "tiles/effects/bullet.chr", 6

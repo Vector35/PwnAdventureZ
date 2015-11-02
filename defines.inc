@@ -336,6 +336,9 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define EFFECT_ENEMY_DEATH          2
 .define EFFECT_PLAYER_BULLET_DAMAGE 3
 .define EFFECT_PLAYER_BULLET_HIT    4
+.define EFFECT_PLAYER_LMG_BULLET    5
+.define EFFECT_PLAYER_AK_BULLET     6
+.define EFFECT_PLAYER_SNIPER_BULLET 7
 .define EFFECT_NONE                 $ff
 
 .define EFFECT_MAX_COUNT     16

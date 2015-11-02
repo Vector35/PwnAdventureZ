@@ -297,6 +297,108 @@ failed:
 .endproc
 
 
+PROC fire_lmg
+	jsr use_one_ammo
+
+	PLAY_SOUND_EFFECT effect_pistol
+
+	lda player_x
+	clc
+	adc #7
+	sta arg0
+	lda player_y
+	clc
+	adc #7
+	sta arg1
+	lda #EFFECT_PLAYER_LMG_BULLET
+	sta arg2
+	jsr get_player_direction_bits
+	sta arg3
+	jsr create_effect
+
+	cmp #$ff
+	beq failed
+
+	sta cur_effect
+	jsr player_bullet_tick
+	jsr player_bullet_tick
+
+	lda #18
+	sta attack_cooldown
+
+failed:
+	rts
+.endproc
+
+
+PROC fire_ak
+	jsr use_one_ammo
+
+	PLAY_SOUND_EFFECT effect_pistol
+
+	lda player_x
+	clc
+	adc #7
+	sta arg0
+	lda player_y
+	clc
+	adc #7
+	sta arg1
+	lda #EFFECT_PLAYER_AK_BULLET
+	sta arg2
+	jsr get_player_direction_bits
+	sta arg3
+	jsr create_effect
+
+	cmp #$ff
+	beq failed
+
+	sta cur_effect
+	jsr player_bullet_tick
+	jsr player_bullet_tick
+
+	lda #12
+	sta attack_cooldown
+
+failed:
+	rts
+.endproc
+
+
+PROC fire_sniper
+	jsr use_one_ammo
+
+	PLAY_SOUND_EFFECT effect_pistol
+
+	lda player_x
+	clc
+	adc #7
+	sta arg0
+	lda player_y
+	clc
+	adc #7
+	sta arg1
+	lda #EFFECT_PLAYER_SNIPER_BULLET
+	sta arg2
+	jsr get_player_direction_bits
+	sta arg3
+	jsr create_effect
+
+	cmp #$ff
+	beq failed
+
+	sta cur_effect
+	jsr player_bullet_tick
+	jsr player_bullet_tick
+
+	lda #60
+	sta attack_cooldown
+
+failed:
+	rts
+.endproc
+
+
 .segment "FIXED"
 
 PROC find_item
@@ -500,14 +602,14 @@ VAR smg_item
 	.byte "SMALL FULL AUTO WEAPON    ", 0
 
 VAR lmg_item
-	.word 0
+	.word fire_lmg
 	.word lmg_tiles & $ffff
 	.byte ITEM_TYPE_GUN
 	.byte "MACHINE GUN    ", 0
 	.byte "EFFECTIVE HEAVY WEAPON    ", 0
 
 VAR ak_item
-	.word 0
+	.word fire_ak
 	.word ak_tiles & $ffff
 	.byte ITEM_TYPE_GUN
 	.byte "AK RIFLE       ", 0
@@ -521,7 +623,7 @@ VAR shotgun_item
 	.byte "LEGENDARY ZOMBIE DEFENSE  ", 0
 
 VAR sniper_item
-	.word 0
+	.word fire_sniper
 	.word sniper_tiles & $ffff
 	.byte ITEM_TYPE_GUN
 	.byte "SNIPER RIFLE   ", 0

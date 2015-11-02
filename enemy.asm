@@ -525,6 +525,17 @@ PROC get_enemy_tile
 
 
 PROC walking_ai_tick
+	lda player_direction
+	and #4
+	bne nothidden
+
+	lda equipped_armor
+	cmp #ITEM_GHILLIE_SUIT
+	bne nothidden
+
+	jmp checkforidle
+
+nothidden:
 	; Check to see if the enemy can see the player in a direct line of sight
 	jsr get_enemy_tile
 	stx arg0
