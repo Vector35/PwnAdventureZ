@@ -17,7 +17,6 @@ name:
 	sta ptr + 1
 .endmacro
 
-
 ; Macro for defining and loading tiles
 .macro TILES var, seg, file, count
 .segment .concat("CHR", .string(seg))
@@ -328,7 +327,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define SPRITE_TILE_BULLET_HIT    $f4
 .define SPRITE_TILE_BULLET_DAMAGE $f6
 .define SPRITE_TILE_INTERACT      $f8
-
+.define SPRITE_TILE_LASER         $100
 
 ; Effects
 .define EFFECT_PLAYER_BULLET        0
@@ -339,6 +338,9 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define EFFECT_PLAYER_LMG_BULLET    5
 .define EFFECT_PLAYER_AK_BULLET     6
 .define EFFECT_PLAYER_SNIPER_BULLET 7
+.define EFFECT_SHARK_LASER          8
+.define EFFECT_SHARK_LASER_HIT      9
+.define EFFECT_SHARK_LASER_DAMAGE   10
 .define EFFECT_NONE                 $ff
 
 .define EFFECT_MAX_COUNT     16

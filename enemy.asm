@@ -2,6 +2,29 @@
 
 .segment "FIXED"
 
+PROC get_enemy_tile
+	ldy cur_enemy
+
+	lda enemy_x, y
+	lsr
+	lsr
+	lsr
+	lsr
+	adc #0 ; Round to nearest
+	tax
+
+	lda enemy_y, y
+	lsr
+	lsr
+	lsr
+	lsr
+	adc #0 ; Round to nearest
+	tay
+
+	rts
+.endproc
+
+
 PROC spawn_starting_enemy
 	sta arg5
 
@@ -500,28 +523,6 @@ down:
 	rts
 .endproc
 
-
-PROC get_enemy_tile
-	ldy cur_enemy
-
-	lda enemy_x, y
-	lsr
-	lsr
-	lsr
-	lsr
-	adc #0 ; Round to nearest
-	tax
-
-	lda enemy_y, y
-	lsr
-	lsr
-	lsr
-	lsr
-	adc #0 ; Round to nearest
-	tay
-
-	rts
-.endproc
 
 
 PROC walking_ai_tick
@@ -1806,7 +1807,6 @@ VAR shark_fire_count
 	.repeat ENEMY_MAX_COUNT
 	.byte 0
 	.endrepeat
-
 
 .data
 
