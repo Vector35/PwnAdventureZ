@@ -11,6 +11,8 @@
 .define SCRATCH_CLUTTER_COUNT      8
 .define SCRATCH_CLUTTER_SIZE       9
 
+.define NOTE_PALETTE 1
+
 .code
 
 PROC gen_cave_start
@@ -18,11 +20,22 @@ PROC gen_cave_start
 
 	; Place chest in the starting room to get the initial weapon
 	LOAD_ALL_TILES $0f0, chest_tiles
+	LOAD_ALL_TILES $0f8, note_tiles
 
 	lda #INTERACT_STARTING_CHEST
 	sta interactive_tile_types
 	lda #$f0
 	sta interactive_tile_values
+
+	lda #INTERACT_STARTING_NOTE
+	sta interactive_tile_types + 1
+	lda #$f8
+	sta interactive_tile_values + 1
+
+	ldx #9
+	ldy #3
+	lda #$f8 + NOTE_PALETTE
+	jsr write_gen_map
 
 	ldx #7
 	ldy #4
@@ -534,6 +547,17 @@ PROC starting_chest_interact
 .endproc
 
 
+PROC starting_note_interact
+	PLAY_SOUND_EFFECT effect_select
+
+	LOAD_PTR starting_note_text
+	lda #^starting_note_text
+	jsr show_chat_text
+
+	rts
+.endproc
+
+
 .bss
 VAR starting_chest_opened
 	.byte 0
@@ -551,13 +575,17 @@ VAR border_tile_wall
 .data
 VAR cave_palette
 	.byte $0f, $07, $17, $27
-	.byte $0f, $07, $17, $27
+	.byte $0f, $16, $27, $37
 	.byte $0f, $07, $17, $27
 	.byte $0f, $07, $17, $27
 
 VAR starting_chest_descriptor
 	.word is_starting_chest_interactable
 	.word starting_chest_interact
+
+VAR starting_note_descriptor
+	.word always_interactable
+	.word starting_note_interact
 
 
 VAR cave_enemy_types
@@ -566,6 +594,7 @@ VAR cave_enemy_types
 
 TILES cave_border_tiles, 2, "tiles/cave/border.chr", 60
 TILES chest_tiles, 2, "tiles/cave/chest2.chr", 8
+TILES note_tiles, 2, "tiles/items/note.chr", 4
 
 ; Place a lookup table for determining which tile to use based on the 8 surrounding tiles.  This
 ; is represented with a bit field, with $80 representing the top left and $01 representing the
@@ -635,3 +664,12 @@ VAR border_tile_for_sides
 	.byte BORDER_INNER_TOP_LEFT, BORDER_INNER_TOP_LEFT, BORDER_OUTER_CENTER_LEFT, BORDER_OUTER_CENTER_LEFT ; $f4
 	.byte BORDER_OUTER_TOP_CENTER, BORDER_OUTER_TOP_CENTER, BORDER_DOWN_BOTH, BORDER_OUTER_TOP_RIGHT ; $f8
 	.byte BORDER_OUTER_TOP_CENTER, BORDER_OUTER_TOP_CENTER, BORDER_OUTER_TOP_LEFT, BORDER_CENTER ; $fc
+
+
+.segment "UI"
+
+VAR starting_note_text
+	.byte "THE ZOMBIE APOCALYPSE", 0
+	.byte "IS UPON US! WE NEED", 0
+	.byte "HELP! MEET ME IN TOWN.", 0
+	.byte 0, 0

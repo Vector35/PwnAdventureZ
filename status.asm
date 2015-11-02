@@ -241,7 +241,7 @@ nofulltiles:
 	lda PPUSTATUS
 	lda #$02
 	sta PPUADDR
-	lda #$e8
+	lda #$b8
 	sta PPUADDR
 	lda health_bar_mask, y
 	sta PPUDATA
@@ -471,7 +471,7 @@ updatepartial:
 	lda PPUSTATUS
 	lda #$02
 	sta PPUADDR
-	lda #$e8
+	lda #$b8
 	sta PPUADDR
 	lda health_bar_mask, y
 	sta PPUDATA
@@ -551,12 +551,12 @@ VAR health_bar_top_tiles
 VAR health_bar_mid_tiles
 	.byte $28, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $29
 VAR health_bar_bot_tiles
-	.byte $61, $04, $05, $06, $07, $08, $09, $0a, $0b, $0c, $0d, $0e, $3e, $63
+	.byte $61, $04, $05, $06, $07, $08, $09, $0a, $0b, $0c, $0d, $0e, $5d, $63
 VAR health_bar_below_tiles
 	.byte $0f, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19
 
 VAR ammo_tiles
-	.byte $2a, $2b, $2c
+	.byte $5e, $5f, $64
 VAR clear_ammo_tiles
 	.byte $00, $00, $00
 VAR clear_ammo_str
@@ -568,7 +568,7 @@ VAR cur_item_mid_tiles
 	.byte $28, $00, $00, $29
 	.byte $28, $00, $00, $29
 VAR cur_item_bot_tiles
-	.byte $61, $3e, $3e, $63
+	.byte $61, $5d, $5d, $63
 
 VAR right_panel_top_tiles
 	.byte RIGHT_PANEL_TILES + 0, RIGHT_PANEL_TILES + 1
@@ -583,14 +583,14 @@ VAR health_bar_mask
 	.byte $00, $80, $c0, $e0, $f0, $f8, $fc, $fe
 
 VAR drop_health_tiles
-	.byte $2e, $00
+	.byte $2b, $00
 VAR increase_health_tiles
-	.byte $2d, $2e
+	.byte $2a, $2b
 
 VAR full_health_tiles
-	.byte $2d, $2d, $2d, $2d, $2d, $2d, $2d, $2d, $2d, $2d, $2d, $2d
+	.byte $2a, $2a, $2a, $2a, $2a, $2a, $2a, $2a, $2a, $2a, $2a, $2a
 VAR partial_health_tile
-	.byte $2e
+	.byte $2b
 
 VAR status_state_func
 	.word update_status_bar_normal

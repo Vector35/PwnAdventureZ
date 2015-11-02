@@ -484,6 +484,10 @@ PROC shop_npc_interact
 	beq guns
 	cmp #3
 	beq drinks
+
+	LOAD_PTR first_quest_text
+	lda #^first_quest_text
+	jsr show_chat_text
 	rts
 
 guns:
@@ -735,3 +739,23 @@ VAR shop_npc_descriptor
 TILES shop_wall_tiles, 3, "tiles/house/shopwall.chr", 32
 TILES shop_sign_tiles, 3, "tiles/house/shopsign.chr", 8
 TILES npc_floor_tiles, 3, "tiles/house/npcfloor.chr", 4
+
+
+.segment "UI"
+
+VAR first_quest_text
+	.byte "THE LAB HAS GONE MAD!", 0
+	.byte "ZOMBIES ARE TAKING", 0
+	.byte "OVER! THE ONLY WAY TO", 0
+	.byte "STOP THEM IS TO FIND", 0
+	.byte "A WAY INTO THE LAB", 0
+	.byte "AND KILL THE SOURCE", 0
+	.byte "OF THE INFECTION.", 0, 0
+	.byte "THE DOOR IS LOCKED", 0
+	.byte "WITH 6 KEYS. I THINK", 0
+	.byte "I KNOW WHERE THE", 0
+	.byte "FIRST KEY IS.", 0
+	.byte "I WILL MARK IT ON", 0
+	.byte "YOUR MAP. PLEASE FIND", 0
+	.byte "THOSE KEYS AND END", 0
+	.byte "THIS EVIL!", 0, 0

@@ -719,7 +719,7 @@ PROC do_update_inventory_status
 	jsr wait_for_vblank_if_rendering
 
 	; Render health bar according to player health
-	LOAD_PTR full_health_tiles
+	LOAD_PTR inventory_full_health_tiles
 	lda player_health
 	lsr
 	lsr
@@ -734,7 +734,7 @@ nofulltiles:
 	cmp #96
 	bcs fullhealth
 
-	LOAD_PTR partial_health_tile
+	LOAD_PTR inventory_partial_health_tile
 	lda player_health
 	lsr
 	lsr
@@ -1413,6 +1413,11 @@ VAR inventory_health_bar_bot_tiles
 	.byte $01, $04, $05, $06, $07, $08, $09, $0a, $0b, $0c, $0d, $0e, $29, $2c
 VAR inventory_health_bar_below_tiles
 	.byte $0f, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19
+
+VAR inventory_full_health_tiles
+	.byte $2d, $2d, $2d, $2d, $2d, $2d, $2d, $2d, $2d, $2d, $2d, $2d
+VAR inventory_partial_health_tile
+	.byte $2e
 
 VAR two_items_top_tiles
 	.byte $2a, $28, $28, $2b, $2a, $28, $28, $2b
