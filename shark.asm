@@ -260,10 +260,69 @@ PROC fire_laser
 	jsr create_effect & $ffff
 
 	cmp #$ff
-	beq failed
+	beq failed1
 	sta cur_effect
 	jsr compute_fractional_pixel & $ffff
-failed:
+
+	jsr shark_laser_tick
+	jsr shark_laser_tick
+	jsr shark_laser_tick
+	jsr shark_laser_tick
+	jsr shark_laser_tick
+
+failed1:
+
+	;create the effect
+	jsr get_relative_player_direction & $ffff
+	sta arg3
+	ldx cur_enemy
+	lda enemy_x, x
+	clc
+	adc #7
+	sta arg0
+	lda enemy_y, x
+	clc
+	adc #7
+	sta arg1
+	lda #EFFECT_SHARK_LASER
+	sta arg2
+	;record the players current TILE position this will be used as the dest
+	jsr create_effect & $ffff
+
+	cmp #$ff
+	beq failed2
+	sta cur_effect
+	jsr compute_fractional_pixel & $ffff
+
+	jsr shark_laser_tick
+	jsr shark_laser_tick
+	jsr shark_laser_tick
+
+failed2:
+
+	;create the effect
+	jsr get_relative_player_direction & $ffff
+	sta arg3
+	ldx cur_enemy
+	lda enemy_x, x
+	clc
+	adc #7
+	sta arg0
+	lda enemy_y, x
+	clc
+	adc #7
+	sta arg1
+	lda #EFFECT_SHARK_LASER
+	sta arg2
+	;record the players current TILE position this will be used as the dest
+	jsr create_effect & $ffff
+
+	cmp #$ff
+	beq failed3
+	sta cur_effect
+	jsr compute_fractional_pixel & $ffff
+
+failed3:
 	rts
 .endproc
 
@@ -623,7 +682,7 @@ VAR shark_laser_descriptor
 	.word nothing
 	.word laser_hit_world
 	.byte SPRITE_TILE_BULLET, 0
-	.byte 2
+	.byte 3
 	.byte 3, 3
 
 VAR shark_laser_hit_descriptor
