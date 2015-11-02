@@ -372,7 +372,7 @@ VAR z_logo
 VAR adventure_str
 	.byte "ADVENTURE", 0
 VAR retro_str
-	.byte $3b, " SUPER RETRO EDITION ", $3d, 0
+	.byte "  ", $3b, "  BEARLY  ALIVE  ", $3d, "  ", 0
 VAR press_start_str
 	.byte "PRESS START", 0
 
