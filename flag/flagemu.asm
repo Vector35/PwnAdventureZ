@@ -8,6 +8,11 @@ VAR flag_strings
 	.byte "PWN THIS ON THE REAL SYSTEM ", 0
 	.byte "TO GET THE ACTUAL FLAG ", 0
 
+VAR memory_leak_flag
+	.byte "LEAK THIS FLAG FOR MAXIMUM POINTS.", 0
+	.byte "THE FLAG IS:", 0
+	.byte "XXXXXXXXXXXXXXXXXXXXXXXXXXX", 0
+
 
 .segment "UI"
 
