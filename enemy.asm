@@ -1712,6 +1712,10 @@ VAR saved_enemy_screen_y
 	.byte 0, 0, 0, 0, 0, 0, 0, 0
 VAR saved_enemy_inside
 	.byte 0, 0, 0, 0, 0, 0, 0, 0
+
+
+.bss
+
 VAR saved_enemy_types
 	.byte 0, 0, 0, 0, 0, 0, 0, 0
 	.byte 0, 0, 0, 0, 0, 0, 0, 0
