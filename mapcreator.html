@@ -106,12 +106,16 @@ function init() {
 	create_tile_set(row, "Start", "start", 0x00);
 	create_tile_set(row, "Starting cave", "startcave", 0x0e);
 	create_tile_set(row, "Cave", "cave", 0x02);
-	create_tile_set(row, "Forest", "forest", 0x03);
+	create_tile_set(row, "Cave chest", "cavechest", 0x18);
+	create_tile_set(row, "Cave boss", "caveboss", 0x19);
 
 	var row = document.createElement('tr');
 	table.appendChild(row);
 	create_tile_set(row, "House", "house", 0x04);
+	create_tile_set(row, "Boarded house", "boardedhouse", 0x17);
 	create_tile_set(row, "Shop", "shop", 0x05);
+	create_tile_set(row, "Secret Shop", "secretshop", 0x27);
+	create_tile_set(row, "Outpost Shop", "outpostshop", 0x28);
 	create_tile_set(row, "Park", "park", 0x06);
 
 	var row = document.createElement('tr');
@@ -126,11 +130,33 @@ function init() {
 	var row = document.createElement('tr');
 	table.appendChild(row);
 	create_tile_set(row, "Lost Cave", "lostcave", 0x0f);
+	create_tile_set(row, "Lost Cave Wall", "lostcavewall", 0x24);
+	create_tile_set(row, "Lost Cave Chest", "lostcavechest", 0x25);
+	create_tile_set(row, "Lost Cave End", "lostcaveend", 0x26);
 	create_tile_set(row, "Mine entrance", "mineenter", 0x10);
 	create_tile_set(row, "Mine down", "minedown", 0x11);
+	create_tile_set(row, "Mine chest", "minechest", 0x1b);
+	create_tile_set(row, "Mine boss", "mineboss", 0x1c);
+
+	var row = document.createElement('tr');
+	table.appendChild(row);
 	create_tile_set(row, "Dead Wood", "deadwood", 0x12);
+	create_tile_set(row, "Dead Wood Chest", "deadwoodchest", 0x20);
+	create_tile_set(row, "Dead Wood Boss", "deadwoodboss", 0x21);
 	create_tile_set(row, "Unbearable", "bear", 0x13);
+	create_tile_set(row, "Unbearable Chest", "bearchest", 0x22);
+	create_tile_set(row, "Unbearable Boss", "bearboss", 0x23);
+
+	var row = document.createElement('tr');
+	table.appendChild(row);
 	create_tile_set(row, "Starting forest", "startforest", 0x14);
+	create_tile_set(row, "Starting forest chest", "startforestchest", 0x15);
+	create_tile_set(row, "Starting forest boss", "startforestboss", 0x16);
+	create_tile_set(row, "Forest", "forest", 0x03);
+	create_tile_set(row, "Forest Chest", "forestchest", 0x1a);
+	create_tile_set(row, "Sewer", "sewer", 0x1d);
+	create_tile_set(row, "Sewer Chest", "sewerchest", 0x1e);
+	create_tile_set(row, "Sewer Boss", "sewerboss", 0x1f);
 }
 
 active = 0xc1;
