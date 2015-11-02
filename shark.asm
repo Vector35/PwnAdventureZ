@@ -39,9 +39,22 @@ PROC swiming_ai_tick
 .code
 
 PROC laser_hit_player
-	lda #8
+	lda #4
 	jsr take_damage
-	jsr enemy_knockback
+	jsr shark_laser_tick
+	ldx cur_effect
+	dec effect_x, x
+	dec effect_x, x
+	dec effect_x, x
+	dec effect_y, x
+	dec effect_y, x
+	dec effect_y, x
+	lda #EFFECT_PLAYER_BULLET_DAMAGE
+	sta effect_type, x
+	lda #SPRITE_TILE_BULLET_DAMAGE
+	sta effect_tile, x
+	lda #0
+	sta effect_time, x
 	rts
 .endproc
 
@@ -266,9 +279,6 @@ PROC fire_laser
 
 	jsr shark_laser_tick
 	jsr shark_laser_tick
-	jsr shark_laser_tick
-	jsr shark_laser_tick
-	jsr shark_laser_tick
 
 failed1:
 
@@ -294,8 +304,6 @@ failed1:
 	sta cur_effect
 	jsr compute_fractional_pixel & $ffff
 
-	jsr shark_laser_tick
-	jsr shark_laser_tick
 	jsr shark_laser_tick
 
 failed2:
@@ -602,6 +610,12 @@ neg:
 .endproc
 
 PROC do_shark_laser_tick
+	jsr do_shark_laser_tick_inner & $ffff
+	jsr do_shark_laser_tick_inner & $ffff
+	rts
+.endproc
+
+PROC do_shark_laser_tick_inner
 	lda cur_effect
 	lsr
 	lsr
@@ -680,7 +694,7 @@ VAR shark_laser_descriptor
 	.word shark_laser_tick
 	.word laser_hit_player
 	.word nothing
-	.word laser_hit_world
+	.word sniper_bullet_hit_world
 	.byte SPRITE_TILE_BULLET, 0
 	.byte 3
 	.byte 3, 3
