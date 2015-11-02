@@ -31,6 +31,34 @@ PROC gen_house
 	rts
 
 outside:
+	LOAD_ALL_TILES HOUSE_EXT_TILES, house_exterior_tiles
+
+	lda current_bank
+	pha
+	lda #^do_gen_house_outside
+	jsr bankswitch
+	jsr do_gen_house_outside & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+PROC gen_boarded_house
+	lda inside
+	beq outside
+
+	lda current_bank
+	pha
+	lda #^do_gen_house_inside
+	jsr bankswitch
+	jsr do_gen_house_inside & $ffff
+	pla
+	jsr bankswitch
+	rts
+
+outside:
+	LOAD_ALL_TILES HOUSE_EXT_TILES, boarded_house_exterior_tiles
+
 	lda current_bank
 	pha
 	lda #^do_gen_house_outside
@@ -48,10 +76,29 @@ PROC do_gen_house_outside
 	; Load forest tiles
 	LOAD_ALL_TILES FOREST_TILES, forest_tiles
 	LOAD_ALL_TILES FENCE_TILES, fence_tiles
-	LOAD_ALL_TILES HOUSE_EXT_TILES, house_exterior_tiles
 	jsr init_zombie_sprites
 
 	; Set up collision and spawning info
+	jsr read_overworld_cur
+	and #$3f
+	cmp #MAP_BOARDED_HOUSE
+	bne notboarded
+
+	lda #FOREST_TILES + FOREST_GRASS
+	sta traversable_tiles
+	lda #HOUSE_EXT_TILES + 28
+	sta traversable_tiles + 1
+	lda #HOUSE_EXT_TILES + 40
+	sta traversable_tiles + 2
+	lda #FOREST_TILES + FOREST_GRASS
+	sta spawnable_tiles
+	lda #HOUSE_EXT_TILES + 28
+	sta spawnable_tiles + 1
+	lda #HOUSE_EXT_TILES + 40
+	sta spawnable_tiles + 2
+	jmp collisiondone & $ffff
+
+notboarded:
 	lda #FOREST_TILES + FOREST_GRASS
 	sta traversable_tiles
 	lda #HOUSE_EXT_TILES + 36
@@ -67,6 +114,7 @@ PROC do_gen_house_outside
 	lda #HOUSE_EXT_TILES + 40
 	sta spawnable_tiles + 2
 
+collisiondone:
 	; Load forest palette as a base
 	LOAD_PTR forest_palette
 	jsr load_background_game_palette
@@ -393,6 +441,21 @@ housedone:
 	sta scratch + 2
 
 	; Complete and load house palettes
+	jsr read_overworld_cur
+	and #$3f
+	cmp #MAP_BOARDED_HOUSE
+	bne palnotboarded
+
+	lda #$0f
+	sta scratch
+	sta scratch + 4
+	lda #$0f
+	sta scratch + 5
+	lda #$17
+	sta scratch + 6
+	jmp paldone & $ffff
+
+palnotboarded:
 	lda #$0f
 	sta scratch
 	sta scratch + 4
@@ -401,6 +464,7 @@ housedone:
 	lda #$17
 	sta scratch + 6
 
+paldone:
 	LOAD_PTR scratch
 	jsr load_game_palette_1
 	LOAD_PTR scratch + 4
@@ -685,6 +749,53 @@ genbed:
 	lda #BED_TILES + 20 + BED_PALETTE
 	jsr write_gen_map
 
+	jsr read_overworld_cur
+	and #$3f
+	cmp #MAP_BOARDED_HOUSE
+	bne notboarded
+
+	; Boarded house has NPC and a note, not enemies
+	LOAD_ALL_TILES $fc, house_note_tiles
+	lda #INTERACT_BOARDED_HOUSE_NOTE
+	sta interactive_tile_types
+	lda #$fc
+	sta interactive_tile_values
+
+	ldx #7
+	ldy #3
+	lda #$fc + FURNITURE_PALETTE
+	jsr write_gen_map
+
+	jsr init_npc_sprites
+
+	; Load a special tile for underneath the NPCs.  This looks exactly like a floor
+	; but will collide and be interactable.  This is simply a way to make the NPC
+	; interactable without a special NPC system.
+	LOAD_ALL_TILES $f8, npc_floor_tiles
+
+	lda #INTERACT_BOARDED_HOUSE_NPC
+	sta interactive_tile_types + 1
+	lda #$f8
+	sta interactive_tile_values + 1
+
+	ldx #8
+	ldy #5
+	lda #$f8
+	jsr write_gen_map
+
+	jsr prepare_spawn
+	lda #ENEMY_MALE_NPC_1
+	sta arg0
+	lda #DIR_DOWN
+	sta arg1
+	ldx #$80
+	ldy #$50
+	lda #0
+	jsr spawn_npc
+
+	rts
+
+notboarded:
 	; Create enemies
 	jsr prepare_spawn
 	jsr restore_enemies
@@ -837,6 +948,25 @@ botloop:
 .endproc
 
 
+.code
+
+PROC boarded_house_note_interact
+	LOAD_PTR boarded_house_flag_text
+	lda #^boarded_house_flag_text
+	jsr show_chat_text
+	rts
+.endproc
+
+PROC boarded_house_npc_interact
+	LOAD_PTR boarded_house_npc_text
+	lda #^boarded_house_npc_text
+	jsr show_chat_text
+	rts
+.endproc
+
+
+.segment "EXTRA"
+
 VAR house_paint_colors
 	.byte $30, $38, $31
 
@@ -859,10 +989,32 @@ VAR house_interior_palette
 	.byte $0f, $07, $17, $27
 
 
+.data
+
+VAR boarded_house_note_descriptor
+	.word always_interactable
+	.word boarded_house_note_interact
+
+VAR boarded_house_npc_descriptor
+	.word always_interactable
+	.word boarded_house_npc_interact
+
+
 TILES fence_tiles, 3, "tiles/house/fence.chr", 32
 TILES house_exterior_tiles, 3, "tiles/house/exterior.chr", 44
+TILES boarded_house_exterior_tiles, 3, "tiles/house/exterior-boarded.chr", 44
 
 TILES wood_wall_tiles, 3, "tiles/house/woodwalls.chr", 40
 TILES big_table_tiles, 3, "tiles/house/bigtable.chr", 48
 TILES small_table_tiles, 3, "tiles/house/smalltable.chr", 36
 TILES bed_tiles, 3, "tiles/house/bed.chr", 24
+TILES house_note_tiles, 3, "tiles/items/note-house.chr", 4
+
+
+.segment "UI"
+
+VAR boarded_house_npc_text
+	.byte "I BOARDED MY HOUSE UP", 0
+	.byte "TO KEEP THE ZOMBIES", 0
+	.byte "OUT. HOW DID YOU GET", 0
+	.byte "IN HERE?", 0, 0

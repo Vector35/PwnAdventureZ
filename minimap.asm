@@ -425,6 +425,10 @@ PROC get_minimap_tile_for_type
 	beq rock
 	cmp #MAP_CAVE_INTERIOR
 	beq rock
+	cmp #MAP_CAVE_CHEST
+	beq rock
+	cmp #MAP_CAVE_BOSS
+	beq rock
 	cmp #MAP_BLOCKY_TREASURE
 	beq rock
 	cmp #MAP_BLOCKY_PUZZLE
@@ -435,23 +439,60 @@ PROC get_minimap_tile_for_type
 	beq rock
 	cmp #MAP_LOST_CAVE
 	beq rock
+	cmp #MAP_LOST_CAVE_WALL
+	beq rock
+	cmp #MAP_LOST_CAVE_CHEST
+	beq rock
+	cmp #MAP_LOST_CAVE_END
+	beq rock
 	cmp #MAP_MINE_ENTRANCE
 	beq rock
 	cmp #MAP_MINE_DOWN
 	beq rock
 
+	jmp checkforest
+
+rock:
+	lda #MINIMAP_TILE_ROCK + SMALL_BORDER_CENTER
+	rts
+
+checkforest:
 	cmp #MAP_FOREST
+	beq forest
+	cmp #MAP_FOREST_CHEST
 	beq forest
 	cmp #MAP_DEAD_WOOD
 	beq forest
+	cmp #MAP_DEAD_WOOD_CHEST
+	beq forest
+	cmp #MAP_DEAD_WOOD_BOSS
+	beq forest
 	cmp #MAP_UNBEARABLE
 	beq forest
+	cmp #MAP_UNBEARABLE_CHEST
+	beq forest
+	cmp #MAP_UNBEARABLE_BOSS
+	beq forest
 	cmp #MAP_START_FOREST
+	beq forest
+	cmp #MAP_START_FOREST_CHEST
+	beq forest
+	cmp #MAP_START_FOREST_BOSS
+	beq forest
+	cmp #MAP_SEWER_DOWN
 	beq forest
 
 	cmp #MAP_HOUSE
 	beq house
+	cmp #MAP_BOARDED_HOUSE
+	beq house
+	cmp #MAP_OUTPOST_HOUSE
+	beq house
 	cmp #MAP_SHOP
+	beq shop
+	cmp #MAP_SECRET_SHOP
+	beq shop
+	cmp #MAP_OUTPOST_SHOP
 	beq shop
 	cmp #MAP_PARK
 	beq park
@@ -465,10 +506,7 @@ PROC get_minimap_tile_for_type
 	beq base
 	cmp #MAP_BASE_INTERIOR
 	beq base
-
-rock:
-	lda #MINIMAP_TILE_ROCK + SMALL_BORDER_CENTER
-	rts
+	jmp rock
 
 forest:
 	ldx arg0

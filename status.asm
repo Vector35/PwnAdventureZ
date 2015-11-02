@@ -16,6 +16,20 @@
 .segment "FIXED"
 
 PROC load_area_name_tiles
+	lda current_bank
+	pha
+	lda #^do_load_area_name_tiles
+	jsr bankswitch
+	jsr do_load_area_name_tiles & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+.segment "UI"
+
+PROC do_load_area_name_tiles
 	; Load tiles for name of area
 	jsr read_overworld_cur
 	and #$3f
@@ -25,13 +39,41 @@ PROC load_area_name_tiles
 	beq startcavelocation
 	cmp #MAP_START_FOREST
 	beq startforestlocation
+	cmp #MAP_START_FOREST_CHEST
+	beq startforestlocation
 	cmp #MAP_CAVE_INTERIOR
+	beq maincavelocation
+	cmp #MAP_CAVE_CHEST
+	beq maincavelocation
+	cmp #MAP_CAVE_BOSS
 	beq maincavelocation
 	cmp #MAP_LOST_CAVE
 	beq lostcavelocation
+	cmp #MAP_LOST_CAVE_WALL
+	beq lostcavelocation
+	cmp #MAP_LOST_CAVE_CHEST
+	beq lostcavelocation
+	cmp #MAP_LOST_CAVE_END
+	beq lostcavelocation
+	jmp resumesearch & $ffff
+
+startcavelocation:
+	jmp startcave & $ffff
+startforestlocation:
+	jmp startforest & $ffff
+maincavelocation:
+	jmp maincave & $ffff
+lostcavelocation:
+	jmp lostcave & $ffff
+
+resumesearch:
 	cmp #MAP_MINE_ENTRANCE
 	beq minelocation
 	cmp #MAP_MINE_DOWN
+	beq minelocation
+	cmp #MAP_MINE_CHEST
+	beq minelocation
+	cmp #MAP_MINE_BOSS
 	beq minelocation
 	cmp #MAP_HOUSE
 	beq townlocation
@@ -39,6 +81,12 @@ PROC load_area_name_tiles
 	beq townlocation
 	cmp #MAP_PARK
 	beq townlocation
+	cmp #MAP_BOARDED_HOUSE
+	beq outpostlocation
+	cmp #MAP_OUTPOST_SHOP
+	beq outpostlocation
+	cmp #MAP_OUTPOST_HOUSE
+	beq outpostlocation
 	cmp #MAP_BOSS
 	beq baselocation
 	cmp #MAP_BASE_HORDE
@@ -53,72 +101,93 @@ PROC load_area_name_tiles
 	beq blockylocation
 	cmp #MAP_DEAD_WOOD
 	beq deadwood
+	cmp #MAP_DEAD_WOOD_CHEST
+	beq deadwood
+	cmp #MAP_DEAD_WOOD_BOSS
+	beq deadwood
 	cmp #MAP_UNBEARABLE
 	beq unbearable
+	cmp #MAP_UNBEARABLE_CHEST
+	beq unbearable
+	cmp #MAP_UNBEARABLE_BOSS
+	beq unbearable
+	cmp #MAP_SEWER
+	beq sewerlocation
+	cmp #MAP_SEWER_CHEST
+	beq sewerlocation
+	cmp #MAP_SEWER_BOSS
+	beq sewerlocation
 
 	LOAD_ALL_TILES LOCATION_TILES, forest_name_tiles
-	jmp namedone
+	jmp namedone & $ffff
 
-startcavelocation:
-	jmp startcave
-startforestlocation:
-	jmp startforest
-maincavelocation:
-	jmp maincave
-lostcavelocation:
-	jmp lostcave
 minelocation:
-	jmp mine
+	jmp mine & $ffff
 baselocation:
-	jmp base
+	jmp base & $ffff
 blockylocation:
-	jmp blocky
+	jmp blocky & $ffff
 townlocation:
-	jmp town
+	jmp town & $ffff
+outpostlocation:
+	jmp outpost & $ffff
+sewerlocation:
+	jmp sewer & $ffff
 
 deadwood:
 	LOAD_ALL_TILES LOCATION_TILES, dead_wood_name_tiles
-	jmp namedone
+	jmp namedone & $ffff
 
 unbearable:
 	LOAD_ALL_TILES LOCATION_TILES, unbearable_name_tiles
-	jmp namedone
+	jmp namedone & $ffff
 
 startcave:
 	LOAD_ALL_TILES LOCATION_TILES, starting_cave_name_tiles
-	jmp namedone
+	jmp namedone & $ffff
 
 startforest:
 	LOAD_ALL_TILES LOCATION_TILES, starting_forest_name_tiles
-	jmp namedone
+	jmp namedone & $ffff
 
 maincave:
 	LOAD_ALL_TILES LOCATION_TILES, main_cave_name_tiles
-	jmp namedone
+	jmp namedone & $ffff
 
 lostcave:
 	LOAD_ALL_TILES LOCATION_TILES, lost_cave_name_tiles
-	jmp namedone
+	jmp namedone & $ffff
 
 mine:
 	LOAD_ALL_TILES LOCATION_TILES, mine_name_tiles
-	jmp namedone
+	jmp namedone & $ffff
 
 town:
 	LOAD_ALL_TILES LOCATION_TILES, town_name_tiles
-	jmp namedone
+	jmp namedone & $ffff
 
 base:
 	LOAD_ALL_TILES LOCATION_TILES, base_name_tiles
-	jmp namedone
+	jmp namedone & $ffff
 
 blocky:
 	LOAD_ALL_TILES LOCATION_TILES, blocky_cave_name_tiles
-	jmp namedone
+	jmp namedone & $ffff
+
+outpost:
+	LOAD_ALL_TILES LOCATION_TILES, outpost_name_tiles
+	jmp namedone & $ffff
+
+sewer:
+	LOAD_ALL_TILES LOCATION_TILES, sewer_name_tiles
+	jmp namedone & $ffff
 
 namedone:
 	rts
 .endproc
+
+
+.segment "FIXED"
 
 PROC generate_gold_string
 	lda #'$'

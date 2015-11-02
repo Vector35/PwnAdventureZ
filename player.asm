@@ -668,7 +668,15 @@ transitionenterup:
 	and #$3f
 	cmp #MAP_HOUSE
 	beq transitionhouseinside
+	cmp #MAP_BOARDED_HOUSE
+	beq transitionhouseinside
+	cmp #MAP_OUTPOST_HOUSE
+	beq transitionhouseinside
 	cmp #MAP_SHOP
+	beq transitionshopinside
+	cmp #MAP_OUTPOST_SHOP
+	beq transitionshopinside
+	cmp #MAP_SECRET_SHOP
 	beq transitionshopinside
 	jmp transitionup
 
@@ -741,7 +749,15 @@ transitionenterdown:
 	and #$3f
 	cmp #MAP_HOUSE
 	beq transitionhouseoutside
+	cmp #MAP_BOARDED_HOUSE
+	beq transitionhouseoutside
+	cmp #MAP_OUTPOST_HOUSE
+	beq transitionhouseoutside
 	cmp #MAP_SHOP
+	beq transitionshopoutside
+	cmp #MAP_OUTPOST_SHOP
+	beq transitionshopoutside
+	cmp #MAP_SECRET_SHOP
 	beq transitionshopoutside
 	jmp transitiondown
 
@@ -1042,7 +1058,12 @@ PROC player_attack
 	jsr read_overworld_cur
 	and #$3f
 	cmp #MAP_SHOP
+	beq shop
+	cmp #MAP_OUTPOST_SHOP
+	beq shop
+	cmp #MAP_SECRET_SHOP
 	bne notshop
+shop:
 	rts
 
 notshop:
@@ -1662,6 +1683,8 @@ VAR interaction_descriptors
 	.word shop_npc_descriptor
 	.word starting_note_descriptor
 	.word blocky_note_descriptor
+	.word boarded_house_note_descriptor
+	.word boarded_house_npc_descriptor
 
 VAR player_bullet_descriptor
 	.word player_bullet_tick
