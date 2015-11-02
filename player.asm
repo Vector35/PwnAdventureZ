@@ -1276,6 +1276,32 @@ PROC sniper_bullet_hit_enemy
 .endproc
 
 
+PROC shotgun_bullet_hit_enemy
+	PLAY_SOUND_EFFECT effect_enemyhit
+
+	lda #15
+	jsr enemy_damage
+
+	jsr player_bullet_tick
+
+	ldx cur_effect
+	dec effect_x, x
+	dec effect_x, x
+	dec effect_x, x
+	dec effect_y, x
+	dec effect_y, x
+	dec effect_y, x
+	lda #EFFECT_PLAYER_BULLET_DAMAGE
+	sta effect_type, x
+	lda #SPRITE_TILE_BULLET_DAMAGE
+	sta effect_tile, x
+	lda #0
+	sta effect_time, x
+
+	rts
+.endproc
+
+
 PROC bullet_hit_world
 	ldx cur_effect
 	dec effect_x, x
@@ -1364,6 +1390,124 @@ notdown:
 PROC player_ak_bullet_tick
 	jsr player_bullet_tick
 	jsr player_bullet_tick
+	rts
+.endproc
+
+
+PROC player_shotgun_bullet_tick
+	ldx cur_effect
+	lda effect_direction, x
+	and #JOY_LEFT
+	beq notleft
+
+	dec effect_x, x
+	dec effect_x, x
+	dec effect_x, x
+	dec effect_x, x
+
+notleft:
+	lda effect_direction, x
+	and #JOY_RIGHT
+	beq notright
+
+	inc effect_x, x
+	inc effect_x, x
+	inc effect_x, x
+	inc effect_x, x
+
+notright:
+	lda effect_direction, x
+	and #JOY_UP
+	beq notup
+
+	dec effect_y, x
+	dec effect_y, x
+	dec effect_y, x
+	dec effect_y, x
+
+notup:
+	lda effect_direction, x
+	and #JOY_DOWN
+	beq notdown
+
+	inc effect_y, x
+	inc effect_y, x
+	inc effect_y, x
+	inc effect_y, x
+
+notdown:
+	rts
+.endproc
+
+
+PROC player_left_bullet_tick
+	jsr player_shotgun_bullet_tick
+
+	ldx cur_effect
+	lda effect_direction, x
+	and #JOY_LEFT
+	beq notleft
+
+	inc effect_y, x
+
+notleft:
+	lda effect_direction, x
+	and #JOY_RIGHT
+	beq notright
+
+	dec effect_y, x
+
+notright:
+	lda effect_direction, x
+	and #JOY_UP
+	beq notup
+
+	dec effect_x, x
+
+notup:
+	lda effect_direction, x
+	and #JOY_DOWN
+	beq notdown
+
+	inc effect_x, x
+
+notdown:
+	rts
+.endproc
+
+
+PROC player_right_bullet_tick
+	jsr player_shotgun_bullet_tick
+
+	ldx cur_effect
+	lda effect_direction, x
+	and #JOY_LEFT
+	beq notleft
+
+	dec effect_y, x
+
+notleft:
+	lda effect_direction, x
+	and #JOY_RIGHT
+	beq notright
+
+	inc effect_y, x
+
+notright:
+	lda effect_direction, x
+	and #JOY_UP
+	beq notup
+
+	inc effect_x, x
+
+notup:
+	lda effect_direction, x
+	and #JOY_DOWN
+	beq notdown
+
+	dec effect_x, x
+
+notdown:
 	rts
 .endproc
 
@@ -1549,6 +1693,33 @@ VAR player_sniper_bullet_descriptor
 	.word nothing
 	.word sniper_bullet_hit_enemy
 	.word sniper_bullet_hit_world
+	.byte SPRITE_TILE_BULLET, 0
+	.byte 2
+	.byte 3, 3
+
+VAR player_shotgun_bullet_descriptor
+	.word player_shotgun_bullet_tick
+	.word nothing
+	.word shotgun_bullet_hit_enemy
+	.word bullet_hit_world
+	.byte SPRITE_TILE_BULLET, 0
+	.byte 2
+	.byte 3, 3
+
+VAR player_left_bullet_descriptor
+	.word player_left_bullet_tick
+	.word nothing
+	.word shotgun_bullet_hit_enemy
+	.word bullet_hit_world
+	.byte SPRITE_TILE_BULLET, 0
+	.byte 2
+	.byte 3, 3
+
+VAR player_right_bullet_descriptor
+	.word player_right_bullet_tick
+	.word nothing
+	.word shotgun_bullet_hit_enemy
+	.word bullet_hit_world
 	.byte SPRITE_TILE_BULLET, 0
 	.byte 2
 	.byte 3, 3
