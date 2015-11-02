@@ -2,6 +2,29 @@
 
 .segment "FIXED"
 
+PROC get_enemy_tile
+	ldy cur_enemy
+
+	lda enemy_x, y
+	lsr
+	lsr
+	lsr
+	lsr
+	adc #0 ; Round to nearest
+	tax
+
+	lda enemy_y, y
+	lsr
+	lsr
+	lsr
+	lsr
+	adc #0 ; Round to nearest
+	tay
+
+	rts
+.endproc
+
+
 PROC spawn_starting_enemy
 	sta arg5
 
@@ -501,30 +524,19 @@ down:
 .endproc
 
 
-PROC get_enemy_tile
-	ldy cur_enemy
-
-	lda enemy_x, y
-	lsr
-	lsr
-	lsr
-	lsr
-	adc #0 ; Round to nearest
-	tax
-
-	lda enemy_y, y
-	lsr
-	lsr
-	lsr
-	lsr
-	adc #0 ; Round to nearest
-	tay
-
-	rts
-.endproc
-
 
 PROC walking_ai_tick
+	lda player_direction
+	and #4
+	bne nothidden
+
+	lda equipped_armor
+	cmp #ITEM_GHILLIE_SUIT
+	bne nothidden
+
+	jmp checkforidle
+
+nothidden:
 	; Check to see if the enemy can see the player in a direct line of sight
 	jsr get_enemy_tile
 	stx arg0
@@ -1795,7 +1807,6 @@ VAR shark_fire_count
 	.repeat ENEMY_MAX_COUNT
 	.byte 0
 	.endrepeat
-
 
 .data
 

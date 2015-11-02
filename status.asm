@@ -151,9 +151,21 @@ nonzero:
 .endproc
 
 
-.code
-
 PROC init_status_tiles
+	lda current_bank
+	pha
+	lda #^do_init_status_tiles
+	jsr bankswitch
+	jsr do_init_status_tiles & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+.segment "EXTRA"
+
+PROC do_init_status_tiles
 	LOAD_ALL_TILES 0, status_ui_tiles
 	LOAD_ALL_TILES RIGHT_PANEL_TILES, key_tiles
 	jsr load_area_name_tiles
@@ -272,7 +284,7 @@ fullhealth:
 	ldy #26
 	jsr write_string
 
-	jmp renderitem
+	jmp renderitem & $ffff
 
 noammo:
 	; No equipped item or does not have ammo
@@ -353,6 +365,8 @@ renderitem:
 	rts
 .endproc
 
+
+.code
 
 PROC update_status_bar
 	lda status_display_state
