@@ -642,6 +642,8 @@ moveanimdone:
 transitionleft:
 	lda knockback_time
 	bne moveanimdone
+	lda horde_active
+	bne moveanimdone
 	jsr fade_out
 	dec cur_screen_x
 	lda #(MAP_WIDTH - 1) * 16
@@ -653,6 +655,8 @@ transitionleft:
 
 transitionright:
 	lda knockback_time
+	bne moveanimdone
+	lda horde_active
 	bne moveanimdone
 	jsr fade_out
 	inc cur_screen_x
@@ -731,6 +735,10 @@ transitionshopinside:
 	rts
 
 transitionup:
+	lda horde_active
+	beq nohordeup
+	jmp moveanimdone
+nohordeup:
 	lda knockback_time
 	beq dotransitionup
 	jmp moveanimdone
@@ -812,6 +820,10 @@ transitionshopoutside:
 	rts
 
 transitiondown:
+	lda horde_active
+	beq nohordedown
+	jmp moveanimdone
+nohordedown:
 	lda knockback_time
 	beq dotransitiondown
 	jmp moveanimdone
@@ -1685,6 +1697,7 @@ VAR interaction_descriptors
 	.word blocky_note_descriptor
 	.word boarded_house_note_descriptor
 	.word boarded_house_npc_descriptor
+	.word key_chest_1_descriptor
 
 VAR player_bullet_descriptor
 	.word player_bullet_tick

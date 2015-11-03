@@ -1377,6 +1377,10 @@ PROC generate_map
 	iny
 	jsr mark_visited
 
+	lda #0
+	sta horde_active
+	sta horde_complete
+
 	; Initialize traversable tile list
 	ldx #0
 	lda #0
@@ -2680,11 +2684,11 @@ VAR initial_map_generators
 	.word gen_cave_interior
 	.word gen_cave_interior
 	.word gen_cave_interior
+	.word gen_dead_wood
 	.word gen_forest
 	.word gen_forest
 	.word gen_forest
-	.word gen_forest
-	.word gen_forest
+	.word gen_forest_boss
 	.word gen_boarded_house
 	.word gen_cave_interior
 	.word gen_cave_interior

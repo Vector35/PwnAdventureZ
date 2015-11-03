@@ -1,6 +1,6 @@
 .include "defines.inc"
 
-.code
+.segment "FIXED"
 
 PROC give_weapon
 	sta temp
@@ -56,6 +56,8 @@ newitem:
 	rts
 .endproc
 
+
+.code
 
 PROC use_item
 	asl

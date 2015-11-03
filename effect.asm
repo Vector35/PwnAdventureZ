@@ -6,6 +6,7 @@ PROC init_effect_sprites
 	LOAD_ALL_TILES $100 + SPRITE_TILE_BULLET, bullet_tiles
 	LOAD_ALL_TILES $100 + SPRITE_TILE_SPLAT, splat_tiles
 	LOAD_ALL_TILES $100 + SPRITE_TILE_ORB, orb_tiles
+	LOAD_ALL_TILES $100 + SPRITE_TILE_WARP, warp_tiles
 ;	LOAD_ALL_TILES $100 + SPRITE_TILE_LASER, laser_tiles
 
 	ldx #0
@@ -536,6 +537,7 @@ VAR effect_descriptors
 	.word shark_laser_descriptor
 	.word shark_laser_hit_descriptor
 	.word shark_laser_damage_descriptor
+	.word warp_descriptor
 
 
 TILES bullet_tiles, 2, "tiles/effects/bullet.chr", 6

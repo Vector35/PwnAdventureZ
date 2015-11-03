@@ -736,5 +736,18 @@ VAR completed_quest_steps
 VAR highlighted_quest_steps
 	.byte 0
 
+VAR horde_active
+	.byte 0
+VAR horde_complete
+	.byte 0
+VAR horde_timer
+	.byte 0, 0
+VAR horde_enemy_types
+	.byte 0, 0, 0, 0
+VAR horde_spawn_timer
+	.byte 0
+VAR horde_spawn_delay
+	.byte 0
+
 .segment "CHR4"
 .incbin "simple-forensics-challenge/flag-comment.png"

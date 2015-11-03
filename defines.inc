@@ -319,6 +319,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define INTERACT_BLOCKY_NOTE        6
 .define INTERACT_BOARDED_HOUSE_NOTE 7
 .define INTERACT_BOARDED_HOUSE_NPC  8
+.define INTERACT_KEY_CHEST_1        9
 .define INTERACT_NONE             $ff
 
 .define INTERACT_DESC_IS_VALID 0
@@ -328,8 +329,8 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 ; Sprite tile indicies
 .define SPRITE_OAM_PLAYER   $00
 .define SPRITE_OAM_INTERACT $08
-.define SPRITE_OAM_ENEMIES  $10
-.define SPRITE_OAM_EFFECTS  $50
+.define SPRITE_OAM_ENEMIES  $90
+.define SPRITE_OAM_EFFECTS  $10
 .define SPRITE_OAM_EQUIP_WEAPON $f0
 .define SPRITE_OAM_EQUIP_ARMOR  $f8
 
@@ -346,6 +347,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define SPRITE_TILE_MALE_THIN_NPC   $60
 .define SPRITE_TILE_FEMALE_THIN_NPC $80
 
+.define SPRITE_TILE_WARP          $dc
 .define SPRITE_TILE_SPLAT         $e0
 .define SPRITE_TILE_ORB           $ee
 .define SPRITE_TILE_BULLET        $f2
@@ -369,6 +371,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define EFFECT_SHARK_LASER           11
 .define EFFECT_SHARK_LASER_HIT       12
 .define EFFECT_SHARK_LASER_DAMAGE    13
+.define EFFECT_WARP                  14
 .define EFFECT_NONE                 $ff
 
 .define EFFECT_MAX_COUNT     16
@@ -490,3 +493,5 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .global music_page_list_ptr, music_page_bank_ptr, music_page_ptr, audio_reg_ptr
 
 .global completed_quest_steps, highlighted_quest_steps
+.global horde_active, horde_complete, horde_timer, horde_enemy_types
+.global horde_spawn_timer, horde_spawn_delay
