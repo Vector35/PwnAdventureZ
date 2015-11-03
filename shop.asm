@@ -488,6 +488,23 @@ PROC shop_npc_interact
 	LOAD_PTR first_quest_text
 	lda #^first_quest_text
 	jsr show_chat_text
+
+	lda completed_quest_steps
+	ora #QUEST_START
+	sta completed_quest_steps
+	lda highlighted_quest_steps
+	and #$ff & (~QUEST_START)
+	sta highlighted_quest_steps
+
+	lda completed_quest_steps
+	and #QUEST_KEY_1
+	bne alreadycompleted
+
+	lda highlighted_quest_steps
+	ora #QUEST_KEY_1
+	sta highlighted_quest_steps
+
+alreadycompleted:
 	rts
 
 guns:

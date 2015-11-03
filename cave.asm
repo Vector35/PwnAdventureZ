@@ -554,6 +554,15 @@ PROC starting_note_interact
 	lda #^starting_note_text
 	jsr show_chat_text
 
+	lda completed_quest_steps
+	and #QUEST_START
+	bne alreadycomplete
+
+	lda highlighted_quest_steps
+	ora #QUEST_START
+	sta highlighted_quest_steps
+
+alreadycomplete:
 	rts
 .endproc
 

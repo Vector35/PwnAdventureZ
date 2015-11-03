@@ -221,6 +221,111 @@ visited:
 	adc #24
 	sta sprites + 3
 
+	; Show quest markers for the current quest step(s)
+	ldy #0
+questyloop:
+	ldx #0
+questxloop:
+	jsr read_overworld_map
+	and #$3f
+
+	cmp #MAP_START_FOREST_BOSS
+	beq quest1
+	cmp #MAP_SEWER_DOWN
+	beq quest2
+	cmp #MAP_SEWER_BOSS
+	beq quest2
+	cmp #MAP_MINE_DOWN
+	beq quest3
+	cmp #MAP_MINE_BOSS
+	beq quest3
+	cmp #MAP_CAVE_BOSS
+	beq quest4
+	cmp #MAP_DEAD_WOOD_BOSS
+	beq quest5
+	cmp #MAP_UNBEARABLE_BOSS
+	beq quest6
+	cmp #MAP_SHOP
+	beq startquest
+	cmp #MAP_BOSS
+	beq endquest
+	jmp questnext & $ffff
+
+quest1:
+	lda highlighted_quest_steps
+	and #QUEST_KEY_1
+	beq questnext
+	lda #1
+	jsr highlight_on_map
+	jmp questnext & $ffff
+
+quest2:
+	lda highlighted_quest_steps
+	and #QUEST_KEY_2
+	beq questnext
+	lda #2
+	jsr highlight_on_map
+	jmp questnext & $ffff
+
+quest3:
+	lda highlighted_quest_steps
+	and #QUEST_KEY_3
+	beq questnext
+	lda #3
+	jsr highlight_on_map
+	jmp questnext & $ffff
+
+quest4:
+	lda highlighted_quest_steps
+	and #QUEST_KEY_4
+	beq questnext
+	lda #4
+	jsr highlight_on_map
+	jmp questnext & $ffff
+
+quest5:
+	lda highlighted_quest_steps
+	and #QUEST_KEY_5
+	beq questnext
+	lda #5
+	jsr highlight_on_map
+	jmp questnext & $ffff
+
+quest6:
+	lda highlighted_quest_steps
+	and #QUEST_KEY_6
+	beq questnext
+	lda #6
+	jsr highlight_on_map
+	jmp questnext & $ffff
+
+startquest:
+	lda highlighted_quest_steps
+	and #QUEST_START
+	beq questnext
+	lda #7
+	jsr highlight_on_map
+	jmp questnext & $ffff
+
+endquest:
+	lda highlighted_quest_steps
+	and #QUEST_END
+	beq questnext
+	lda #8
+	jsr highlight_on_map
+
+questnext:
+	inx
+	cpx #26
+	beq questnexty
+	jmp questxloop & $ffff
+questnexty:
+	iny
+	cpy #22
+	beq questdone
+	jmp questyloop & $ffff
+
+questdone:
 	LOAD_PTR minimap_palette
 	jsr fade_in
 
@@ -542,6 +647,39 @@ base:
 .endproc
 
 
+PROC highlight_on_map
+	stx arg0
+	sty arg1
+
+	asl
+	asl
+	tay
+
+	lda arg1
+	asl
+	asl
+	asl
+	clc
+	adc #23
+	sta sprites, y
+	lda #MINIMAP_TILE_INDICATORS + 1
+	sta sprites + 1, y
+	lda #0
+	sta sprites + 2, y
+	lda arg0
+	asl
+	asl
+	asl
+	clc
+	adc #24
+	sta sprites + 3, y
+
+	ldx arg0
+	ldy arg1
+	rts
+.endproc
+
+
 .data
 VAR minimap_top_row
 	.byte 0,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,0
@@ -571,7 +709,7 @@ VAR minimap_palette
 	.byte $0f, $21, $21, $21
 	.byte $0f, $30, $30, $30
 	.byte $0f, $0f, $27, $37
-	.byte $0f, $0f, $16, $37
+	.byte $0f, $0f, $26, $37
 	.byte $0f, $0f, $30, $30
 	.byte $0f, $0f, $21, $21
 	.byte $0f, $0f, $16, $37

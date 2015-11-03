@@ -451,6 +451,17 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define MUSIC_FOREST  2
 
 
+; Quest complete bits
+.define QUEST_KEY_1   1
+.define QUEST_KEY_2   2
+.define QUEST_KEY_3   4
+.define QUEST_KEY_4   8
+.define QUEST_KEY_5   $10
+.define QUEST_KEY_6   $20
+.define QUEST_START   $40
+.define QUEST_END     $80
+
+
 ; Globally accessible zero page variables
 .zeropage
 .global ptr ; For manipulating pointers
@@ -477,3 +488,5 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .global secret_code
 
 .global music_page_list_ptr, music_page_bank_ptr, music_page_ptr, audio_reg_ptr
+
+.global completed_quest_steps, highlighted_quest_steps
