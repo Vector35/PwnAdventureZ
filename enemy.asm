@@ -418,6 +418,9 @@ key1done:
 	lda #2
 	jsr load_single_palette
 	jsr prepare_for_rendering
+
+	lda #MUSIC_FOREST
+	jsr play_music
 	rts
 
 key5done:
@@ -426,6 +429,9 @@ key5done:
 	lda #2
 	jsr load_single_palette
 	jsr prepare_for_rendering
+
+	lda #MUSIC_FOREST
+	jsr play_music
 	rts
 
 checkspawn:

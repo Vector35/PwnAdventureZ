@@ -1022,6 +1022,9 @@ hordesetup:
 	jsr load_single_palette
 	jsr prepare_for_rendering
 
+	lda #MUSIC_HORDE
+	jsr play_music
+
 	rts
 
 inhorde:
@@ -1131,6 +1134,9 @@ hordesetup:
 	lda #2
 	jsr load_single_palette
 	jsr prepare_for_rendering
+
+	lda #MUSIC_HORDE
+	jsr play_music
 
 	rts
 

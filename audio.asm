@@ -546,6 +546,7 @@ VAR music_loop_bank_ptr
 
 .segment "AUDIO1"
 .include "audio/cave.asm"
+.include "audio/horde.asm"
 
 
 .data
@@ -560,6 +561,12 @@ VAR forest_music_desc
 	.word neonstarlight_loop_ptr & $ffff, neonstarlight_loop_bank & $ffff
 	.byte ^neonstarlight_ptr
 
+VAR horde_music_desc
+	.word music_horde_ptr & $ffff, music_horde_bank & $ffff
+	.word music_horde_ptr & $ffff, music_horde_bank & $ffff
+	.byte ^music_horde_ptr
+
 VAR music_descriptors
 	.word cave_music_desc
 	.word forest_music_desc
+	.word horde_music_desc
