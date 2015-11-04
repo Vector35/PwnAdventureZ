@@ -1977,6 +1977,7 @@ VAR enemy_descriptors
 	.word male_thin_npc_2_descriptor
 	.word female_thin_npc_2_descriptor
 	.word spider_descriptor
+	.word rat_descriptor
 
 
 VAR enemy_death_descriptor

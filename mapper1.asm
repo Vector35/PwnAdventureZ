@@ -784,6 +784,20 @@ notvalid:
 
 
 PROC validate_saves
+	lda current_bank
+	pha
+	lda #^do_validate_saves
+	jsr bankswitch
+	jsr do_validate_saves & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+.segment "UI"
+
+PROC do_validate_saves
 	; Check primary copy of save slot 0 for accuracy
 	jsr enable_save_ram
 
@@ -799,10 +813,10 @@ PROC validate_saves
 	lda $6c03
 	cmp #'Z'
 	bne save0aheadernotvalid
-	jmp save0aheadervalid
+	jmp save0aheadervalid & $ffff
 
 save0aheadernotvalid:
-	jmp save0anotvalid
+	jmp save0anotvalid & $ffff
 
 save0aheadervalid:
 	lda #0
@@ -862,7 +876,7 @@ headerloop0a:
 	cpy #$20
 	bne headerloop0a
 
-	jmp checksave1
+	jmp checksave1 & $ffff
 
 save0anotvalid:
 	; Check second copy of save slot 0 for accuracy
@@ -878,10 +892,10 @@ save0anotvalid:
 	lda $6ca3
 	cmp #'Z'
 	bne save0bheadernotvalid
-	jmp save0bheadervalid
+	jmp save0bheadervalid & $ffff
 
 save0bheadernotvalid:
-	jmp save0bnotvalid
+	jmp save0bnotvalid & $ffff
 
 save0bheadervalid:
 	lda #0
@@ -941,7 +955,7 @@ headerloop0b:
 	cpy #$20
 	bne headerloop0b
 
-	jmp checksave1
+	jmp checksave1 & $ffff
 
 save0bnotvalid:
 	; Check third copy of save slot 0 for accuracy
@@ -957,10 +971,10 @@ save0bnotvalid:
 	lda $76a3
 	cmp #'Z'
 	bne save0cheadernotvalid
-	jmp save0cheadervalid
+	jmp save0cheadervalid & $ffff
 
 save0cheadernotvalid:
-	jmp save0cnotvalid
+	jmp save0cnotvalid & $ffff
 
 save0cheadervalid:
 	lda #0
@@ -1020,7 +1034,7 @@ headerloop0c:
 	cpy #$20
 	bne headerloop0c
 
-	jmp checksave1
+	jmp checksave1 & $ffff
 
 save0cnotvalid:
 	; No valid saves for slot 0, clear it
@@ -1041,10 +1055,10 @@ checksave1:
 	lda $6c23
 	cmp #'Z'
 	bne save1aheadernotvalid
-	jmp save1aheadervalid
+	jmp save1aheadervalid & $ffff
 
 save1aheadernotvalid:
-	jmp save1anotvalid
+	jmp save1anotvalid & $ffff
 
 save1aheadervalid:
 	lda #0
@@ -1104,7 +1118,7 @@ headerloop1a:
 	cpy #$20
 	bne headerloop1a
 
-	jmp checksave2
+	jmp checksave2 & $ffff
 
 save1anotvalid:
 	; Check second copy of save slot 1 for accuracy
@@ -1120,10 +1134,10 @@ save1anotvalid:
 	lda $6cc3
 	cmp #'Z'
 	bne save1bheadernotvalid
-	jmp save1bheadervalid
+	jmp save1bheadervalid & $ffff
 
 save1bheadernotvalid:
-	jmp save1bnotvalid
+	jmp save1bnotvalid & $ffff
 
 save1bheadervalid:
 	lda #0
@@ -1183,7 +1197,7 @@ headerloop1b:
 	cpy #$20
 	bne headerloop1b
 
-	jmp checksave2
+	jmp checksave2 & $ffff
 
 save1bnotvalid:
 	; Check third copy of save slot 1 for accuracy
@@ -1199,10 +1213,10 @@ save1bnotvalid:
 	lda $76c3
 	cmp #'Z'
 	bne save1cheadernotvalid
-	jmp save1cheadervalid
+	jmp save1cheadervalid & $ffff
 
 save1cheadernotvalid:
-	jmp save1cnotvalid
+	jmp save1cnotvalid & $ffff
 
 save1cheadervalid:
 	lda #0
@@ -1262,7 +1276,7 @@ headerloop1c:
 	cpy #$20
 	bne headerloop1c
 
-	jmp checksave2
+	jmp checksave2 & $ffff
 
 save1cnotvalid:
 	; No valid saves for slot 1, clear it
@@ -1283,10 +1297,10 @@ checksave2:
 	lda $6c43
 	cmp #'Z'
 	bne save2aheadernotvalid
-	jmp save2aheadervalid
+	jmp save2aheadervalid & $ffff
 
 save2aheadernotvalid:
-	jmp save2anotvalid
+	jmp save2anotvalid & $ffff
 
 save2aheadervalid:
 	lda #0
@@ -1346,7 +1360,7 @@ headerloop2a:
 	cpy #$20
 	bne headerloop2a
 
-	jmp done
+	jmp done & $ffff
 
 save2anotvalid:
 	; Check second copy of save slot 2 for accuracy
@@ -1362,10 +1376,10 @@ save2anotvalid:
 	lda $6ce3
 	cmp #'Z'
 	bne save2bheadernotvalid
-	jmp save2bheadervalid
+	jmp save2bheadervalid & $ffff
 
 save2bheadernotvalid:
-	jmp save2bnotvalid
+	jmp save2bnotvalid & $ffff
 
 save2bheadervalid:
 	lda #0
@@ -1425,7 +1439,7 @@ headerloop2b:
 	cpy #$20
 	bne headerloop2b
 
-	jmp done
+	jmp done & $ffff
 
 save2bnotvalid:
 	; Check third copy of save slot 2 for accuracy
@@ -1441,10 +1455,10 @@ save2bnotvalid:
 	lda $76e3
 	cmp #'Z'
 	bne save2cheadernotvalid
-	jmp save2cheadervalid
+	jmp save2cheadervalid & $ffff
 
 save2cheadernotvalid:
-	jmp save2cnotvalid
+	jmp save2cnotvalid & $ffff
 
 save2cheadervalid:
 	lda #0
@@ -1504,7 +1518,7 @@ headerloop2c:
 	cpy #$20
 	bne headerloop2c
 
-	jmp done
+	jmp done & $ffff
 
 save2cnotvalid:
 	; No valid saves for slot 2, clear it
@@ -1516,6 +1530,8 @@ done:
 	rts
 .endproc
 
+
+.segment "FIXED"
 
 PROC generate_minimap_cache
 	lda current_bank

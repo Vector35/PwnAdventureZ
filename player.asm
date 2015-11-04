@@ -91,9 +91,32 @@ notup:
 .endproc
 
 
-.code
-
 PROC init_player_sprites
+	lda current_bank
+	pha
+	lda #^do_init_player_sprites
+	jsr bankswitch
+	jsr do_init_player_sprites & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+PROC update_player_sprite
+	lda current_bank
+	pha
+	lda #^do_update_player_sprite
+	jsr bankswitch
+	jsr do_update_player_sprite & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+.segment "EXTRA"
+
+PROC do_init_player_sprites
 	LOAD_ALL_TILES $100 + SPRITE_TILE_INTERACT, interact_tiles
 
 	lda equipped_armor
@@ -101,7 +124,7 @@ PROC init_player_sprites
 	beq ghillie
 
 	LOAD_ALL_TILES $100 + SPRITE_TILE_PLAYER, unarmed_player_tiles
-	jmp setpalette
+	jmp setpalette & $ffff
 
 ghillie:
 	LOAD_ALL_TILES $100 + SPRITE_TILE_PLAYER, ghillie_player_tiles
@@ -133,11 +156,11 @@ setpalette:
 	beq ghillielightpalette
 
 	LOAD_PTR light_player_palette
-	jmp loadpal
+	jmp loadpal & $ffff
 
 ghillielightpalette:
 	LOAD_PTR light_ghillie_player_palette
-	jmp loadpal
+	jmp loadpal & $ffff
 
 dark:
 	lda equipped_armor
@@ -145,7 +168,7 @@ dark:
 	beq ghilliedarkpalette
 
 	LOAD_PTR dark_player_palette
-	jmp loadpal
+	jmp loadpal & $ffff
 
 ghilliedarkpalette:
 	LOAD_PTR dark_ghillie_player_palette
@@ -165,7 +188,7 @@ loadpal:
 .endproc
 
 
-PROC update_player_sprite
+PROC do_update_player_sprite
 	lda rendering_enabled
 	beq palettedone
 
@@ -180,7 +203,7 @@ PROC update_player_sprite
 	jsr load_single_palette
 
 	dec player_damage_flash_time
-	jmp palettedone
+	jmp palettedone & $ffff
 
 flashoff:
 	dec player_damage_flash_time
@@ -261,6 +284,8 @@ nointeract:
 	rts
 .endproc
 
+
+.code
 
 PROC perform_player_move
 	lda #0
@@ -1750,7 +1775,7 @@ VAR extra_player_move
 	.byte 0
 
 
-.rodata
+.data
 VAR walking_sprites_for_state
 	; Up
 	.byte $1c + 1, $00
@@ -1810,6 +1835,8 @@ VAR gun_palette
 	.byte $0f, $00, $10, $20
 VAR fire_palette
 	.byte $0f, $06, $16, $37
+
+.rodata
 
 VAR interaction_descriptors
 	.word starting_chest_descriptor

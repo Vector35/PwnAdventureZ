@@ -690,11 +690,13 @@ cluttertry:
 clutterblank:
 	sta arg4
 
-	inx
+	dex
+	dey
 	jsr read_gen_map
 	cmp arg4
 	bne clutterblock
 
+	inx
 	inx
 	jsr read_gen_map
 	cmp arg4
