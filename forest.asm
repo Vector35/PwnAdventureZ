@@ -146,6 +146,9 @@ PROC do_gen_forest
 	lda #MUSIC_FOREST
 	jsr play_music
 
+	LOAD_PTR forest_palette
+	jsr load_background_game_palette
+
 	jsr gen_forest_common & $ffff
 	jsr finish_forest & $ffff
 
@@ -157,6 +160,9 @@ PROC do_gen_forest
 PROC do_gen_forest_boss
 	lda #MUSIC_FOREST
 	jsr play_music
+
+	LOAD_PTR forest_palette
+	jsr load_background_game_palette
 
 	jsr gen_forest_common & $ffff
 
@@ -209,7 +215,13 @@ PROC do_gen_dead_wood
 	lda #MUSIC_FOREST
 	jsr play_music
 
+	LOAD_PTR dead_wood_palette
+	jsr load_background_game_palette
+
 	jsr gen_forest_common & $ffff
+
+	LOAD_ALL_TILES FOREST_TILES, dead_tree_tiles
+
 	jsr finish_forest & $ffff
 
 	jsr spawn_dead_wood_enemies & $ffff
@@ -220,6 +232,9 @@ PROC do_gen_dead_wood
 PROC do_gen_dead_wood_boss
 	lda #MUSIC_FOREST
 	jsr play_music
+
+	LOAD_PTR dead_wood_palette
+	jsr load_background_game_palette
 
 	jsr gen_forest_common & $ffff
 
@@ -273,10 +288,10 @@ PROC do_gen_sewer_down
 	lda #MUSIC_FOREST
 	jsr play_music
 
-	jsr gen_forest_common & $ffff
-
 	LOAD_PTR sewer_entrance_palette
 	jsr load_background_game_palette
+
+	jsr gen_forest_common & $ffff
 
 	LOAD_ALL_TILES ENTRANCE_TILES, sewer_entrance_tiles
 	lda #INTERACT_SEWER_ENTRANCE
@@ -420,10 +435,6 @@ PROC gen_forest_common
 	sta traversable_tiles + 1
 	lda #FOREST_TILES + FOREST_GRASS
 	sta spawnable_tiles
-
-	; Load forest palette
-	LOAD_PTR forest_palette
-	jsr load_background_game_palette
 
 	; Determine which kind of border (if there is one) needs to be generated
 	jsr read_overworld_cur
@@ -1188,6 +1199,12 @@ VAR sewer_entrance_palette
 	.byte $0f, $19, $00, $10
 	.byte $0f, $09, $19, $08
 
+VAR dead_wood_palette
+	.byte $0f, $09, $19, $08
+	.byte $0f, $09, $19, $08
+	.byte $0f, $19, $07, $27
+	.byte $0f, $09, $19, $08
+
 VAR forest_rock_border_palette
 	.byte $0f, $19, $07, $17
 
@@ -1223,6 +1240,7 @@ TILES forest_rock_border_tiles, 2, "tiles/forest/rock.chr", 60
 TILES forest_lake_border_tiles, 2, "tiles/forest/lake.chr", 60
 TILES forest_chest_tiles, 3, "tiles/forest/chest.chr", 8
 TILES sewer_entrance_tiles, 3, "tiles/sewer/entrance.chr", 4
+TILES dead_tree_tiles, 2, "tiles/forest/deadtree.chr", 8
 
 
 .segment "UI"
