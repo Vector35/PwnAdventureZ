@@ -4,7 +4,7 @@ For CSAW 2015, a special retro-edition of Pwn Adventure was created combining so
 
 For this challenge, you will find the enclosed files handy. The .nl files are debug symbol files for the FCEUX Emulator. Note that only the Windows version supports debugging unfortunately. The .map file is created by the assembler/compiler and was used to create the .nl files.
 
-As to the game itself, you'll just have to investigate. There are four challenges related to the game. The first can be solved using only the files included here. The next three all require you to play the game on one of the physical NES systems set up in the CTF room. The flags are clearly identified in the game by their format, always something like: CSAW(flaggoeshere), or "THE FLAG IS FLAGGOESHERE".
+As to the game itself, you'll just have to investigate. There are five challenges related to the game. The first can be solved using only the files included here. The next four all require you to play the game on one of the physical NES systems set up in the CTF room. The flags are clearly identified in the game by their format, always something like: CSAW(flaggoeshere), or "THE FLAG IS FLAGGOESHERE".
 
 Good luck.
 
