@@ -1009,8 +1009,10 @@ notcompleted:
 
 	lda #1
 	sta horde_active
+
 	lda #120
 	sta horde_spawn_timer
+	sta horde_spawn_delay
 
 	lda difficulty
 	cmp #1
@@ -1022,7 +1024,6 @@ notcompleted:
 	sta horde_timer
 	lda #0
 	sta horde_timer + 1
-	sta horde_spawn_delay
 	jmp hordesetup & $ffff
 
 hard:
@@ -1030,14 +1031,12 @@ hard:
 	sta horde_timer
 	lda #0
 	sta horde_timer + 1
-	sta horde_spawn_delay
 	jmp hordesetup & $ffff
 
 veryhard:
 	lda #180
 	sta horde_timer
 	lda #0
-	sta horde_spawn_delay
 	sta horde_timer + 1
 
 hordesetup:
