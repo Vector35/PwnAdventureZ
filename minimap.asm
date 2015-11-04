@@ -612,6 +612,24 @@ checkforest:
 	beq base
 	cmp #MAP_BASE_INTERIOR
 	beq base
+
+	cmp #MAP_SEWER_UP
+	beq sewerormine
+	cmp #MAP_SEWER
+	beq sewerormine
+	cmp #MAP_SEWER_CHEST
+	beq sewerormine
+	cmp #MAP_SEWER_BOSS
+	beq sewerormine
+	cmp #MAP_MINE_UP
+	beq sewerormine
+	cmp #MAP_MINE
+	beq sewerormine
+	cmp #MAP_MINE_CHEST
+	beq sewerormine
+	cmp #MAP_MINE_BOSS
+	beq sewerormine
+
 	jmp rock
 
 forest:
@@ -623,6 +641,10 @@ forest:
 	and #3
 	beq park
 
+	lda #MINIMAP_TILE_FOREST
+	rts
+
+sewerormine:
 	lda #MINIMAP_TILE_FOREST
 	rts
 

@@ -1821,6 +1821,7 @@ VAR interaction_descriptors
 	.word blocky_note_descriptor
 	.word boarded_house_note_descriptor
 	.word boarded_house_npc_descriptor
+	.word sewer_entrance_descriptor
 	.word key_chest_1_descriptor
 	.word key_chest_5_descriptor
 

@@ -142,6 +142,11 @@ normalsecondmove:
 	jmp prepare
 
 movedone:
+	lda warp_to_new_screen
+	beq nowarp
+	jmp prepare
+
+nowarp:
 	jsr update_enemies
 	jsr check_for_enemy_collide
 	jsr update_effects
@@ -706,6 +711,8 @@ VAR cur_screen_x
 VAR cur_screen_y
 	.byte 0
 VAR inside
+	.byte 0
+VAR warp_to_new_screen
 	.byte 0
 VAR map_bank
 	.byte 0

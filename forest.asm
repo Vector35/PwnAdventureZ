@@ -1,12 +1,14 @@
 .include "defines.inc"
 
-.define FOREST_TILES $80
-.define CHEST_TILES  $b8
-.define BORDER_TILES $c0
+.define FOREST_TILES   $80
+.define CHEST_TILES    $b8
+.define ENTRANCE_TILES $b8
+.define BORDER_TILES   $c0
 
-.define FOREST_PALETTE 0
-.define BORDER_PALETTE 1
-.define CHEST_PALETTE  2
+.define FOREST_PALETTE   0
+.define BORDER_PALETTE   1
+.define CHEST_PALETTE    2
+.define ENTRANCE_PALETTE 2
 
 
 .segment "FIXED"
@@ -84,6 +86,30 @@ PROC gen_dead_wood_boss
 	lda #^do_gen_dead_wood_boss
 	jsr bankswitch
 	jsr do_gen_dead_wood_boss & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+PROC gen_sewer_down
+	lda current_bank
+	pha
+	lda #^do_gen_sewer_down
+	jsr bankswitch
+	jsr do_gen_sewer_down & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+PROC sewer_entrance_interact
+	lda current_bank
+	pha
+	lda #^do_sewer_entrance_interact
+	jsr bankswitch
+	jsr do_sewer_entrance_interact & $ffff
 	pla
 	jsr bankswitch
 	rts
@@ -239,6 +265,33 @@ chestdone:
 	sta horde_enemy_types + 3
 
 	jsr spawn_dead_wood_enemies & $ffff
+	rts
+.endproc
+
+
+PROC do_gen_sewer_down
+	lda #MUSIC_FOREST
+	jsr play_music
+
+	jsr gen_forest_common & $ffff
+
+	LOAD_PTR sewer_entrance_palette
+	jsr load_background_game_palette
+
+	LOAD_ALL_TILES ENTRANCE_TILES, sewer_entrance_tiles
+	lda #INTERACT_SEWER_ENTRANCE
+	sta interactive_tile_types
+	lda #ENTRANCE_TILES
+	sta interactive_tile_values
+
+	ldx #7
+	ldy #4
+	lda #ENTRANCE_TILES + ENTRANCE_PALETTE
+	jsr write_gen_map
+
+	jsr finish_forest & $ffff
+
+	jsr spawn_forest_enemies & $ffff
 	rts
 .endproc
 
@@ -628,9 +681,7 @@ cluttertry:
 	; same type of blank space (not critical path, or all critical path) to ensure that
 	; it will not block all paths to exits
 	ldx arg0
-	dex
 	ldy arg1
-	dey
 	jsr read_gen_map
 	cmp #0
 	beq clutterblank
@@ -875,6 +926,28 @@ botnotlake:
 .endproc
 
 
+PROC do_sewer_entrance_interact
+	jsr fade_out
+
+	lda #^normal_sewer_map
+	sta map_bank
+	lda #<normal_sewer_map
+	sta map_ptr
+	lda #>normal_sewer_map
+	sta map_ptr + 1
+	lda #<sewer_visited
+	sta map_visited_ptr
+	lda #>sewer_visited
+	sta map_visited_ptr + 1
+
+	jsr generate_minimap_cache
+
+	lda #1
+	sta warp_to_new_screen
+	rts
+.endproc
+
+
 PROC do_key_chest_1_interact
 	lda completed_quest_steps
 	and #QUEST_KEY_1
@@ -1107,6 +1180,12 @@ VAR forest_palette
 	.byte $0f, $19, $07, $27
 	.byte $0f, $09, $19, $08
 
+VAR sewer_entrance_palette
+	.byte $0f, $09, $19, $08
+	.byte $0f, $09, $19, $08
+	.byte $0f, $19, $00, $10
+	.byte $0f, $09, $19, $08
+
 VAR forest_rock_border_palette
 	.byte $0f, $19, $07, $17
 
@@ -1132,11 +1211,16 @@ VAR key_chest_5_descriptor
 	.word always_interactable
 	.word key_chest_5_interact
 
+VAR sewer_entrance_descriptor
+	.word always_interactable
+	.word sewer_entrance_interact
+
 
 TILES forest_tiles, 2, "tiles/forest/forest.chr", 8
 TILES forest_rock_border_tiles, 2, "tiles/forest/rock.chr", 60
 TILES forest_lake_border_tiles, 2, "tiles/forest/lake.chr", 60
 TILES forest_chest_tiles, 3, "tiles/forest/chest.chr", 8
+TILES sewer_entrance_tiles, 3, "tiles/sewer/entrance.chr", 4
 
 
 .segment "UI"

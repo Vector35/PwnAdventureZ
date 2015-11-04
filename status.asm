@@ -55,6 +55,18 @@ PROC do_load_area_name_tiles
 	beq lostcavelocation
 	cmp #MAP_LOST_CAVE_END
 	beq lostcavelocation
+	cmp #MAP_MINE
+	beq minelocation
+	cmp #MAP_MINE_ENTRANCE
+	beq minelocation
+	cmp #MAP_MINE_DOWN
+	beq minelocation
+	cmp #MAP_MINE_CHEST
+	beq minelocation
+	cmp #MAP_MINE_BOSS
+	beq minelocation
+	cmp #MAP_MINE_UP
+	beq minelocation
 	jmp resumesearch & $ffff
 
 startcavelocation:
@@ -65,16 +77,10 @@ maincavelocation:
 	jmp maincave & $ffff
 lostcavelocation:
 	jmp lostcave & $ffff
+minelocation:
+	jmp mine & $ffff
 
 resumesearch:
-	cmp #MAP_MINE_ENTRANCE
-	beq minelocation
-	cmp #MAP_MINE_DOWN
-	beq minelocation
-	cmp #MAP_MINE_CHEST
-	beq minelocation
-	cmp #MAP_MINE_BOSS
-	beq minelocation
 	cmp #MAP_HOUSE
 	beq townlocation
 	cmp #MAP_SHOP
@@ -117,12 +123,12 @@ resumesearch:
 	beq sewerlocation
 	cmp #MAP_SEWER_BOSS
 	beq sewerlocation
+	cmp #MAP_SEWER_UP
+	beq sewerlocation
 
 	LOAD_ALL_TILES LOCATION_TILES, forest_name_tiles
 	jmp namedone & $ffff
 
-minelocation:
-	jmp mine & $ffff
 baselocation:
 	jmp base & $ffff
 blockylocation:

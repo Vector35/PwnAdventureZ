@@ -164,7 +164,10 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define MAP_OUTPOST_SHOP       40
 .define MAP_SEWER_DOWN         41
 .define MAP_OUTPOST_HOUSE      42
-.define MAP_TYPE_COUNT         43
+.define MAP_SEWER_UP           43
+.define MAP_MINE_UP            44
+.define MAP_MINE               45
+.define MAP_TYPE_COUNT         46
 
 ; Map parameters
 .define MAP_WIDTH  15
@@ -319,8 +322,9 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define INTERACT_BLOCKY_NOTE        6
 .define INTERACT_BOARDED_HOUSE_NOTE 7
 .define INTERACT_BOARDED_HOUSE_NPC  8
-.define INTERACT_KEY_CHEST_1        9
-.define INTERACT_KEY_CHEST_5        10
+.define INTERACT_SEWER_ENTRANCE     9
+.define INTERACT_KEY_CHEST_1        10
+.define INTERACT_KEY_CHEST_5        11
 .define INTERACT_NONE               $ff
 
 .define INTERACT_DESC_IS_VALID 0
@@ -337,16 +341,16 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 
 .define SPRITE_TILE_PLAYER $00
 
-.define SPRITE_TILE_NORMAL_MALE_ZOMBIE   $20
-.define SPRITE_TILE_NORMAL_FEMALE_ZOMBIE $40
-.define SPRITE_TILE_FAT_ZOMBIE           $60
-.define SPRITE_TILE_SHARK                $80
+.define SPRITE_TILE_NORMAL_MALE_ZOMBIE   $40
+.define SPRITE_TILE_NORMAL_FEMALE_ZOMBIE $60
+.define SPRITE_TILE_FAT_ZOMBIE           $80
 .define SPRITE_TILE_SPIDER               $a0
+.define SPRITE_TILE_SHARK                $30
 
-.define SPRITE_TILE_MALE_NPC        $20
-.define SPRITE_TILE_FEMALE_NPC      $40
-.define SPRITE_TILE_MALE_THIN_NPC   $60
-.define SPRITE_TILE_FEMALE_THIN_NPC $80
+.define SPRITE_TILE_MALE_NPC        $2c
+.define SPRITE_TILE_FEMALE_NPC      $4c
+.define SPRITE_TILE_MALE_THIN_NPC   $6c
+.define SPRITE_TILE_FEMALE_THIN_NPC $8c
 
 .define SPRITE_TILE_WARP          $cc
 .define SPRITE_TILE_MELEE 		  $d0
@@ -487,7 +491,8 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .global cur_enemy
 
 .global inventory, inventory_count
-.global map_screen_generators, cur_screen_x, cur_screen_y, inside, map_bank, map_ptr, map_visited_ptr
+.global map_screen_generators, cur_screen_x, cur_screen_y, inside, warp_to_new_screen
+.global map_bank, map_ptr, map_visited_ptr
 .global equipped_weapon, equipped_armor, equipped_weapon_slot, equipped_armor_slot
 .global spawn_screen_x, spawn_screen_y, spawn_inside, spawn_pos_x, spawn_pos_y
 .global active_save_slot

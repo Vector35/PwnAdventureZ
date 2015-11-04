@@ -37,7 +37,7 @@ for line in f:
 			elif parts[0] == "DATA":
 				data_size += int(parts[3], 16)
 			elif parts[0] == "RODATA":
-				data_size += int(parts[3], 16)
+				code_size += int(parts[3], 16)
 			elif parts[0][:3] == "CHR":
 				chr_size += int(parts[3], 16)
 			elif parts[0] == "TEMP":
