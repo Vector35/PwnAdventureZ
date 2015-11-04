@@ -355,16 +355,15 @@ PROC do_swiming_ai_tick
 	beq change_sprite
 	lda #$30
 	cmp shark_fire_count, x
-	beq fire
+	bne dontfire
+	jsr fire_laser & $ffff
+dontfire:
 	rts
 change_sprite:
 	lda #>(shooting_sprites_for_state)
 	sta enemy_sprite_state_high, x
 	lda #<(shooting_sprites_for_state)
 	sta enemy_sprite_state_low, x
-	rts
-fire:
-	jsr fire_laser & $ffff
 	rts
 resume:
 	lda #0

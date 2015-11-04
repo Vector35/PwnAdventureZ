@@ -22,6 +22,86 @@ PROC get_player_tile
 	rts
 .endproc
 
+PROC player_melee_tick
+	lda current_bank
+	pha
+	lda #^do_player_melee_tick
+	jsr bankswitch
+	jsr do_player_melee_tick & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+PROC melee_hit_enemy
+	lda current_bank
+	pha
+	lda #^do_melee_hit_enemy
+	jsr bankswitch
+	jsr do_melee_hit_enemy & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+PROC get_player_direction_bits
+	lda controller
+	and #JOY_LEFT | JOY_RIGHT | JOY_UP | JOY_DOWN
+	beq nodir
+	sta temp
+
+	lda controller
+	and #JOY_LEFT | JOY_RIGHT
+	cmp #JOY_LEFT | JOY_RIGHT
+	bne notbothhoriz
+
+	lda temp
+	and #JOY_LEFT | JOY_UP | JOY_DOWN
+	sta temp
+
+notbothhoriz:
+	lda controller
+	and #JOY_UP | JOY_DOWN
+	cmp #JOY_UP | JOY_DOWN
+	bne notbothvert
+
+	lda temp
+	and #JOY_LEFT | JOY_RIGHT | JOY_UP
+	sta temp
+
+notbothvert:
+	lda temp
+	rts
+
+nodir:
+	lda player_direction
+	and #3
+	cmp #DIR_LEFT
+	bne notleft
+
+	lda #JOY_LEFT
+	rts
+
+notleft:
+	cmp #DIR_RIGHT
+	bne notright
+
+	lda #JOY_RIGHT
+	rts
+
+notright:
+	cmp #DIR_UP
+	bne notup
+
+	lda #JOY_UP
+	rts
+
+notup:
+	lda #JOY_DOWN
+	rts
+.endproc
+
+
 .code
 
 PROC init_player_sprites
@@ -996,64 +1076,6 @@ PROC set_interaction_pos
 .endproc
 
 
-PROC get_player_direction_bits
-	lda controller
-	and #JOY_LEFT | JOY_RIGHT | JOY_UP | JOY_DOWN
-	beq nodir
-	sta temp
-
-	lda controller
-	and #JOY_LEFT | JOY_RIGHT
-	cmp #JOY_LEFT | JOY_RIGHT
-	bne notbothhoriz
-
-	lda temp
-	and #JOY_LEFT | JOY_UP | JOY_DOWN
-	sta temp
-
-notbothhoriz:
-	lda controller
-	and #JOY_UP | JOY_DOWN
-	cmp #JOY_UP | JOY_DOWN
-	bne notbothvert
-
-	lda temp
-	and #JOY_LEFT | JOY_RIGHT | JOY_UP
-	sta temp
-
-notbothvert:
-	lda temp
-	rts
-
-nodir:
-	lda player_direction
-	and #3
-	cmp #DIR_LEFT
-	bne notleft
-
-	lda #JOY_LEFT
-	rts
-
-notleft:
-	cmp #DIR_RIGHT
-	bne notright
-
-	lda #JOY_RIGHT
-	rts
-
-notright:
-	cmp #DIR_UP
-	bne notup
-
-	lda #JOY_UP
-	rts
-
-notup:
-	lda #JOY_DOWN
-	rts
-.endproc
-
-
 PROC player_attack
 	jsr read_overworld_cur
 	and #$3f
@@ -1365,6 +1387,102 @@ nocollide:
 	rts
 .endproc
 
+
+.segment "EXTRA"
+
+PROC do_melee_hit_enemy
+	PLAY_SOUND_EFFECT effect_enemyhit
+
+	lda #10
+	jsr enemy_damage
+
+	ldx cur_effect
+	lda #EFFECT_PLAYER_BULLET_DAMAGE
+	sta effect_type, x
+	lda #SPRITE_TILE_BULLET_DAMAGE
+	sta effect_tile, x
+	lda #0
+	sta effect_time, x
+
+	rts
+.endproc
+
+PROC do_player_melee_tick
+	ldx cur_effect
+	lda #0
+	dec effect_data_0, x
+	cmp effect_data_0, x
+	beq remove
+	jsr get_player_direction_bits
+	sta effect_direction, x
+	
+	lda player_direction
+	and #3
+	cmp #DIR_LEFT
+	bne notleft
+
+	lda #SPRITE_TILE_MELEE + 12
+	sta effect_tile, x
+	lda player_x
+	sec
+	sbc #8
+	sta effect_x, x
+	lda player_y
+	clc
+	adc #0
+	sta effect_y, x
+	jmp done & $ffff
+
+notleft:
+	cmp #DIR_RIGHT
+	bne notright
+
+	lda #SPRITE_TILE_MELEE + 4
+	sta effect_tile, x
+	lda player_x
+	clc
+	adc #12
+	sta effect_x, x
+	lda player_y
+	clc
+	adc #4
+	sta effect_y, x
+	jmp done & $ffff
+notright:
+	cmp #DIR_UP
+	bne notup
+
+	lda #SPRITE_TILE_MELEE + 0
+	sta effect_tile, x
+	lda player_y
+	sec
+	sbc #8
+	sta effect_y, x
+	lda player_x
+	clc
+	adc #0
+	sta effect_x, x
+
+	jmp done & $ffff
+notup:
+	lda #SPRITE_TILE_MELEE + 8
+	sta effect_tile, x
+	lda player_y
+	clc
+	adc #12
+	sta effect_y, x
+	lda player_x
+	clc
+	adc #2
+	sta effect_x, x
+done:
+	rts
+remove:
+	jsr remove_effect & $ffff
+	rts
+.endproc
+
+.code
 
 PROC player_bullet_tick
 	ldx cur_effect
@@ -1686,10 +1804,28 @@ VAR interaction_descriptors
 	.word boarded_house_note_descriptor
 	.word boarded_house_npc_descriptor
 
+VAR player_axe_descriptor
+	.word player_melee_tick
+	.word nothing
+	.word bullet_hit_enemy
+	.word bullet_hit_world
+	.byte SPRITE_TILE_MELEE, 1
+	.byte 2
+	.byte 16, 16
+
+VAR player_sword_descriptor
+	.word player_melee_tick
+	.word nothing
+	.word melee_hit_enemy
+	.word bullet_hit_world
+	.byte SPRITE_TILE_BULLET, 1
+	.byte 2
+	.byte 16, 16
+
 VAR player_bullet_descriptor
 	.word player_bullet_tick
 	.word nothing
-	.word bullet_hit_enemy
+	.word melee_hit_enemy
 	.word bullet_hit_world
 	.byte SPRITE_TILE_BULLET, 0
 	.byte 2

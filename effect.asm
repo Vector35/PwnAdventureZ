@@ -6,7 +6,7 @@ PROC init_effect_sprites
 	LOAD_ALL_TILES $100 + SPRITE_TILE_BULLET, bullet_tiles
 	LOAD_ALL_TILES $100 + SPRITE_TILE_SPLAT, splat_tiles
 	LOAD_ALL_TILES $100 + SPRITE_TILE_ORB, orb_tiles
-;	LOAD_ALL_TILES $100 + SPRITE_TILE_LASER, laser_tiles
+	LOAD_ALL_TILES $100 + SPRITE_TILE_MELEE, axe_tiles
 
 	ldx #0
 	lda #EFFECT_NONE
@@ -522,6 +522,8 @@ VAR x_or_y_dominate
 .data
 
 VAR effect_descriptors
+	.word player_axe_descriptor
+	.word player_sword_descriptor
 	.word player_bullet_descriptor
 	.word player_lmg_bullet_descriptor
 	.word player_ak_bullet_descriptor
@@ -539,4 +541,4 @@ VAR effect_descriptors
 
 
 TILES bullet_tiles, 2, "tiles/effects/bullet.chr", 6
-TILES laser_tiles, 2, "tiles/effects/laser.chr", 7
+TILES axe_tiles, 3, "tiles/weapons/axe.chr", 16

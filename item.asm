@@ -226,6 +226,36 @@ deletedone:
 	rts
 .endproc
 
+PROC swing_axe
+	PLAY_SOUND_EFFECT effect_pistol
+
+	lda player_x
+	sta arg0
+	lda player_y
+	sta arg1
+	lda #EFFECT_PLAYER_AXE
+	sta arg2
+	jsr get_player_direction_bits
+	sta arg3
+	lda #10
+	sta arg4
+	jsr create_effect
+
+	cmp #$ff
+	beq failed
+
+	sta cur_effect
+
+	lda #15
+	sta attack_cooldown
+	lda #1
+	sta attack_held
+	jsr player_melee_tick
+failed:
+	rts
+.endproc
+
+
 
 PROC fire_pistol
 	jsr use_one_ammo
@@ -632,7 +662,7 @@ load:
 .data
 
 VAR axe_item
-	.word 0
+	.word swing_axe
 	.word axe_tiles & $ffff
 	.byte ITEM_TYPE_MELEE
 	.byte "WOOD AXE       ", 0
