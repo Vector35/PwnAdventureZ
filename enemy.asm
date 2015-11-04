@@ -197,6 +197,9 @@ slotfound:
 	ldy #ENEMY_DESC_SPRITE_STATES + 1
 	lda (ptr), y
 	sta enemy_sprite_state_high, x
+	
+	lda #0
+	sta enemy_walk_target, x
 
 	lda difficulty
 	cmp #1
@@ -324,15 +327,8 @@ done:
 .segment "FIXED"
 
 PROC restore_enemies
-	;clear walking targets
-	ldx #ENEMY_MAX_COUNT
-	lda #0
-zeroloop:
-	dex
-	sta enemy_walk_target, x
-	cpx #0
-	bne zeroloop
 
+	ldx #0
 findloop:
 	lda saved_enemy_screen_x, x
 	cmp cur_screen_x
@@ -1556,7 +1552,7 @@ done:
 	rts
 .endproc
 
-
+.segment "FIXED"
 PROC enemy_damage
 	sta temp
 	ldx cur_enemy
@@ -1592,6 +1588,7 @@ dead:
 	rts
 .endproc
 
+.code
 
 PROC save_enemies
 	ldx #0
