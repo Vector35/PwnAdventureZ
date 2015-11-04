@@ -28,6 +28,20 @@ PROC get_enemy_tile
 PROC spawn_starting_enemy
 	sta arg5
 
+	lda current_bank
+	pha
+	lda #^do_spawn_starting_enemy
+	jsr bankswitch
+	jsr do_spawn_starting_enemy & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+.segment "EXTRA"
+
+PROC do_spawn_starting_enemy
 	lda #0
 	sta arg4
 	; Try to find a valid spawn location
@@ -35,27 +49,54 @@ spawnloop:
 	lda arg5
 	cmp #ENEMY_SHARK
 	bne not_shark 
-	jsr find_water_spawn_point
+	jsr find_water_spawn_point & $ffff
 	cmp #0
 	beq notspawnable
-	jmp dospawn
+	jmp dospawn & $ffff
 not_shark:
-	lda #7
+	lda #9
 	jsr rand_range
 	clc
-	adc #4
+	adc #3
 	sta arg0
 
-	lda #4
+	lda #6
 	jsr rand_range
 	clc
-	adc #4
+	adc #3
 	sta arg1
 	tay
 	ldx arg0
 	jsr read_spawnable_at
 	beq notspawnable
 dospawn:
+	; Don't spawn too near the player
+	lda player_x
+	lsr
+	lsr
+	lsr
+	lsr
+	sec
+	sbc arg0
+	cmp #2
+	bcc checkplayery
+	cmp #$fe
+	bcc playerspawnok
+
+checkplayery:
+	lda player_y
+	lsr
+	lsr
+	lsr
+	lsr
+	sec
+	sbc arg1
+	cmp #2
+	bcc notspawnable
+	cmp #$fe
+	bcs notspawnable
+
+playerspawnok:
 	; Check to make sure there isn't already an enemy here
 	ldx #0
 collideloop:
@@ -81,7 +122,7 @@ collidenext:
 	cpx #ENEMY_MAX_COUNT
 	bne collideloop
 
-	jmp spawnhere
+	jmp spawnhere & $ffff
 
 notspawnable:
 	; Not a valid location, try up to 8 times to find one
@@ -165,14 +206,14 @@ slotfound:
 	ldy #ENEMY_DESC_HEALTH
 	lda (ptr), y
 	sta enemy_health, x
-	jmp done
+	jmp done & $ffff
 
 hard:
 	ldy #ENEMY_DESC_HEALTH
 	lda (ptr), y
 	asl
 	sta enemy_health, x
-	jmp done
+	jmp done & $ffff
 
 veryhard:
 	ldy #ENEMY_DESC_HEALTH
@@ -183,6 +224,22 @@ veryhard:
 	sta enemy_health, x
 
 done:
+	lda horde_active
+	beq nohorde
+
+	lda enemy_x, x
+	sta arg0
+	lda enemy_y, x
+	sta arg1
+	lda #EFFECT_WARP
+	sta arg2
+	lda #0
+	sta arg3
+	jsr create_effect
+
+	PLAY_SOUND_EFFECT effect_warp
+
+nohorde:
 	rts
 .endproc
 
@@ -209,7 +266,7 @@ try_again:
 	stx arg0
 	sty arg1
 	jsr read_water_collision_at
-	jmp check_spawnable
+	jmp check_spawnable & $ffff
 not_up:
 	cmp #1
 	bne not_down
@@ -225,7 +282,7 @@ not_up:
 	stx arg0
 	sty arg1
 	jsr read_water_collision_at
-	jmp check_spawnable
+	jmp check_spawnable & $ffff
 not_down:
 	cmp #2
 	bne not_right
@@ -239,7 +296,7 @@ not_down:
 	stx arg0
 	sty arg1
 	jsr read_water_collision_at
-	jmp check_spawnable
+	jmp check_spawnable & $ffff
 not_right:
 	;try to spawn on left side of screen
 	;use random y range 1->MAP_HEIGHT
@@ -256,13 +313,15 @@ not_right:
 check_spawnable:
 	beq try_again
 	lda #1
-	jmp done
+	jmp done & $ffff
 done_failed:
 	lda #0
 done:
 	rts
 .endproc
 
+
+.segment "FIXED"
 
 PROC restore_enemies
 	;clear walking targets
@@ -322,9 +381,88 @@ spawnloop:
 .endproc
 
 
-.code
+.segment "EXTRA"
+
+PROC update_horde
+	lda horde_active
+	beq nohorde
+
+	ldx horde_timer + 1
+	beq framezero
+	dex
+	stx horde_timer + 1
+	jmp checkspawn & $ffff
+
+framezero:
+	lda #59
+	sta horde_timer + 1
+	ldx horde_timer
+	beq done
+	dex
+	stx horde_timer
+	jmp checkspawn & $ffff
+
+done:
+	lda #0
+	sta horde_active
+	lda #1
+	sta horde_complete
+
+	jsr read_overworld_cur
+	and #$3f
+	cmp #MAP_START_FOREST_BOSS
+	beq key1done
+	cmp #MAP_DEAD_WOOD_BOSS
+	beq key1done
+	rts
+
+key1done:
+	jsr wait_for_vblank
+	LOAD_PTR normal_forest_chest_palette
+	lda #2
+	jsr load_single_palette
+	jsr prepare_for_rendering
+	rts
+
+key5done:
+	jsr wait_for_vblank
+	LOAD_PTR normal_forest_chest_palette
+	lda #2
+	jsr load_single_palette
+	jsr prepare_for_rendering
+	rts
+
+checkspawn:
+	ldx horde_spawn_timer
+	dex
+	stx horde_spawn_timer
+	bne nohorde
+
+	lda horde_spawn_delay
+	sta horde_spawn_timer
+
+	lda #4
+	jsr rand_range
+	tay
+	lda horde_enemy_types, y
+	jsr spawn_starting_enemy
+
+nohorde:
+	rts
+.endproc
+
+
+.segment "FIXED"
 
 PROC update_enemies
+	lda current_bank
+	pha
+	lda #^update_horde
+	jsr bankswitch
+	jsr update_horde & $ffff
+	pla
+	jsr bankswitch
+
 	lda #0
 	sta cur_enemy
 
@@ -370,6 +508,8 @@ next:
 	rts
 .endproc
 
+
+.code
 
 PROC check_for_enemy_collide
 	lda player_damage_flash_time
@@ -1688,6 +1828,18 @@ done:
 .endproc
 
 
+PROC warp_tick
+	ldx cur_effect
+	inc effect_time, x
+	lda effect_time, x
+	cmp #12
+	bne notdone
+	jsr remove_effect
+notdone:
+	rts
+.endproc
+
+
 PROC drop_collide
 	PLAY_SOUND_EFFECT effect_getitem
 
@@ -1850,5 +2002,16 @@ VAR drop_descriptor
 	.byte 8, 8
 
 
+VAR warp_descriptor
+	.word warp_tick
+	.word nothing
+	.word nothing
+	.word nothing
+	.byte SPRITE_TILE_WARP, 1
+	.byte 2
+	.byte 16, 16
+
+
 TILES splat_tiles, 2, "tiles/effects/splat.chr", 12
 TILES orb_tiles, 2, "tiles/items/orb.chr", 4
+TILES warp_tiles, 3, "tiles/effects/warp.chr", 4

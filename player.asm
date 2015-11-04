@@ -33,17 +33,6 @@ PROC player_melee_tick
 	rts
 .endproc
 
-PROC melee_hit_enemy
-	lda current_bank
-	pha
-	lda #^do_melee_hit_enemy
-	jsr bankswitch
-	jsr do_melee_hit_enemy & $ffff
-	pla
-	jsr bankswitch
-	rts
-.endproc
-
 PROC get_player_direction_bits
 	lda controller
 	and #JOY_LEFT | JOY_RIGHT | JOY_UP | JOY_DOWN
@@ -722,6 +711,8 @@ moveanimdone:
 transitionleft:
 	lda knockback_time
 	bne moveanimdone
+	lda horde_active
+	bne moveanimdone
 	jsr fade_out
 	dec cur_screen_x
 	lda #(MAP_WIDTH - 1) * 16
@@ -733,6 +724,8 @@ transitionleft:
 
 transitionright:
 	lda knockback_time
+	bne moveanimdone
+	lda horde_active
 	bne moveanimdone
 	jsr fade_out
 	inc cur_screen_x
@@ -811,6 +804,10 @@ transitionshopinside:
 	rts
 
 transitionup:
+	lda horde_active
+	beq nohordeup
+	jmp moveanimdone
+nohordeup:
 	lda knockback_time
 	beq dotransitionup
 	jmp moveanimdone
@@ -892,6 +889,10 @@ transitionshopoutside:
 	rts
 
 transitiondown:
+	lda horde_active
+	beq nohordedown
+	jmp moveanimdone
+nohordedown:
 	lda knockback_time
 	beq dotransitiondown
 	jmp moveanimdone
@@ -1388,9 +1389,7 @@ nocollide:
 .endproc
 
 
-.segment "EXTRA"
-
-PROC do_melee_hit_enemy
+PROC melee_hit_enemy
 	PLAY_SOUND_EFFECT effect_enemyhit
 
 	lda #10
@@ -1406,6 +1405,8 @@ PROC do_melee_hit_enemy
 
 	rts
 .endproc
+
+.segment "EXTRA"
 
 PROC do_player_melee_tick
 	ldx cur_effect
@@ -1803,11 +1804,13 @@ VAR interaction_descriptors
 	.word blocky_note_descriptor
 	.word boarded_house_note_descriptor
 	.word boarded_house_npc_descriptor
+	.word key_chest_1_descriptor
+	.word key_chest_5_descriptor
 
 VAR player_axe_descriptor
 	.word player_melee_tick
 	.word nothing
-	.word bullet_hit_enemy
+	.word melee_hit_enemy
 	.word bullet_hit_world
 	.byte SPRITE_TILE_MELEE, 1
 	.byte 2
@@ -1818,14 +1821,14 @@ VAR player_sword_descriptor
 	.word nothing
 	.word melee_hit_enemy
 	.word bullet_hit_world
-	.byte SPRITE_TILE_BULLET, 1
+	.byte SPRITE_TILE_MELEE, 1
 	.byte 2
 	.byte 16, 16
 
 VAR player_bullet_descriptor
 	.word player_bullet_tick
 	.word nothing
-	.word melee_hit_enemy
+	.word bullet_hit_enemy
 	.word bullet_hit_world
 	.byte SPRITE_TILE_BULLET, 0
 	.byte 2

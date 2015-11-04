@@ -1,10 +1,12 @@
 .include "defines.inc"
 
 .define FOREST_TILES $80
+.define CHEST_TILES  $b8
 .define BORDER_TILES $c0
 
 .define FOREST_PALETTE 0
 .define BORDER_PALETTE 1
+.define CHEST_PALETTE  2
 
 
 .segment "FIXED"
@@ -12,11 +14,25 @@
 PROC is_map_type_forest
 	cmp #MAP_FOREST
 	beq forest
+	cmp #MAP_FOREST_CHEST
+	beq forest
 	cmp #MAP_DEAD_WOOD
+	beq forest
+	cmp #MAP_DEAD_WOOD_CHEST
+	beq forest
+	cmp #MAP_DEAD_WOOD_BOSS
 	beq forest
 	cmp #MAP_UNBEARABLE
 	beq forest
+	cmp #MAP_UNBEARABLE_CHEST
+	beq forest
+	cmp #MAP_UNBEARABLE_BOSS
+	beq forest
 	cmp #MAP_START_FOREST
+	beq forest
+	cmp #MAP_START_FOREST_CHEST
+	beq forest
+	cmp #MAP_START_FOREST_BOSS
 	beq forest
 	lda #0
 	rts
@@ -38,12 +54,306 @@ PROC gen_forest
 .endproc
 
 
+PROC gen_forest_boss
+	lda current_bank
+	pha
+	lda #^do_gen_forest_boss
+	jsr bankswitch
+	jsr do_gen_forest_boss & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+PROC gen_dead_wood
+	lda current_bank
+	pha
+	lda #^do_gen_dead_wood
+	jsr bankswitch
+	jsr do_gen_dead_wood & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+PROC gen_dead_wood_boss
+	lda current_bank
+	pha
+	lda #^do_gen_dead_wood_boss
+	jsr bankswitch
+	jsr do_gen_dead_wood_boss & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+PROC key_chest_1_interact
+	lda current_bank
+	pha
+	lda #^do_key_chest_1_interact
+	jsr bankswitch
+	jsr do_key_chest_1_interact & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+PROC key_chest_5_interact
+	lda current_bank
+	pha
+	lda #^do_key_chest_5_interact
+	jsr bankswitch
+	jsr do_key_chest_5_interact & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
 .segment "EXTRA"
 
 PROC do_gen_forest
 	lda #MUSIC_FOREST
 	jsr play_music
 
+	jsr gen_forest_common & $ffff
+	jsr finish_forest & $ffff
+
+	jsr spawn_forest_enemies & $ffff
+	rts
+.endproc
+
+
+PROC do_gen_forest_boss
+	lda #MUSIC_FOREST
+	jsr play_music
+
+	jsr gen_forest_common & $ffff
+
+	LOAD_ALL_TILES CHEST_TILES, forest_chest_tiles
+	lda #INTERACT_KEY_CHEST_1
+	sta interactive_tile_types
+	lda #CHEST_TILES
+	sta interactive_tile_values
+	lda #INTERACT_KEY_CHEST_1
+	sta interactive_tile_types + 1
+	lda #CHEST_TILES + 4
+	sta interactive_tile_values + 1
+
+	lda completed_quest_steps
+	and #QUEST_KEY_1
+	bne questcomplete
+
+	ldx #7
+	ldy #4
+	lda #CHEST_TILES + CHEST_PALETTE
+	jsr write_gen_map
+	jmp chestdone & $ffff
+
+questcomplete:
+	ldx #7
+	ldy #4
+	lda #CHEST_TILES + 4 + CHEST_PALETTE
+	jsr write_gen_map
+
+chestdone:
+	jsr finish_forest & $ffff
+
+	lda #0
+	sta horde_active
+	sta horde_complete
+
+	lda #ENEMY_NORMAL_MALE_ZOMBIE
+	sta horde_enemy_types
+	sta horde_enemy_types + 1
+	lda #ENEMY_NORMAL_FEMALE_ZOMBIE
+	sta horde_enemy_types + 2
+	sta horde_enemy_types + 3
+
+	jsr spawn_forest_enemies & $ffff
+	rts
+.endproc
+
+
+PROC do_gen_dead_wood
+	lda #MUSIC_FOREST
+	jsr play_music
+
+	jsr gen_forest_common & $ffff
+	jsr finish_forest & $ffff
+
+	jsr spawn_dead_wood_enemies & $ffff
+	rts
+.endproc
+
+
+PROC do_gen_dead_wood_boss
+	lda #MUSIC_FOREST
+	jsr play_music
+
+	jsr gen_forest_common & $ffff
+
+	LOAD_ALL_TILES CHEST_TILES, forest_chest_tiles
+	lda #INTERACT_KEY_CHEST_5
+	sta interactive_tile_types
+	lda #CHEST_TILES
+	sta interactive_tile_values
+	lda #INTERACT_KEY_CHEST_5
+	sta interactive_tile_types + 1
+	lda #CHEST_TILES + 4
+	sta interactive_tile_values + 1
+
+	lda completed_quest_steps
+	and #QUEST_KEY_5
+	bne questcomplete
+
+	ldx #7
+	ldy #4
+	lda #CHEST_TILES + CHEST_PALETTE
+	jsr write_gen_map
+	jmp chestdone & $ffff
+
+questcomplete:
+	ldx #7
+	ldy #4
+	lda #CHEST_TILES + 4 + CHEST_PALETTE
+	jsr write_gen_map
+
+chestdone:
+	jsr finish_forest & $ffff
+
+	lda #0
+	sta horde_active
+	sta horde_complete
+
+	lda #ENEMY_NORMAL_MALE_ZOMBIE
+	sta horde_enemy_types
+	lda #ENEMY_SPIDER
+	sta horde_enemy_types + 1
+	lda #ENEMY_SHARK
+	sta horde_enemy_types + 2
+	sta horde_enemy_types + 3
+
+	jsr spawn_dead_wood_enemies & $ffff
+	rts
+.endproc
+
+
+PROC spawn_forest_enemies
+	jsr prepare_spawn
+	jsr restore_enemies
+	beq notrestoredspawn
+	jmp restoredspawn & $ffff
+
+notrestoredspawn:
+	lda difficulty
+	cmp #1
+	beq hard
+	cmp #2
+	beq veryhard
+
+	lda #3
+	jsr rand_range
+	clc
+	adc #1
+	tax
+	jmp spawnloop & $ffff
+
+hard:
+	lda #4
+	jsr rand_range
+	clc
+	adc #2
+	tax
+	jmp spawnloop & $ffff
+
+veryhard:
+	lda #4
+	jsr rand_range
+	clc
+	adc #4
+	tax
+
+spawnloop:
+	txa
+	pha
+
+	jsr forest_has_water & $ffff ;returns 1 or 0
+	clc
+	adc #2
+	jsr rand_range
+	tax
+	lda forest_enemy_types, x
+	jsr spawn_starting_enemy
+
+	pla
+	tax
+	dex
+	bne spawnloop
+
+restoredspawn:
+	rts
+.endproc
+
+
+PROC spawn_dead_wood_enemies
+	jsr prepare_spawn
+	jsr restore_enemies
+	bne restoredspawn
+
+	lda difficulty
+	cmp #1
+	beq hard
+	cmp #2
+	beq veryhard
+
+	lda #3
+	jsr rand_range
+	clc
+	adc #2
+	tax
+	jmp spawnloop & $ffff
+
+hard:
+	lda #4
+	jsr rand_range
+	clc
+	adc #3
+	tax
+	jmp spawnloop & $ffff
+
+veryhard:
+	lda #3
+	jsr rand_range
+	clc
+	adc #5
+	tax
+
+spawnloop:
+	txa
+	pha
+
+	lda #6
+	jsr rand_range
+	tax
+	lda forest_enemy_types, x
+	jsr spawn_starting_enemy
+
+	pla
+	tax
+	dex
+	bne spawnloop
+
+restoredspawn:
+	rts
+.endproc
+
+
+PROC gen_forest_common
 	; Load forest tiles
 	LOAD_ALL_TILES FOREST_TILES, forest_tiles
 	jsr init_zombie_sprites
@@ -66,8 +376,13 @@ PROC do_gen_forest
 	jsr read_overworld_cur
 	and #$3f
 	cmp #MAP_DEAD_WOOD
+	beq deadwood
+	cmp #MAP_DEAD_WOOD_CHEST
+	beq deadwood
+	cmp #MAP_DEAD_WOOD_BOSS
 	bne notdeadwood
 
+deadwood:
 	lda #MAP_LAKE
 	sta temp
 	jmp bordertypedone & $ffff
@@ -259,8 +574,13 @@ lake_boundary:
 	jsr read_overworld_cur
 	and #$3f
 	cmp #MAP_DEAD_WOOD
+	beq deadwoodborder
+	cmp #MAP_DEAD_WOOD_CHEST
+	beq deadwoodborder
+	cmp #MAP_DEAD_WOOD_BOSS
 	bne normallake
 
+deadwoodborder:
 	jsr gen_forest_dead_wood_boundary & $ffff
 	jmp boundarydone & $ffff
 
@@ -269,6 +589,11 @@ normallake:
 	jmp boundarydone & $ffff
 
 boundarydone:
+	rts
+.endproc
+
+
+PROC finish_forest
 	; Create clutter in the middle of the forest
 	lda #8
 	jsr genrange_cur
@@ -395,118 +720,9 @@ nextblank:
 	cpy #MAP_HEIGHT
 	bne yloop
 
-	; Create enemies
-	jsr read_overworld_cur
-	and #$3f
-	cmp #MAP_DEAD_WOOD
-	bne notdeadwoodspawn
-
-	jmp deadwoodspawn & $ffff
-
-notdeadwoodspawn:
-	jsr prepare_spawn
-	jsr restore_enemies
-	beq notrestoredspawn
-	jmp restoredspawn & $ffff
-
-notrestoredspawn:
-	lda difficulty
-	cmp #1
-	beq hard
-	cmp #2
-	beq veryhard
-
-	lda #3
-	jsr rand_range
-	clc
-	adc #1
-	tax
-	jmp spawnloop & $ffff
-
-hard:
-	lda #4
-	jsr rand_range
-	clc
-	adc #2
-	tax
-	jmp spawnloop & $ffff
-
-veryhard:
-	lda #4
-	jsr rand_range
-	clc
-	adc #4
-	tax
-
-spawnloop:
-	txa
-	pha
-
-	jsr forest_has_water & $ffff ;returns 1 or 0
-	clc
-	adc #2
-	jsr rand_range
-	tax
-	lda forest_enemy_types, x
-	jsr spawn_starting_enemy
-
-	pla
-	tax
-	dex
-	bne spawnloop
-	jmp restoredspawn & $ffff
-
-deadwoodspawn:
-	jsr prepare_spawn
-	jsr restore_enemies
-	bne restoredspawn
-
-	lda difficulty
-	cmp #1
-	beq deadwoodhard
-	cmp #2
-	beq deadwoodveryhard
-
-	lda #3
-	jsr rand_range
-	clc
-	adc #2
-	tax
-	jmp deadwoodspawnloop & $ffff
-
-deadwoodhard:
-	lda #4
-	jsr rand_range
-	clc
-	adc #3
-	tax
-	jmp deadwoodspawnloop & $ffff
-
-deadwoodveryhard:
-	lda #3
-	jsr rand_range
-	clc
-	adc #5
-	tax
-
-deadwoodspawnloop:
-	txa
-	pha
-
-	lda #6
-	jsr rand_range
-	tax
-	lda forest_enemy_types, x
-	jsr spawn_starting_enemy
-
-	pla
-	tax
-	dex
-	bne deadwoodspawnloop
-
-restoredspawn:
 	rts
 .endproc
+
 
 PROC forest_has_water
 	ldx #32
@@ -659,11 +875,237 @@ botnotlake:
 .endproc
 
 
+PROC do_key_chest_1_interact
+	lda completed_quest_steps
+	and #QUEST_KEY_1
+	beq notcompleted
+	jmp completed & $ffff
+
+notcompleted:
+	lda horde_active
+	bne inhorde
+
+	lda horde_complete
+	bne done
+
+	LOAD_PTR start_horde_text
+	lda #^start_horde_text
+	jsr show_chat_text
+
+	lda #1
+	sta horde_active
+
+	lda difficulty
+	cmp #1
+	beq hard
+	cmp #2
+	beq veryhard
+
+	lda #20
+	sta horde_timer
+	lda #0
+	sta horde_timer + 1
+	lda #120
+	sta horde_spawn_timer
+	sta horde_spawn_delay
+	jmp hordesetup & $ffff
+
+hard:
+	lda #30
+	sta horde_timer
+	lda #0
+	sta horde_timer + 1
+	lda #90
+	sta horde_spawn_timer
+	sta horde_spawn_delay
+	jmp hordesetup & $ffff
+
+veryhard:
+	lda #45
+	sta horde_timer
+	lda #0
+	lda #60
+	sta horde_spawn_timer
+	sta horde_spawn_delay
+	sta horde_timer + 1
+
+hordesetup:
+	jsr wait_for_vblank
+	LOAD_PTR trapped_chest_palette
+	lda #2
+	jsr load_single_palette
+	jsr prepare_for_rendering
+
+	rts
+
+inhorde:
+	LOAD_PTR locked_chest_text
+	lda #^locked_chest_text
+	jsr show_chat_text
+	rts
+
+done:
+	lda completed_quest_steps
+	ora #QUEST_KEY_1
+	sta completed_quest_steps
+	lda highlighted_quest_steps
+	and #$ff & (~QUEST_KEY_1)
+	sta highlighted_quest_steps
+
+	lda completed_quest_steps
+	and #QUEST_KEY_2
+	bne key2done
+	lda highlighted_quest_steps
+	ora #QUEST_KEY_2
+	sta highlighted_quest_steps
+
+key2done:
+	inc key_count
+
+	lda #ITEM_SWORD
+	jsr give_item
+	lda #ITEM_GEM
+	ldx #30
+	jsr give_item_with_count
+	lda #ITEM_HEALTH_KIT
+	ldx #5
+	jsr give_item_with_count
+
+	jsr save
+
+	jsr wait_for_vblank
+	ldx #7
+	ldy #4
+	lda #CHEST_TILES + 4 + CHEST_PALETTE
+	jsr write_large_tile
+	jsr prepare_for_rendering
+
+	PLAY_SOUND_EFFECT effect_open
+
+completed:
+	LOAD_PTR key_1_text
+	lda #^key_1_text
+	jsr show_chat_text
+	rts
+.endproc
+
+
+PROC do_key_chest_5_interact
+	lda completed_quest_steps
+	and #QUEST_KEY_5
+	beq notcompleted
+	jmp completed & $ffff
+
+notcompleted:
+	lda horde_active
+	bne inhorde
+
+	lda horde_complete
+	bne done
+
+	LOAD_PTR start_horde_text
+	lda #^start_horde_text
+	jsr show_chat_text
+
+	lda #1
+	sta horde_active
+	lda #120
+	sta horde_spawn_timer
+
+	lda difficulty
+	cmp #1
+	beq hard
+	cmp #2
+	beq veryhard
+
+	lda #120
+	sta horde_timer
+	lda #0
+	sta horde_timer + 1
+	sta horde_spawn_delay
+	jmp hordesetup & $ffff
+
+hard:
+	lda #150
+	sta horde_timer
+	lda #0
+	sta horde_timer + 1
+	sta horde_spawn_delay
+	jmp hordesetup & $ffff
+
+veryhard:
+	lda #180
+	sta horde_timer
+	lda #0
+	sta horde_spawn_delay
+	sta horde_timer + 1
+
+hordesetup:
+	jsr wait_for_vblank
+	LOAD_PTR trapped_chest_palette
+	lda #2
+	jsr load_single_palette
+	jsr prepare_for_rendering
+
+	rts
+
+inhorde:
+	LOAD_PTR locked_chest_text
+	lda #^locked_chest_text
+	jsr show_chat_text
+	rts
+
+done:
+	lda completed_quest_steps
+	ora #QUEST_KEY_5
+	sta completed_quest_steps
+	lda highlighted_quest_steps
+	and #$ff & (~QUEST_KEY_5)
+	sta highlighted_quest_steps
+
+	lda completed_quest_steps
+	and #QUEST_KEY_6
+	bne key6done
+	lda highlighted_quest_steps
+	ora #QUEST_KEY_6
+	sta highlighted_quest_steps
+
+key6done:
+	inc key_count
+
+	lda #ITEM_SNIPER
+	jsr give_item
+	lda #ITEM_GEM
+	ldx #40
+	jsr give_item_with_count
+	lda #ITEM_HEALTH_KIT
+	ldx #7
+	jsr give_item_with_count
+
+	jsr save
+
+	jsr wait_for_vblank
+	ldx #7
+	ldy #4
+	lda #CHEST_TILES + 4 + CHEST_PALETTE
+	jsr write_large_tile
+	jsr prepare_for_rendering
+
+	PLAY_SOUND_EFFECT effect_open
+
+completed:
+	LOAD_PTR key_5_text
+	lda #^key_5_text
+	jsr show_chat_text
+	rts
+.endproc
+
+
 .data
 VAR forest_palette
 	.byte $0f, $09, $19, $08
 	.byte $0f, $09, $19, $08
-	.byte $0f, $09, $19, $08
+	.byte $0f, $19, $07, $27
 	.byte $0f, $09, $19, $08
 
 VAR forest_rock_border_palette
@@ -672,13 +1114,56 @@ VAR forest_rock_border_palette
 VAR forest_lake_border_palette
 	.byte $0f, $02, $12, $19
 
+VAR normal_forest_chest_palette
+	.byte $0f, $19, $07, $27
+VAR trapped_chest_palette
+	.byte $0f, $19, $08, $18
+
 VAR forest_enemy_types
 	.byte ENEMY_NORMAL_MALE_ZOMBIE, ENEMY_NORMAL_FEMALE_ZOMBIE, ENEMY_SHARK
 
 VAR dead_wood_enemy_types
 	.byte ENEMY_NORMAL_MALE_ZOMBIE, ENEMY_NORMAL_FEMALE_ZOMBIE, ENEMY_SPIDER, ENEMY_SPIDER, ENEMY_SHARK, ENEMY_SHARK
 
+VAR key_chest_1_descriptor
+	.word always_interactable
+	.word key_chest_1_interact
+
+VAR key_chest_5_descriptor
+	.word always_interactable
+	.word key_chest_5_interact
+
 
 TILES forest_tiles, 2, "tiles/forest/forest.chr", 8
 TILES forest_rock_border_tiles, 2, "tiles/forest/rock.chr", 60
 TILES forest_lake_border_tiles, 2, "tiles/forest/lake.chr", 60
+TILES forest_chest_tiles, 3, "tiles/forest/chest.chr", 8
+
+
+.segment "UI"
+
+VAR start_horde_text
+	.byte "THIS CHEST HAS A TRAP!", 0
+	.byte "THE HORDE IS COMING.", 0
+	.byte "DEFEND YOURSELF!", 0
+	.byte 0, 0
+
+VAR locked_chest_text
+	.byte "THIS CHEST IS STILL", 0
+	.byte "LOCKED. SURVIVE THE", 0
+	.byte "HORDE TO OPEN.", 0
+	.byte 0, 0
+
+VAR key_1_text
+	.byte "YOU FOUND THE FIRST", 0
+	.byte "KEY! INSIDE THE CHEST", 0
+	.byte "IS ALSO THE LOCATION", 0
+	.byte "OF THE NEXT KEY.", 0
+	.byte 0
+
+VAR key_5_text
+	.byte "YOU FOUND THE FIFTH", 0
+	.byte "KEY! INSIDE THE CHEST", 0
+	.byte "IS ALSO THE LOCATION", 0
+	.byte "OF THE NEXT KEY.", 0
+	.byte 0

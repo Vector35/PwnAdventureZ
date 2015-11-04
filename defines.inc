@@ -319,7 +319,9 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define INTERACT_BLOCKY_NOTE        6
 .define INTERACT_BOARDED_HOUSE_NOTE 7
 .define INTERACT_BOARDED_HOUSE_NPC  8
-.define INTERACT_NONE             $ff
+.define INTERACT_KEY_CHEST_1        9
+.define INTERACT_KEY_CHEST_5        10
+.define INTERACT_NONE               $ff
 
 .define INTERACT_DESC_IS_VALID 0
 .define INTERACT_DESC_ACTIVATE 2
@@ -328,8 +330,8 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 ; Sprite tile indicies
 .define SPRITE_OAM_PLAYER   $00
 .define SPRITE_OAM_INTERACT $08
-.define SPRITE_OAM_ENEMIES  $10
-.define SPRITE_OAM_EFFECTS  $50
+.define SPRITE_OAM_ENEMIES  $90
+.define SPRITE_OAM_EFFECTS  $10
 .define SPRITE_OAM_EQUIP_WEAPON $f0
 .define SPRITE_OAM_EQUIP_ARMOR  $f8
 
@@ -346,6 +348,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define SPRITE_TILE_MALE_THIN_NPC   $60
 .define SPRITE_TILE_FEMALE_THIN_NPC $80
 
+.define SPRITE_TILE_WARP          $cc
 .define SPRITE_TILE_MELEE 		  $d0
 .define SPRITE_TILE_SPLAT         $e0
 .define SPRITE_TILE_ORB           $ee
@@ -372,6 +375,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define EFFECT_SHARK_LASER           13
 .define EFFECT_SHARK_LASER_HIT       14
 .define EFFECT_SHARK_LASER_DAMAGE    15
+.define EFFECT_WARP                  16
 .define EFFECT_NONE                 $ff
 
 .define EFFECT_MAX_COUNT     16
@@ -454,6 +458,17 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define MUSIC_FOREST  2
 
 
+; Quest complete bits
+.define QUEST_KEY_1   1
+.define QUEST_KEY_2   2
+.define QUEST_KEY_3   4
+.define QUEST_KEY_4   8
+.define QUEST_KEY_5   $10
+.define QUEST_KEY_6   $20
+.define QUEST_START   $40
+.define QUEST_END     $80
+
+
 ; Globally accessible zero page variables
 .zeropage
 .global ptr ; For manipulating pointers
@@ -480,3 +495,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .global secret_code
 
 .global music_page_list_ptr, music_page_bank_ptr, music_page_ptr, audio_reg_ptr
+
+.global completed_quest_steps, highlighted_quest_steps
+.global horde_active, horde_complete, horde_timer, horde_enemy_types
+.global horde_spawn_timer, horde_spawn_delay

@@ -1377,6 +1377,10 @@ PROC generate_map
 	iny
 	jsr mark_visited
 
+	lda #0
+	sta horde_active
+	sta horde_complete
+
 	; Initialize traversable tile list
 	ldx #0
 	lda #0
@@ -2632,6 +2636,22 @@ VAR overworld_visited
 	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	.byte 0, 0, 0, 0, 0, 0, 0, 0
 
+VAR mine_visited
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0
+
+VAR sewer_visited
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 0, 0, 0, 0, 0, 0, 0, 0
+
 
 .data
 
@@ -2664,11 +2684,11 @@ VAR initial_map_generators
 	.word gen_cave_interior
 	.word gen_cave_interior
 	.word gen_cave_interior
+	.word gen_dead_wood
 	.word gen_forest
 	.word gen_forest
 	.word gen_forest
-	.word gen_forest
-	.word gen_forest
+	.word gen_forest_boss
 	.word gen_boarded_house
 	.word gen_cave_interior
 	.word gen_cave_interior
@@ -2679,7 +2699,7 @@ VAR initial_map_generators
 	.word gen_cave_interior
 	.word gen_cave_interior
 	.word gen_forest
-	.word gen_forest
+	.word gen_dead_wood_boss
 	.word gen_forest
 	.word gen_forest
 	.word gen_cave_interior
