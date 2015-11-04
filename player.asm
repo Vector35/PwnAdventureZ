@@ -1389,10 +1389,27 @@ nocollide:
 .endproc
 
 
-PROC melee_hit_enemy
+PROC axe_hit_enemy
 	PLAY_SOUND_EFFECT effect_enemyhit
 
 	lda #10
+	jsr enemy_damage
+
+	ldx cur_effect
+	lda #EFFECT_PLAYER_BULLET_DAMAGE
+	sta effect_type, x
+	lda #SPRITE_TILE_BULLET_DAMAGE
+	sta effect_tile, x
+	lda #0
+	sta effect_time, x
+
+	rts
+.endproc
+
+PROC sword_hit_enemy
+	PLAY_SOUND_EFFECT effect_enemyhit
+
+	lda #20
 	jsr enemy_damage
 
 	ldx cur_effect
@@ -1810,8 +1827,8 @@ VAR interaction_descriptors
 VAR player_axe_descriptor
 	.word player_melee_tick
 	.word nothing
-	.word melee_hit_enemy
-	.word bullet_hit_world
+	.word axe_hit_enemy
+	.word nothing
 	.byte SPRITE_TILE_MELEE, 1
 	.byte 2
 	.byte 16, 16
@@ -1819,8 +1836,8 @@ VAR player_axe_descriptor
 VAR player_sword_descriptor
 	.word player_melee_tick
 	.word nothing
-	.word melee_hit_enemy
-	.word bullet_hit_world
+	.word sword_hit_enemy
+	.word nothing
 	.byte SPRITE_TILE_MELEE, 1
 	.byte 2
 	.byte 16, 16

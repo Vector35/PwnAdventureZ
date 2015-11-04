@@ -29,6 +29,7 @@ clearsprites:
 	bne clearsprites
 
 	jsr init_player_sprites
+	jsr load_effect_sprites
 	jsr update_player_sprite
 	jsr update_enemy_sprites
 	jsr update_effect_sprites

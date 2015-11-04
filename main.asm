@@ -314,6 +314,9 @@ namedone:
 	ldx #200
 	jsr give_weapon
 
+	lda #ITEM_SWORD
+	jsr give_item
+
 	lda #ITEM_SNEAKERS
 	jsr give_item
 

@@ -258,6 +258,34 @@ failed:
 .endproc
 
 
+PROC swing_sword
+	PLAY_SOUND_EFFECT effect_pistol
+
+	lda player_x
+	sta arg0
+	lda player_y
+	sta arg1
+	lda #EFFECT_PLAYER_SWORD
+	sta arg2
+	jsr get_player_direction_bits
+	sta arg3
+	lda #10
+	sta arg4
+	jsr create_effect
+
+	cmp #$ff
+	beq failed
+
+	sta cur_effect
+
+	lda #15
+	sta attack_cooldown
+	lda #1
+	sta attack_held
+	jsr player_melee_tick
+failed:
+	rts
+.endproc
 
 PROC fire_pistol
 	jsr use_one_ammo
@@ -671,8 +699,8 @@ VAR axe_item
 	.byte "CHOPS WOOD OR ZOMBIES     ", 0
 
 VAR sword_item
-	.word 0
-	.word ninja_sword_tiles & $ffff
+	.word swing_sword
+	.word sword_tiles & $ffff
 	.byte ITEM_TYPE_MELEE
 	.byte "NINJA SWORD    ", 0
 	.byte "MASTER THE CLOSE RANGE    ", 0
@@ -923,7 +951,6 @@ TILES shirt_tiles, 3, "tiles/items/shirt.chr", 4
 TILES sneakers_tiles, 3, "tiles/items/sneakers.chr", 4
 TILES sticks_tiles, 3, "tiles/items/sticks.chr", 4
 TILES wine_tiles, 3, "tiles/items/bottle.chr", 4
-TILES axe_tiles, 3, "tiles/weapons/axe.chr", 4
 TILES grenade_tiles, 3, "tiles/weapons/grenade.chr", 4
 TILES ak_tiles, 3, "tiles/weapons/ak.chr", 4
 TILES hand_cannon_tiles, 3, "tiles/weapons/handcannon.chr", 4
@@ -936,5 +963,6 @@ TILES sniper_tiles, 3, "tiles/weapons/sniper.chr", 4
 TILES bandage_tiles, 3, "tiles/items/bandage.chr", 4
 TILES metal_tiles, 3, "tiles/items/metalfragments.chr", 4
 TILES wizard_hat_tiles, 3, "tiles/items/wizardhat.chr", 4
-TILES ninja_sword_tiles, 3, "tiles/weapons/ninjasword.chr", 4
 TILES armor_tiles, 3, "tiles/items/armor.chr", 4
+TILES axe_tiles, 3, "tiles/weapons/axe.chr", 16
+TILES sword_tiles, 3, "tiles/weapons/ninjasword.chr", 16

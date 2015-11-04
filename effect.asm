@@ -3,13 +3,7 @@
 .code
 
 PROC init_effect_sprites
-	LOAD_ALL_TILES $100 + SPRITE_TILE_BULLET, bullet_tiles
-	LOAD_ALL_TILES $100 + SPRITE_TILE_SPLAT, splat_tiles
-	LOAD_ALL_TILES $100 + SPRITE_TILE_ORB, orb_tiles
-	LOAD_ALL_TILES $100 + SPRITE_TILE_MELEE, axe_tiles
-	LOAD_ALL_TILES $100 + SPRITE_TILE_WARP, warp_tiles
-;	LOAD_ALL_TILES $100 + SPRITE_TILE_LASER, laser_tiles
-
+	jsr load_effect_sprites
 	ldx #0
 	lda #EFFECT_NONE
 loop:
@@ -21,6 +15,22 @@ loop:
 	rts
 .endproc
 
+PROC load_effect_sprites
+	LOAD_ALL_TILES $100 + SPRITE_TILE_BULLET, bullet_tiles
+	LOAD_ALL_TILES $100 + SPRITE_TILE_SPLAT, splat_tiles
+	LOAD_ALL_TILES $100 + SPRITE_TILE_ORB, orb_tiles
+	LOAD_ALL_TILES $100 + SPRITE_TILE_WARP, warp_tiles
+
+	lda equipped_weapon
+	cmp #ITEM_AXE
+	beq loadaxetile
+	LOAD_ALL_TILES $100 + SPRITE_TILE_MELEE, sword_tiles
+	jmp doneloading
+loadaxetile:
+	LOAD_ALL_TILES $100 + SPRITE_TILE_MELEE, axe_tiles
+doneloading:
+	rts
+.endproc
 
 PROC update_effects
 	lda #0
@@ -544,4 +554,3 @@ VAR effect_descriptors
 
 
 TILES bullet_tiles, 2, "tiles/effects/bullet.chr", 6
-TILES axe_tiles, 3, "tiles/weapons/axe.chr", 16
