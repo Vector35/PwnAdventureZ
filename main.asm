@@ -425,6 +425,15 @@ deathupdatedone:
 	lda spawn_pos_y
 	sta player_y
 	sta player_entry_y
+
+	jsr activate_overworld_map
+	lda #<overworld_visited
+	sta map_visited_ptr
+	lda #>overworld_visited
+	sta map_visited_ptr + 1
+	jsr generate_minimap_cache
+	jsr invalidate_enemy_cache
+
 	lda #100
 	sta player_health
 	lda #0

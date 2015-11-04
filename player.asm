@@ -1849,7 +1849,9 @@ VAR interaction_descriptors
 	.word boarded_house_note_descriptor
 	.word boarded_house_npc_descriptor
 	.word sewer_entrance_descriptor
+	.word sewer_exit_descriptor
 	.word key_chest_1_descriptor
+	.word key_chest_2_descriptor
 	.word key_chest_5_descriptor
 
 VAR player_axe_descriptor

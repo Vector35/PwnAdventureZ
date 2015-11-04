@@ -1,22 +1,67 @@
 .include "defines.inc"
 
-.define SCRATCH_TOP_OPENING_POS    0
-.define SCRATCH_BOT_OPENING_POS    1
-.define SCRATCH_LEFT_OPENING_POS   2
-.define SCRATCH_RIGHT_OPENING_POS  3
-.define SCRATCH_TOP_OPENING_SIZE   4
-.define SCRATCH_BOT_OPENING_SIZE   5
-.define SCRATCH_LEFT_OPENING_SIZE  6
-.define SCRATCH_RIGHT_OPENING_SIZE 7
-.define SCRATCH_CLUTTER_COUNT      8
-.define SCRATCH_CLUTTER_SIZE       9
-
 .define NOTE_PALETTE 1
 
-.code
+.segment "FIXED"
 
 PROC gen_cave_start
+	lda current_bank
+	pha
+	lda #^do_gen_cave_start
+	jsr bankswitch
+	jsr do_gen_cave_start & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+PROC gen_starting_cave
 	jsr gen_cave_common
+	rts
+.endproc
+
+
+PROC gen_cave_interior
+	lda current_bank
+	pha
+	lda #^do_gen_cave_interior
+	jsr bankswitch
+	jsr do_gen_cave_interior & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+PROC gen_blocky_cave_interior
+	lda current_bank
+	pha
+	lda #^do_gen_blocky_cave_interior
+	jsr bankswitch
+	jsr do_gen_blocky_cave_interior & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+PROC gen_cave_common
+	lda current_bank
+	pha
+	lda #^do_gen_cave_common
+	jsr bankswitch
+	jsr do_gen_cave_common & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+.segment "EXTRA"
+
+PROC do_gen_cave_start
+	jsr do_gen_cave_common & $ffff
 
 	; Place chest in the starting room to get the initial weapon
 	LOAD_ALL_TILES $0f0, chest_tiles
@@ -53,14 +98,8 @@ opened:
 .endproc
 
 
-PROC gen_starting_cave
-	jsr gen_cave_common
-	rts
-.endproc
-
-
-PROC gen_cave_interior
-	jsr gen_cave_common
+PROC do_gen_cave_interior
+	jsr do_gen_cave_common & $ffff
 
 	; Create enemies
 	jsr prepare_spawn
@@ -115,8 +154,8 @@ restoredspawn:
 .endproc
 
 
-PROC gen_blocky_cave_interior
-	jsr gen_cave_common
+PROC do_gen_blocky_cave_interior
+	jsr do_gen_cave_common & $ffff
 
 	; Create enemies
 	jsr prepare_spawn
@@ -148,22 +187,6 @@ restoredspawn:
 	rts
 .endproc
 
-
-.segment "FIXED"
-
-PROC gen_cave_common
-	lda current_bank
-	pha
-	lda #^do_gen_cave_common
-	jsr bankswitch
-	jsr do_gen_cave_common & $ffff
-	pla
-	jsr bankswitch
-	rts
-.endproc
-
-
-.segment "EXTRA"
 
 PROC do_gen_cave_common
 	lda #MUSIC_CAVE

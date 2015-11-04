@@ -39,6 +39,19 @@ PROC spawn_starting_enemy
 .endproc
 
 
+PROC invalidate_enemy_cache
+	ldx #0
+	lda #$ff
+loop:
+	sta saved_enemy_screen_x, x
+	sta saved_enemy_screen_y, x
+	inx
+	cpx #8
+	bne loop
+	rts
+.endproc
+
+
 .segment "EXTRA"
 
 PROC do_spawn_starting_enemy
@@ -381,8 +394,10 @@ spawnloop:
 
 PROC update_horde
 	lda horde_active
-	beq nohorde
+	bne hashorde
+	jmp nohorde & $ffff
 
+hashorde:
 	ldx horde_timer + 1
 	beq framezero
 	dex
@@ -408,8 +423,10 @@ done:
 	and #$3f
 	cmp #MAP_START_FOREST_BOSS
 	beq key1done
+	cmp #MAP_SEWER_BOSS
+	beq key2done
 	cmp #MAP_DEAD_WOOD_BOSS
-	beq key1done
+	beq key5done
 	rts
 
 key1done:
@@ -420,6 +437,17 @@ key1done:
 	jsr prepare_for_rendering
 
 	lda #MUSIC_FOREST
+	jsr play_music
+	rts
+
+key2done:
+	jsr wait_for_vblank
+	LOAD_PTR normal_sewer_chest_palette
+	lda #2
+	jsr load_single_palette
+	jsr prepare_for_rendering
+
+	lda #MUSIC_CAVE
 	jsr play_music
 	rts
 

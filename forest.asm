@@ -954,6 +954,12 @@ PROC do_sewer_entrance_interact
 	sta map_visited_ptr + 1
 
 	jsr generate_minimap_cache
+	jsr invalidate_enemy_cache
+
+	lda #$70
+	sta player_x
+	lda #$50
+	sta player_y
 
 	lda #1
 	sta warp_to_new_screen
@@ -1099,10 +1105,6 @@ notcompleted:
 	lda #1
 	sta horde_active
 
-	lda #120
-	sta horde_spawn_timer
-	sta horde_spawn_delay
-
 	lda difficulty
 	cmp #1
 	beq hard
@@ -1113,6 +1115,9 @@ notcompleted:
 	sta horde_timer
 	lda #0
 	sta horde_timer + 1
+	lda #180
+	sta horde_spawn_timer
+	sta horde_spawn_delay
 	jmp hordesetup & $ffff
 
 hard:
@@ -1120,6 +1125,9 @@ hard:
 	sta horde_timer
 	lda #0
 	sta horde_timer + 1
+	lda #150
+	sta horde_spawn_timer
+	sta horde_spawn_delay
 	jmp hordesetup & $ffff
 
 veryhard:
@@ -1127,6 +1135,9 @@ veryhard:
 	sta horde_timer
 	lda #0
 	sta horde_timer + 1
+	lda #120
+	sta horde_spawn_timer
+	sta horde_spawn_delay
 
 hordesetup:
 	jsr wait_for_vblank

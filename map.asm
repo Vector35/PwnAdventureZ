@@ -1,5 +1,35 @@
 .include "defines.inc"
 
+
+.segment "FIXED"
+
+PROC activate_overworld_map
+	lda difficulty
+	cmp #1
+	beq hard
+	cmp #2
+	beq veryhard
+
+	lda #^normal_overworld_map
+	sta map_bank
+	lda #<normal_overworld_map
+	sta map_ptr
+	lda #>normal_overworld_map
+	sta map_ptr + 1
+	rts
+
+hard:
+veryhard:
+	lda #^hard_overworld_map
+	sta map_bank
+	lda #<hard_overworld_map
+	sta map_ptr
+	lda #>hard_overworld_map
+	sta map_ptr + 1
+	rts
+.endproc
+
+
 .code
 
 PROC init_map
@@ -11,6 +41,8 @@ genloop:
 	iny
 	cpy #MAP_TYPE_COUNT * 2
 	bne genloop
+
+	jsr activate_overworld_map
 
 	lda difficulty
 	cmp #1
@@ -27,12 +59,6 @@ genloop:
 	lda #0
 	sta spawn_inside
 
-	lda #^normal_overworld_map
-	sta map_bank
-	lda #<normal_overworld_map
-	sta map_ptr
-	lda #>normal_overworld_map
-	sta map_ptr + 1
 	jmp initvisited
 
 hard:
@@ -46,12 +72,6 @@ veryhard:
 	lda #0
 	sta spawn_inside
 
-	lda #^hard_overworld_map
-	sta map_bank
-	lda #<hard_overworld_map
-	sta map_ptr
-	lda #>hard_overworld_map
-	sta map_ptr + 1
 	jmp initvisited
 
 initvisited:
@@ -1393,6 +1413,11 @@ initloop:
 	cpx #8
 	bne initloop
 
+	lda #$ff
+	sta traversable_range_min
+	lda #0
+	sta traversable_range_max
+
 	; Initialize spawnable tile list
 	ldx #0
 	lda #$ff
@@ -1403,6 +1428,11 @@ initspawnloop:
 	bne initspawnloop
 	lda #0
 	sta spawn_ready
+
+	lda #$ff
+	sta spawnable_range_min
+	lda #0
+	sta spawnable_range_max
 
 	; Initialize interactive tile list
 	ldx #0
@@ -1461,6 +1491,13 @@ collisionloop:
 	lda map_gen_buf, y
 	and #$fc
 	sta temp
+
+	lda temp
+	cmp traversable_range_min
+	bcc nottraversablerange
+	cmp traversable_range_max
+	bcc traversable
+nottraversablerange:
 
 	ldy #0
 checktraversable:
@@ -1625,6 +1662,13 @@ spawnableloop:
 	lda map_gen_buf, y
 	and #$fc
 	sta temp
+
+	lda temp
+	cmp spawnable_range_min
+	bcc notspawnablerange
+	cmp spawnable_range_max
+	bcc canspawn
+notspawnablerange:
 
 	ldy #0
 checkspawnable:
@@ -2605,6 +2649,14 @@ VAR water_tile_start
 	.byte 0
 VAR water_tile_end
 	.byte 0
+VAR traversable_range_min
+	.byte 0
+VAR traversable_range_max
+	.byte 0
+VAR spawnable_range_min
+	.byte 0
+VAR spawnable_range_max
+	.byte 0
 
 VAR collision
 	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -2698,9 +2750,9 @@ VAR initial_map_generators
 	.word gen_forest
 	.word gen_cave_interior
 	.word gen_cave_interior
-	.word gen_cave_interior
-	.word gen_cave_interior
-	.word gen_cave_interior
+	.word gen_sewer
+	.word gen_sewer
+	.word gen_sewer_boss
 	.word gen_forest
 	.word gen_dead_wood_boss
 	.word gen_forest
@@ -2712,7 +2764,7 @@ VAR initial_map_generators
 	.word gen_shop
 	.word gen_sewer_down
 	.word gen_house
-	.word gen_cave_interior
+	.word gen_sewer_up
 	.word gen_cave_interior
 	.word gen_cave_interior
 
