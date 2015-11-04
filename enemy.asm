@@ -412,9 +412,19 @@ done:
 	and #$3f
 	cmp #MAP_START_FOREST_BOSS
 	beq key1done
+	cmp #MAP_DEAD_WOOD_BOSS
+	beq key1done
 	rts
 
 key1done:
+	jsr wait_for_vblank
+	LOAD_PTR normal_forest_chest_palette
+	lda #2
+	jsr load_single_palette
+	jsr prepare_for_rendering
+	rts
+
+key5done:
 	jsr wait_for_vblank
 	LOAD_PTR normal_forest_chest_palette
 	lda #2

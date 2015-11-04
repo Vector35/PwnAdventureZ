@@ -2699,7 +2699,7 @@ VAR initial_map_generators
 	.word gen_cave_interior
 	.word gen_cave_interior
 	.word gen_forest
-	.word gen_forest
+	.word gen_dead_wood_boss
 	.word gen_forest
 	.word gen_forest
 	.word gen_cave_interior

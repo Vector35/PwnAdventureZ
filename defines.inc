@@ -320,7 +320,8 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define INTERACT_BOARDED_HOUSE_NOTE 7
 .define INTERACT_BOARDED_HOUSE_NPC  8
 .define INTERACT_KEY_CHEST_1        9
-.define INTERACT_NONE             $ff
+.define INTERACT_KEY_CHEST_5        10
+.define INTERACT_NONE               $ff
 
 .define INTERACT_DESC_IS_VALID 0
 .define INTERACT_DESC_ACTIVATE 2
