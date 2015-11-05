@@ -1953,6 +1953,6 @@ VAR player_bullet_damage_descriptor
 	.byte 3
 	.byte 0, 0
 
-TILES unarmed_player_tiles, 2, "tiles/characters/player/unarmed.chr", 32
-TILES ghillie_player_tiles, 2, "tiles/characters/player/unarmed-ghillie.chr", 32
+TILES unarmed_player_tiles, 4, "tiles/characters/player/unarmed.chr", 40
+TILES ghillie_player_tiles, 4, "tiles/characters/player/unarmed-ghillie.chr", 32
 TILES interact_tiles, 2, "tiles/interact.chr", 8
