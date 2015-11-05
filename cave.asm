@@ -34,6 +34,18 @@ PROC gen_cave_interior
 .endproc
 
 
+PROC gen_cave_boss
+	lda current_bank
+	pha
+	lda #^do_gen_cave_boss
+	jsr bankswitch
+	jsr do_gen_cave_boss & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
 PROC gen_blocky_cave_interior
 	lda current_bank
 	pha
@@ -100,7 +112,12 @@ opened:
 
 PROC do_gen_cave_interior
 	jsr do_gen_cave_common & $ffff
+	jsr gen_cave_enemies & $ffff
+	rts
+.endproc
 
+
+PROC gen_cave_enemies
 	; Create enemies
 	jsr prepare_spawn
 	jsr restore_enemies
@@ -184,6 +201,49 @@ spawnloop:
 	bne spawnloop
 
 restoredspawn:
+	rts
+.endproc
+
+
+PROC do_gen_cave_boss
+	jsr do_gen_cave_common & $ffff
+
+	LOAD_ALL_TILES $0f0, chest_tiles
+
+	lda #INTERACT_KEY_CHEST_4
+	sta interactive_tile_types
+	lda #$f0
+	sta interactive_tile_values
+
+	lda completed_quest_steps
+	and #QUEST_KEY_4
+	bne questcomplete
+
+	ldx #7
+	ldy #4
+	lda #$f0 + 2
+	jsr write_gen_map
+	jmp chestdone & $ffff
+
+questcomplete:
+	ldx #7
+	ldy #4
+	lda #$f4 + 2
+	jsr write_gen_map
+
+chestdone:
+	lda #0
+	sta horde_active
+	sta horde_complete
+
+	lda #ENEMY_NORMAL_MALE_ZOMBIE
+	sta horde_enemy_types
+	lda #ENEMY_SPIDER
+	sta horde_enemy_types + 1
+	sta horde_enemy_types + 2
+	sta horde_enemy_types + 3
+
+	jsr gen_cave_enemies & $ffff
 	rts
 .endproc
 
@@ -590,6 +650,138 @@ alreadycomplete:
 .endproc
 
 
+PROC key_chest_4_interact
+	lda current_bank
+	pha
+	lda #^do_key_chest_4_interact
+	jsr bankswitch
+	jsr do_key_chest_4_interact & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+.segment "EXTRA"
+
+PROC do_key_chest_4_interact
+	lda completed_quest_steps
+	and #QUEST_KEY_4
+	beq notcompleted
+	jmp completed & $ffff
+
+notcompleted:
+	lda horde_active
+	bne inhorde
+
+	lda horde_complete
+	bne done
+
+	LOAD_PTR start_horde_text
+	lda #^start_horde_text
+	jsr show_chat_text
+
+	lda #1
+	sta horde_active
+
+	lda difficulty
+	cmp #1
+	beq hard
+	cmp #2
+	beq veryhard
+
+	lda #120
+	sta horde_timer
+	lda #0
+	sta horde_timer + 1
+	lda #90
+	sta horde_spawn_timer
+	sta horde_spawn_delay
+	jmp hordesetup & $ffff
+
+hard:
+	lda #150
+	sta horde_timer
+	lda #0
+	sta horde_timer + 1
+	lda #60
+	sta horde_spawn_timer
+	sta horde_spawn_delay
+	jmp hordesetup & $ffff
+
+veryhard:
+	lda #180
+	sta horde_timer
+	lda #0
+	sta horde_timer + 1
+	lda #50
+	sta horde_spawn_timer
+	sta horde_spawn_delay
+
+hordesetup:
+	jsr wait_for_vblank
+	LOAD_PTR trapped_cave_chest_palette
+	lda #2
+	jsr load_single_palette
+	jsr prepare_for_rendering
+
+	lda #MUSIC_HORDE
+	jsr play_music
+
+	rts
+
+inhorde:
+	LOAD_PTR locked_chest_text
+	lda #^locked_chest_text
+	jsr show_chat_text
+	rts
+
+done:
+	lda completed_quest_steps
+	ora #QUEST_KEY_4
+	sta completed_quest_steps
+	lda highlighted_quest_steps
+	and #$ff & (~QUEST_KEY_4)
+	sta highlighted_quest_steps
+
+	lda completed_quest_steps
+	and #QUEST_KEY_5
+	bne key5done
+	lda highlighted_quest_steps
+	ora #QUEST_KEY_5
+	sta highlighted_quest_steps
+
+key5done:
+	inc key_count
+
+	lda #ITEM_LMG
+	jsr give_item
+	lda #ITEM_GEM
+	ldx #30
+	jsr give_item_with_count
+	lda #ITEM_HEALTH_KIT
+	ldx #5
+	jsr give_item_with_count
+
+	jsr save
+
+	jsr wait_for_vblank
+	ldx #7
+	ldy #4
+	lda #$f4 + 2
+	jsr write_large_tile
+	jsr prepare_for_rendering
+
+	PLAY_SOUND_EFFECT effect_open
+
+completed:
+	LOAD_PTR key_4_text
+	lda #^key_4_text
+	jsr show_chat_text
+	rts
+.endproc
+
+
 .bss
 VAR starting_chest_opened
 	.byte 0
@@ -611,6 +803,11 @@ VAR cave_palette
 	.byte $0f, $07, $17, $27
 	.byte $0f, $07, $17, $27
 
+VAR trapped_cave_chest_palette
+	.byte $0f, $08, $18, $28
+VAR normal_cave_chest_palette
+	.byte $0f, $07, $17, $27
+
 VAR starting_chest_descriptor
 	.word is_starting_chest_interactable
 	.word starting_chest_interact
@@ -618,6 +815,10 @@ VAR starting_chest_descriptor
 VAR starting_note_descriptor
 	.word always_interactable
 	.word starting_note_interact
+
+VAR key_chest_4_descriptor
+	.word always_interactable
+	.word key_chest_4_interact
 
 
 VAR cave_enemy_types
@@ -705,3 +906,10 @@ VAR starting_note_text
 	.byte "IS UPON US! WE NEED", 0
 	.byte "HELP! MEET ME IN TOWN.", 0
 	.byte 0, 0
+
+VAR key_4_text
+	.byte "YOU FOUND THE FOURTH", 0
+	.byte "KEY! INSIDE THE CHEST", 0
+	.byte "IS ALSO THE LOCATION", 0
+	.byte "OF THE NEXT KEY.", 0
+	.byte 0

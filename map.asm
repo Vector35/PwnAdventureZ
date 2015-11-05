@@ -2746,7 +2746,7 @@ VAR initial_map_generators
 	.word gen_forest_boss
 	.word gen_boarded_house
 	.word gen_cave_interior
-	.word gen_cave_interior
+	.word gen_cave_boss
 	.word gen_forest
 	.word gen_cave_interior
 	.word gen_cave_interior

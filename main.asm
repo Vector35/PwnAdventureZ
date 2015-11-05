@@ -295,6 +295,9 @@ namedone:
 	; Initialize map generators
 	jsr init_map
 
+	lda #QUEST_START
+	sta highlighted_quest_steps
+
 	; Set player spawn position
 	lda #112
 	sta player_entry_x

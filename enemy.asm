@@ -425,6 +425,8 @@ done:
 	beq key1done
 	cmp #MAP_SEWER_BOSS
 	beq key2done
+	cmp #MAP_CAVE_BOSS
+	beq key4done
 	cmp #MAP_DEAD_WOOD_BOSS
 	beq key5done
 	rts
@@ -443,6 +445,17 @@ key1done:
 key2done:
 	jsr wait_for_vblank
 	LOAD_PTR normal_sewer_chest_palette
+	lda #2
+	jsr load_single_palette
+	jsr prepare_for_rendering
+
+	lda #MUSIC_CAVE
+	jsr play_music
+	rts
+
+key4done:
+	jsr wait_for_vblank
+	LOAD_PTR normal_cave_chest_palette
 	lda #2
 	jsr load_single_palette
 	jsr prepare_for_rendering
