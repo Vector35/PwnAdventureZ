@@ -46,6 +46,30 @@ PROC gen_cave_boss
 .endproc
 
 
+PROC gen_mine_down
+	lda current_bank
+	pha
+	lda #^do_gen_mine_down
+	jsr bankswitch
+	jsr do_gen_mine_down & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+PROC gen_mine_up
+	lda current_bank
+	pha
+	lda #^do_gen_mine_up
+	jsr bankswitch
+	jsr do_gen_mine_up & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
 PROC gen_blocky_cave_interior
 	lda current_bank
 	pha
@@ -244,6 +268,95 @@ chestdone:
 	sta horde_enemy_types + 3
 
 	jsr gen_cave_enemies & $ffff
+	rts
+.endproc
+
+
+PROC gen_mine_ladder
+	ldx #5
+	ldy #4
+	lda #$80 + 52
+	jsr write_gen_map
+	ldx #6
+	lda #$80 + 28
+	jsr write_gen_map
+	ldx #7
+	jsr write_gen_map
+	ldx #8
+	jsr write_gen_map
+	ldx #9
+	lda #$80 + 48
+	jsr write_gen_map
+	ldx #5
+	ldy #5
+	lda #$80 + 20
+	jsr write_gen_map
+	ldx #6
+	lda #$80 + 12
+	jsr write_gen_map
+	ldx #7
+	lda #$f0 + 2
+	jsr write_gen_map
+	ldx #8
+	lda #$80 + 20
+	jsr write_gen_map
+	ldx #9
+	lda #$80 + 12
+	jsr write_gen_map
+	ldx #5
+	ldy #6
+	lda #$80 + 40
+	jsr write_gen_map
+	ldx #6
+	lda #$80 + 36
+	jsr write_gen_map
+	ldx #7
+	lda #0
+	jsr write_gen_map
+	ldx #8
+	lda #$80 + 40
+	jsr write_gen_map
+	ldx #9
+	lda #$80 + 36
+	jsr write_gen_map
+	rts
+.endproc
+
+
+PROC do_gen_mine_down
+	jsr do_gen_cave_common & $ffff
+
+	LOAD_PTR mine_down_palette
+	jsr load_background_game_palette
+
+	; Place chest in the starting room to get the initial weapon
+	LOAD_ALL_TILES $0f0, cave_ladder_tiles
+
+	lda #INTERACT_MINE_ENTRANCE
+	sta interactive_tile_types
+	lda #$f0
+	sta interactive_tile_values
+
+	jsr gen_mine_ladder & $ffff
+	rts
+.endproc
+
+
+PROC do_gen_mine_up
+	jsr do_gen_cave_common & $ffff
+
+	LOAD_PTR mine_down_palette
+	jsr load_background_game_palette
+
+	; Place chest in the starting room to get the initial weapon
+	LOAD_ALL_TILES $0f0, cave_ladder_tiles
+
+	lda #INTERACT_MINE_EXIT
+	sta interactive_tile_types
+	lda #$f0
+	sta interactive_tile_values
+
+	jsr gen_mine_ladder & $ffff
 	rts
 .endproc
 
@@ -650,6 +763,30 @@ alreadycomplete:
 .endproc
 
 
+PROC mine_entrance_interact
+	lda current_bank
+	pha
+	lda #^do_mine_entrance_interact
+	jsr bankswitch
+	jsr do_mine_entrance_interact & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+PROC mine_exit_interact
+	lda current_bank
+	pha
+	lda #^do_mine_exit_interact
+	jsr bankswitch
+	jsr do_mine_exit_interact & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
 PROC key_chest_4_interact
 	lda current_bank
 	pha
@@ -663,6 +800,58 @@ PROC key_chest_4_interact
 
 
 .segment "EXTRA"
+
+PROC do_mine_entrance_interact
+	jsr fade_out
+
+	lda #^normal_mine_map
+	sta map_bank
+	lda #<normal_mine_map
+	sta map_ptr
+	lda #>normal_mine_map
+	sta map_ptr + 1
+	lda #<mine_visited
+	sta map_visited_ptr
+	lda #>mine_visited
+	sta map_visited_ptr + 1
+
+	jsr generate_minimap_cache
+	jsr invalidate_enemy_cache
+
+	lda #$70
+	sta player_x
+	lda #$60
+	sta player_y
+
+	lda #1
+	sta warp_to_new_screen
+	rts
+.endproc
+
+
+PROC do_mine_exit_interact
+	jsr fade_out
+
+	jsr activate_overworld_map
+
+	lda #<overworld_visited
+	sta map_visited_ptr
+	lda #>overworld_visited
+	sta map_visited_ptr + 1
+
+	jsr generate_minimap_cache
+	jsr invalidate_enemy_cache
+
+	lda #$70
+	sta player_x
+	lda #$60
+	sta player_y
+
+	lda #1
+	sta warp_to_new_screen
+	rts
+.endproc
+
 
 PROC do_key_chest_4_interact
 	lda completed_quest_steps
@@ -803,6 +992,12 @@ VAR cave_palette
 	.byte $0f, $07, $17, $27
 	.byte $0f, $07, $17, $27
 
+VAR mine_down_palette
+	.byte $0f, $07, $17, $27
+	.byte $0f, $16, $27, $37
+	.byte $0f, $00, $10, $30
+	.byte $0f, $07, $17, $27
+
 VAR trapped_cave_chest_palette
 	.byte $0f, $08, $18, $28
 VAR normal_cave_chest_palette
@@ -816,6 +1011,14 @@ VAR starting_note_descriptor
 	.word always_interactable
 	.word starting_note_interact
 
+VAR mine_entrance_descriptor
+	.word always_interactable
+	.word mine_entrance_interact
+
+VAR mine_exit_descriptor
+	.word always_interactable
+	.word mine_exit_interact
+
 VAR key_chest_4_descriptor
 	.word always_interactable
 	.word key_chest_4_interact
@@ -828,6 +1031,8 @@ VAR cave_enemy_types
 TILES cave_border_tiles, 2, "tiles/cave/border.chr", 60
 TILES chest_tiles, 2, "tiles/cave/chest2.chr", 8
 TILES note_tiles, 2, "tiles/items/note.chr", 4
+TILES cave_ladder_tiles, 4, "tiles/cave/ladder.chr", 4
+
 
 ; Place a lookup table for determining which tile to use based on the 8 surrounding tiles.  This
 ; is represented with a bit field, with $80 representing the top left and $01 representing the

@@ -2738,7 +2738,7 @@ VAR initial_map_generators
 	.word gen_starting_cave
 	.word gen_cave_interior
 	.word gen_cave_interior
-	.word gen_cave_interior
+	.word gen_mine_down
 	.word gen_dead_wood
 	.word gen_forest
 	.word gen_forest
@@ -2765,7 +2765,7 @@ VAR initial_map_generators
 	.word gen_sewer_down
 	.word gen_house
 	.word gen_sewer_up
-	.word gen_cave_interior
+	.word gen_mine_up
 	.word gen_cave_interior
 
 

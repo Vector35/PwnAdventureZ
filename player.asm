@@ -1850,6 +1850,8 @@ VAR interaction_descriptors
 	.word boarded_house_npc_descriptor
 	.word sewer_entrance_descriptor
 	.word sewer_exit_descriptor
+	.word mine_entrance_descriptor
+	.word mine_exit_descriptor
 	.word key_chest_1_descriptor
 	.word key_chest_2_descriptor
 	.word key_chest_4_descriptor
