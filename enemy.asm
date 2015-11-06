@@ -440,6 +440,8 @@ done:
 	beq key1done
 	cmp #MAP_SEWER_BOSS
 	beq key2done
+	cmp #MAP_MINE_BOSS
+	beq key3done
 	cmp #MAP_CAVE_BOSS
 	beq key4done
 	cmp #MAP_DEAD_WOOD_BOSS
@@ -460,6 +462,17 @@ key1done:
 key2done:
 	jsr wait_for_vblank
 	LOAD_PTR normal_sewer_chest_palette
+	lda #2
+	jsr load_single_palette
+	jsr prepare_for_rendering
+
+	lda #MUSIC_CAVE
+	jsr play_music
+	rts
+
+key3done:
+	jsr wait_for_vblank
+	LOAD_PTR normal_cave_chest_palette
 	lda #2
 	jsr load_single_palette
 	jsr prepare_for_rendering
@@ -2040,6 +2053,7 @@ VAR enemy_descriptors
 	.word female_thin_npc_2_descriptor
 	.word spider_descriptor
 	.word rat_descriptor
+	.word bear_descriptor
 
 
 VAR enemy_death_descriptor

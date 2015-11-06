@@ -131,6 +131,30 @@ PROC sewer_entrance_interact
 .endproc
 
 
+PROC gen_unbearable
+	lda current_bank
+	pha
+	lda #^do_gen_unbearable
+	jsr bankswitch
+	jsr do_gen_unbearable & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+PROC gen_unbearable_boss
+	lda current_bank
+	pha
+	lda #^do_gen_unbearable_boss
+	jsr bankswitch
+	jsr do_gen_unbearable_boss & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
 PROC key_chest_1_interact
 	lda current_bank
 	pha
@@ -149,6 +173,18 @@ PROC key_chest_5_interact
 	lda #^do_key_chest_5_interact
 	jsr bankswitch
 	jsr do_key_chest_5_interact & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+PROC key_chest_6_interact
+	lda current_bank
+	pha
+	lda #^do_key_chest_6_interact
+	jsr bankswitch
+	jsr do_key_chest_6_interact & $ffff
 	pla
 	jsr bankswitch
 	rts
@@ -326,6 +362,80 @@ PROC do_gen_sewer_down
 .endproc
 
 
+PROC do_gen_unbearable
+	lda #MUSIC_FOREST
+	jsr play_music
+
+	LOAD_PTR forest_palette
+	jsr load_background_game_palette
+
+	jsr gen_forest_common & $ffff
+	jsr init_bear_sprites
+	jsr init_spider_sprites
+
+	jsr finish_forest & $ffff
+
+	jsr spawn_unbearable_enemies & $ffff
+	rts
+.endproc
+
+
+PROC do_gen_unbearable_boss
+	lda #MUSIC_FOREST
+	jsr play_music
+
+	LOAD_PTR forest_palette
+	jsr load_background_game_palette
+
+	jsr gen_forest_common & $ffff
+	jsr init_bear_sprites
+	jsr init_spider_sprites
+
+	LOAD_ALL_TILES CHEST_TILES, forest_chest_tiles
+	lda #INTERACT_KEY_CHEST_6
+	sta interactive_tile_types
+	lda #CHEST_TILES
+	sta interactive_tile_values
+	lda #INTERACT_KEY_CHEST_6
+	sta interactive_tile_types + 1
+	lda #CHEST_TILES + 4
+	sta interactive_tile_values + 1
+
+	lda completed_quest_steps
+	and #QUEST_KEY_6
+	bne questcomplete
+
+	ldx #7
+	ldy #4
+	lda #CHEST_TILES + CHEST_PALETTE
+	jsr write_gen_map
+	jmp chestdone & $ffff
+
+questcomplete:
+	ldx #7
+	ldy #4
+	lda #CHEST_TILES + 4 + CHEST_PALETTE
+	jsr write_gen_map
+
+chestdone:
+	jsr finish_forest & $ffff
+
+	lda #0
+	sta horde_active
+	sta horde_complete
+
+	lda #ENEMY_BEAR
+	sta horde_enemy_types
+	sta horde_enemy_types + 1
+	sta horde_enemy_types + 2
+	lda #ENEMY_SPIDER
+	sta horde_enemy_types + 3
+
+	jsr spawn_unbearable_enemies & $ffff
+	rts
+.endproc
+
+
 PROC spawn_forest_enemies
 	jsr prepare_spawn
 	jsr restore_enemies
@@ -424,6 +534,61 @@ spawnloop:
 	jsr rand_range
 	tax
 	lda forest_enemy_types, x
+	jsr spawn_starting_enemy
+
+	pla
+	tax
+	dex
+	bne spawnloop
+
+restoredspawn:
+	rts
+.endproc
+
+
+PROC spawn_unbearable_enemies
+	jsr prepare_spawn
+	jsr restore_enemies
+	beq notrestoredspawn
+	jmp restoredspawn & $ffff
+
+notrestoredspawn:
+	lda difficulty
+	cmp #1
+	beq hard
+	cmp #2
+	beq veryhard
+
+	lda #3
+	jsr rand_range
+	clc
+	adc #1
+	tax
+	jmp spawnloop & $ffff
+
+hard:
+	lda #4
+	jsr rand_range
+	clc
+	adc #2
+	tax
+	jmp spawnloop & $ffff
+
+veryhard:
+	lda #4
+	jsr rand_range
+	clc
+	adc #4
+	tax
+
+spawnloop:
+	txa
+	pha
+
+	lda #3
+	jsr rand_range
+	tax
+	lda unbearable_enemy_types, x
 	jsr spawn_starting_enemy
 
 	pla
@@ -1072,6 +1237,14 @@ done:
 key2done:
 	inc key_count
 
+	lda key_count
+	cmp #6
+	bne notallkeys
+	lda highlighted_quest_steps
+	ora #QUEST_END
+	sta highlighted_quest_steps
+notallkeys:
+
 	lda #ITEM_SWORD
 	jsr give_item
 	lda #ITEM_GEM
@@ -1190,6 +1363,14 @@ done:
 key6done:
 	inc key_count
 
+	lda key_count
+	cmp #6
+	bne notallkeys
+	lda highlighted_quest_steps
+	ora #QUEST_END
+	sta highlighted_quest_steps
+notallkeys:
+
 	lda #ITEM_SNIPER
 	jsr give_item
 	lda #ITEM_GEM
@@ -1213,6 +1394,126 @@ key6done:
 completed:
 	LOAD_PTR key_5_text
 	lda #^key_5_text
+	jsr show_chat_text
+	rts
+.endproc
+
+
+PROC do_key_chest_6_interact
+	lda completed_quest_steps
+	and #QUEST_KEY_6
+	beq notcompleted
+	jmp completed & $ffff
+
+notcompleted:
+	lda horde_active
+	bne inhorde
+
+	lda horde_complete
+	bne done
+
+	LOAD_PTR start_horde_text
+	lda #^start_horde_text
+	jsr show_chat_text
+
+	lda #1
+	sta horde_active
+
+	lda difficulty
+	cmp #1
+	beq hard
+	cmp #2
+	beq veryhard
+
+	lda #150
+	sta horde_timer
+	lda #0
+	sta horde_timer + 1
+	lda #100
+	sta horde_spawn_timer
+	sta horde_spawn_delay
+	jmp hordesetup & $ffff
+
+hard:
+	lda #180
+	sta horde_timer
+	lda #0
+	sta horde_timer + 1
+	lda #80
+	sta horde_spawn_timer
+	sta horde_spawn_delay
+	jmp hordesetup & $ffff
+
+veryhard:
+	lda #240
+	sta horde_timer
+	lda #0
+	sta horde_timer + 1
+	lda #60
+	sta horde_spawn_timer
+	sta horde_spawn_delay
+
+hordesetup:
+	jsr wait_for_vblank
+	LOAD_PTR trapped_chest_palette
+	lda #2
+	jsr load_single_palette
+	jsr prepare_for_rendering
+
+	lda #MUSIC_HORDE
+	jsr play_music
+
+	rts
+
+inhorde:
+	LOAD_PTR locked_chest_text
+	lda #^locked_chest_text
+	jsr show_chat_text
+	rts
+
+done:
+	lda completed_quest_steps
+	ora #QUEST_KEY_6
+	sta completed_quest_steps
+	lda highlighted_quest_steps
+	and #$ff & (~QUEST_KEY_6)
+	sta highlighted_quest_steps
+
+	inc key_count
+
+	lda key_count
+	cmp #6
+	bne notallkeys
+	lda highlighted_quest_steps
+	ora #QUEST_END
+	sta highlighted_quest_steps
+notallkeys:
+
+	lda #ITEM_AK
+	jsr give_item
+	lda #ITEM_GHILLIE_SUIT
+	jsr give_item
+	lda #ITEM_GEM
+	ldx #40
+	jsr give_item_with_count
+	lda #ITEM_HEALTH_KIT
+	ldx #7
+	jsr give_item_with_count
+
+	jsr save
+
+	jsr wait_for_vblank
+	ldx #7
+	ldy #4
+	lda #CHEST_TILES + 4 + CHEST_PALETTE
+	jsr write_large_tile
+	jsr prepare_for_rendering
+
+	PLAY_SOUND_EFFECT effect_open
+
+completed:
+	LOAD_PTR key_6_text
+	lda #^key_6_text
 	jsr show_chat_text
 	rts
 .endproc
@@ -1254,6 +1555,9 @@ VAR forest_enemy_types
 VAR dead_wood_enemy_types
 	.byte ENEMY_NORMAL_MALE_ZOMBIE, ENEMY_NORMAL_FEMALE_ZOMBIE, ENEMY_SPIDER, ENEMY_SPIDER, ENEMY_SHARK, ENEMY_SHARK
 
+VAR unbearable_enemy_types
+	.byte ENEMY_BEAR, ENEMY_BEAR, ENEMY_SPIDER
+
 VAR key_chest_1_descriptor
 	.word always_interactable
 	.word key_chest_1_interact
@@ -1261,6 +1565,10 @@ VAR key_chest_1_descriptor
 VAR key_chest_5_descriptor
 	.word always_interactable
 	.word key_chest_5_interact
+
+VAR key_chest_6_descriptor
+	.word always_interactable
+	.word key_chest_6_interact
 
 VAR sewer_entrance_descriptor
 	.word always_interactable
@@ -1301,4 +1609,11 @@ VAR key_5_text
 	.byte "KEY! INSIDE THE CHEST", 0
 	.byte "IS ALSO THE LOCATION", 0
 	.byte "OF THE NEXT KEY.", 0
+	.byte 0
+
+VAR key_6_text
+	.byte "YOU FOUND THE SIXTH", 0
+	.byte "KEY! OPEN THE DOOR", 0
+	.byte "TO THE LAB WITH ALL", 0
+	.byte "SIX KEYS.", 0
 	.byte 0

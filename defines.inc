@@ -298,6 +298,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define ENEMY_FEMALE_THIN_NPC_2    11
 .define ENEMY_SPIDER               12
 .define ENEMY_RAT                  13
+.define ENEMY_BEAR                 14
 .define ENEMY_NONE                 $ff
 
 .define ENEMY_MAX_COUNT          8
@@ -329,8 +330,10 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define INTERACT_MINE_EXIT          12
 .define INTERACT_KEY_CHEST_1        13
 .define INTERACT_KEY_CHEST_2        14
-.define INTERACT_KEY_CHEST_4        15
-.define INTERACT_KEY_CHEST_5        16
+.define INTERACT_KEY_CHEST_3        15
+.define INTERACT_KEY_CHEST_4        16
+.define INTERACT_KEY_CHEST_5        17
+.define INTERACT_KEY_CHEST_6        18
 .define INTERACT_NONE               $ff
 
 .define INTERACT_DESC_IS_VALID 0
@@ -352,6 +355,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define SPRITE_TILE_FAT_ZOMBIE           $80
 .define SPRITE_TILE_THIN_ZOMBIE          $80
 .define SPRITE_TILE_RAT                  $80
+.define SPRITE_TILE_BEAR                 $80
 .define SPRITE_TILE_SPIDER               $a0
 .define SPRITE_TILE_SHARK                $30
 

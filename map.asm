@@ -2755,7 +2755,7 @@ VAR initial_map_generators
 	.word gen_cave_interior
 	.word gen_mine_down
 	.word gen_dead_wood
-	.word gen_forest
+	.word gen_unbearable
 	.word gen_forest
 	.word gen_forest
 	.word gen_forest_boss
@@ -2764,14 +2764,14 @@ VAR initial_map_generators
 	.word gen_cave_boss
 	.word gen_forest
 	.word gen_cave_interior
-	.word gen_cave_interior
+	.word gen_mine_boss
 	.word gen_sewer
 	.word gen_sewer
 	.word gen_sewer_boss
-	.word gen_forest
+	.word gen_dead_wood
 	.word gen_dead_wood_boss
-	.word gen_forest
-	.word gen_forest
+	.word gen_unbearable
+	.word gen_unbearable_boss
 	.word gen_cave_interior
 	.word gen_cave_interior
 	.word gen_cave_interior
@@ -2781,6 +2781,6 @@ VAR initial_map_generators
 	.word gen_house
 	.word gen_sewer_up
 	.word gen_mine_up
-	.word gen_cave_interior
+	.word gen_mine
 
 .include "levels.inc"
