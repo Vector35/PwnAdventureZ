@@ -1854,8 +1854,10 @@ VAR interaction_descriptors
 	.word mine_exit_descriptor
 	.word key_chest_1_descriptor
 	.word key_chest_2_descriptor
+	.word key_chest_3_descriptor
 	.word key_chest_4_descriptor
 	.word key_chest_5_descriptor
+	.word key_chest_6_descriptor
 
 VAR player_axe_descriptor
 	.word player_melee_tick

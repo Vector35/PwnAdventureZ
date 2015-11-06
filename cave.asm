@@ -58,18 +58,6 @@ PROC gen_mine_down
 .endproc
 
 
-PROC gen_mine_up
-	lda current_bank
-	pha
-	lda #^do_gen_mine_up
-	jsr bankswitch
-	jsr do_gen_mine_up & $ffff
-	pla
-	jsr bankswitch
-	rts
-.endproc
-
-
 PROC gen_blocky_cave_interior
 	lda current_bank
 	pha
@@ -333,25 +321,6 @@ PROC do_gen_mine_down
 	LOAD_ALL_TILES $0f0, cave_ladder_tiles
 
 	lda #INTERACT_MINE_ENTRANCE
-	sta interactive_tile_types
-	lda #$f0
-	sta interactive_tile_values
-
-	jsr gen_mine_ladder & $ffff
-	rts
-.endproc
-
-
-PROC do_gen_mine_up
-	jsr do_gen_cave_common & $ffff
-
-	LOAD_PTR mine_down_palette
-	jsr load_background_game_palette
-
-	; Place chest in the starting room to get the initial weapon
-	LOAD_ALL_TILES $0f0, cave_ladder_tiles
-
-	lda #INTERACT_MINE_EXIT
 	sta interactive_tile_types
 	lda #$f0
 	sta interactive_tile_values
@@ -942,6 +911,14 @@ done:
 
 key5done:
 	inc key_count
+
+	lda key_count
+	cmp #6
+	bne notallkeys
+	lda highlighted_quest_steps
+	ora #QUEST_END
+	sta highlighted_quest_steps
+notallkeys:
 
 	lda #ITEM_LMG
 	jsr give_item

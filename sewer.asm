@@ -424,6 +424,14 @@ done:
 key2done:
 	inc key_count
 
+	lda key_count
+	cmp #6
+	bne notallkeys
+	lda highlighted_quest_steps
+	ora #QUEST_END
+	sta highlighted_quest_steps
+notallkeys:
+
 	lda #ITEM_SHOTGUN
 	jsr give_item
 	lda #ITEM_GEM
