@@ -334,6 +334,13 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define INTERACT_KEY_CHEST_4        16
 .define INTERACT_KEY_CHEST_5        17
 .define INTERACT_KEY_CHEST_6        18
+.define INTERACT_START_FOREST_CHEST 19
+.define INTERACT_CAVE_CHEST         20
+.define INTERACT_MINE_CHEST         21
+.define INTERACT_SEWER_CHEST        22
+.define INTERACT_DEAD_WOOD_CHEST    23
+.define INTERACT_UNBEARABLE_CHEST   24
+.define INTERACT_LOST_CAVE_CHEST    25
 .define INTERACT_NONE               $ff
 
 .define INTERACT_DESC_IS_VALID 0
@@ -484,6 +491,16 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define QUEST_KEY_6   $20
 .define QUEST_START   $40
 .define QUEST_END     $80
+
+
+; Minor chest bits
+.define MINOR_CHEST_START_FOREST 1
+.define MINOR_CHEST_CAVE         2
+.define MINOR_CHEST_MINE         4
+.define MINOR_CHEST_SEWER        8
+.define MINOR_CHEST_DEAD_WOOD    $10
+.define MINOR_CHEST_UNBEARABLE   $20
+.define MINOR_CHEST_LOST_CAVE    $40
 
 
 ; Globally accessible zero page variables

@@ -71,6 +71,18 @@ PROC gen_forest
 .endproc
 
 
+PROC gen_start_forest_chest
+	lda current_bank
+	pha
+	lda #^do_gen_start_forest_chest
+	jsr bankswitch
+	jsr do_gen_start_forest_chest & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
 PROC gen_forest_boss
 	lda current_bank
 	pha
@@ -89,6 +101,18 @@ PROC gen_dead_wood
 	lda #^do_gen_dead_wood
 	jsr bankswitch
 	jsr do_gen_dead_wood & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+PROC gen_dead_wood_chest
+	lda current_bank
+	pha
+	lda #^do_gen_dead_wood_chest
+	jsr bankswitch
+	jsr do_gen_dead_wood_chest & $ffff
 	pla
 	jsr bankswitch
 	rts
@@ -143,6 +167,18 @@ PROC gen_unbearable
 .endproc
 
 
+PROC gen_unbearable_chest
+	lda current_bank
+	pha
+	lda #^do_gen_unbearable_chest
+	jsr bankswitch
+	jsr do_gen_unbearable_chest & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
 PROC gen_unbearable_boss
 	lda current_bank
 	pha
@@ -191,6 +227,63 @@ PROC key_chest_6_interact
 .endproc
 
 
+PROC is_start_forest_chest_interactable
+	lda minor_chests_opened
+	and #MINOR_CHEST_START_FOREST
+	rts
+.endproc
+
+
+PROC is_dead_wood_chest_interactable
+	lda minor_chests_opened
+	and #MINOR_CHEST_DEAD_WOOD
+	rts
+.endproc
+
+
+PROC is_unbearable_chest_interactable
+	lda minor_chests_opened
+	and #MINOR_CHEST_UNBEARABLE
+	rts
+.endproc
+
+
+PROC start_forest_chest_interact
+	lda current_bank
+	pha
+	lda #^do_start_forest_chest_interact
+	jsr bankswitch
+	jsr do_start_forest_chest_interact & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+PROC dead_wood_chest_interact
+	lda current_bank
+	pha
+	lda #^do_dead_wood_chest_interact
+	jsr bankswitch
+	jsr do_dead_wood_chest_interact & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+PROC unbearable_chest_interact
+	lda current_bank
+	pha
+	lda #^do_unbearable_chest_interact
+	jsr bankswitch
+	jsr do_unbearable_chest_interact & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
 .segment "EXTRA"
 
 PROC do_gen_forest
@@ -201,6 +294,45 @@ PROC do_gen_forest
 	jsr load_background_game_palette
 
 	jsr gen_forest_common & $ffff
+	jsr finish_forest & $ffff
+
+	jsr spawn_forest_enemies & $ffff
+	rts
+.endproc
+
+
+PROC do_gen_start_forest_chest
+	lda #MUSIC_FOREST
+	jsr play_music
+
+	LOAD_PTR forest_palette
+	jsr load_background_game_palette
+
+	jsr gen_forest_common & $ffff
+
+	LOAD_ALL_TILES CHEST_TILES, forest_small_chest_tiles
+	lda #INTERACT_START_FOREST_CHEST
+	sta interactive_tile_types
+	lda #CHEST_TILES
+	sta interactive_tile_values
+
+	lda minor_chests_opened
+	and #MINOR_CHEST_START_FOREST
+	bne opened
+
+	ldx #7
+	ldy #4
+	lda #CHEST_TILES + CHEST_PALETTE
+	jsr write_gen_map
+	jmp chestdone & $ffff
+
+opened:
+	ldx #7
+	ldy #4
+	lda #CHEST_TILES + 4 + CHEST_PALETTE
+	jsr write_gen_map
+
+chestdone:
 	jsr finish_forest & $ffff
 
 	jsr spawn_forest_enemies & $ffff
@@ -273,6 +405,47 @@ PROC do_gen_dead_wood
 
 	LOAD_ALL_TILES FOREST_TILES, dead_tree_tiles
 
+	jsr finish_forest & $ffff
+
+	jsr spawn_dead_wood_enemies & $ffff
+	rts
+.endproc
+
+
+PROC do_gen_dead_wood_chest
+	lda #MUSIC_FOREST
+	jsr play_music
+
+	LOAD_PTR dead_wood_palette
+	jsr load_background_game_palette
+
+	jsr gen_forest_common & $ffff
+
+	LOAD_ALL_TILES FOREST_TILES, dead_tree_tiles
+
+	LOAD_ALL_TILES CHEST_TILES, forest_small_chest_tiles
+	lda #INTERACT_DEAD_WOOD_CHEST
+	sta interactive_tile_types
+	lda #CHEST_TILES
+	sta interactive_tile_values
+
+	lda minor_chests_opened
+	and #MINOR_CHEST_DEAD_WOOD
+	bne opened
+
+	ldx #7
+	ldy #4
+	lda #CHEST_TILES + CHEST_PALETTE
+	jsr write_gen_map
+	jmp chestdone & $ffff
+
+opened:
+	ldx #7
+	ldy #4
+	lda #CHEST_TILES + 4 + CHEST_PALETTE
+	jsr write_gen_map
+
+chestdone:
 	jsr finish_forest & $ffff
 
 	jsr spawn_dead_wood_enemies & $ffff
@@ -373,6 +546,47 @@ PROC do_gen_unbearable
 	jsr init_bear_sprites
 	jsr init_spider_sprites
 
+	jsr finish_forest & $ffff
+
+	jsr spawn_unbearable_enemies & $ffff
+	rts
+.endproc
+
+
+PROC do_gen_unbearable_chest
+	lda #MUSIC_FOREST
+	jsr play_music
+
+	LOAD_PTR forest_palette
+	jsr load_background_game_palette
+
+	jsr gen_forest_common & $ffff
+	jsr init_bear_sprites
+	jsr init_spider_sprites
+
+	LOAD_ALL_TILES CHEST_TILES, forest_small_chest_tiles
+	lda #INTERACT_UNBEARABLE_CHEST
+	sta interactive_tile_types
+	lda #CHEST_TILES
+	sta interactive_tile_values
+
+	lda minor_chests_opened
+	and #MINOR_CHEST_UNBEARABLE
+	bne opened
+
+	ldx #7
+	ldy #4
+	lda #CHEST_TILES + CHEST_PALETTE
+	jsr write_gen_map
+	jmp chestdone & $ffff
+
+opened:
+	ldx #7
+	ldy #4
+	lda #CHEST_TILES + 4 + CHEST_PALETTE
+	jsr write_gen_map
+
+chestdone:
 	jsr finish_forest & $ffff
 
 	jsr spawn_unbearable_enemies & $ffff
@@ -1248,10 +1462,10 @@ notallkeys:
 	lda #ITEM_SWORD
 	jsr give_item
 	lda #ITEM_GEM
-	ldx #30
+	ldx #3
 	jsr give_item_with_count
 	lda #ITEM_HEALTH_KIT
-	ldx #5
+	ldx #2
 	jsr give_item_with_count
 
 	jsr save
@@ -1372,12 +1586,13 @@ key6done:
 notallkeys:
 
 	lda #ITEM_SNIPER
-	jsr give_item
+	ldx #30
+	jsr give_weapon
 	lda #ITEM_GEM
-	ldx #40
+	ldx #8
 	jsr give_item_with_count
 	lda #ITEM_HEALTH_KIT
-	ldx #7
+	ldx #3
 	jsr give_item_with_count
 
 	jsr save
@@ -1490,14 +1705,13 @@ done:
 notallkeys:
 
 	lda #ITEM_AK
-	jsr give_item
-	lda #ITEM_GHILLIE_SUIT
-	jsr give_item
+	ldx #100
+	jsr give_weapon
 	lda #ITEM_GEM
-	ldx #40
+	ldx #10
 	jsr give_item_with_count
 	lda #ITEM_HEALTH_KIT
-	ldx #7
+	ldx #3
 	jsr give_item_with_count
 
 	jsr save
@@ -1515,6 +1729,86 @@ completed:
 	LOAD_PTR key_6_text
 	lda #^key_6_text
 	jsr show_chat_text
+	rts
+.endproc
+
+
+PROC do_start_forest_chest_interact
+	lda #ITEM_GEM
+	ldx #2
+	jsr give_item_with_count
+	lda #ITEM_HEALTH_KIT
+	ldx #3
+	jsr give_item_with_count
+
+	lda minor_chests_opened
+	ora #MINOR_CHEST_START_FOREST
+	sta minor_chests_opened
+
+	jsr save
+
+	jsr wait_for_vblank
+	ldx #7
+	ldy #4
+	lda #CHEST_TILES + 4 + CHEST_PALETTE
+	jsr write_large_tile
+	jsr prepare_for_rendering
+
+	PLAY_SOUND_EFFECT effect_open
+	rts
+.endproc
+
+
+PROC do_dead_wood_chest_interact
+	lda #ITEM_GEM
+	ldx #5
+	jsr give_item_with_count
+	lda #ITEM_HEALTH_KIT
+	ldx #3
+	jsr give_item_with_count
+
+	lda minor_chests_opened
+	ora #MINOR_CHEST_DEAD_WOOD
+	sta minor_chests_opened
+
+	jsr save
+
+	jsr wait_for_vblank
+	ldx #7
+	ldy #4
+	lda #CHEST_TILES + 4 + CHEST_PALETTE
+	jsr write_large_tile
+	jsr prepare_for_rendering
+
+	PLAY_SOUND_EFFECT effect_open
+	rts
+.endproc
+
+
+PROC do_unbearable_chest_interact
+	lda #ITEM_GHILLIE_SUIT
+	jsr give_item
+	lda #ITEM_GEM
+	ldx #2
+	jsr give_item_with_count
+	lda #ITEM_HEALTH_KIT
+	ldx #2
+	jsr give_item_with_count
+
+	lda minor_chests_opened
+	ora #MINOR_CHEST_UNBEARABLE
+	sta minor_chests_opened
+
+	jsr save
+
+	jsr wait_for_vblank
+	ldx #7
+	ldy #4
+	lda #CHEST_TILES + 4 + CHEST_PALETTE
+	jsr write_large_tile
+	jsr prepare_for_rendering
+
+	PLAY_SOUND_EFFECT effect_open
 	rts
 .endproc
 
@@ -1574,11 +1868,24 @@ VAR sewer_entrance_descriptor
 	.word always_interactable
 	.word sewer_entrance_interact
 
+VAR start_forest_chest_descriptor
+	.word is_start_forest_chest_interactable
+	.word start_forest_chest_interact
+
+VAR dead_wood_chest_descriptor
+	.word is_dead_wood_chest_interactable
+	.word dead_wood_chest_interact
+
+VAR unbearable_chest_descriptor
+	.word is_unbearable_chest_interactable
+	.word unbearable_chest_interact
+
 
 TILES forest_tiles, 2, "tiles/forest/forest.chr", 8
 TILES forest_rock_border_tiles, 2, "tiles/forest/rock.chr", 60
 TILES forest_lake_border_tiles, 2, "tiles/forest/lake.chr", 60
 TILES forest_chest_tiles, 3, "tiles/forest/chest.chr", 8
+TILES forest_small_chest_tiles, 3, "tiles/forest/chest-small.chr", 8
 TILES sewer_entrance_tiles, 3, "tiles/sewer/entrance.chr", 4
 TILES dead_tree_tiles, 2, "tiles/forest/deadtree.chr", 8
 

@@ -432,7 +432,7 @@ PROC fire_ak
 	jsr player_bullet_tick
 	jsr player_bullet_tick
 
-	lda #12
+	lda #8
 	sta attack_cooldown
 
 failed:

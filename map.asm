@@ -2757,23 +2757,23 @@ VAR initial_map_generators
 	.word gen_dead_wood
 	.word gen_unbearable
 	.word gen_forest
-	.word gen_forest
+	.word gen_start_forest_chest
 	.word gen_forest_boss
 	.word gen_boarded_house
-	.word gen_cave_interior
+	.word gen_cave_chest
 	.word gen_cave_boss
 	.word gen_forest
-	.word gen_cave_interior
+	.word gen_mine_chest
 	.word gen_mine_boss
 	.word gen_sewer
-	.word gen_sewer
+	.word gen_sewer_chest
 	.word gen_sewer_boss
-	.word gen_dead_wood
+	.word gen_dead_wood_chest
 	.word gen_dead_wood_boss
-	.word gen_unbearable
+	.word gen_unbearable_chest
 	.word gen_unbearable_boss
 	.word gen_cave_interior
-	.word gen_cave_interior
+	.word gen_lost_cave_chest
 	.word gen_cave_interior
 	.word gen_shop
 	.word gen_shop

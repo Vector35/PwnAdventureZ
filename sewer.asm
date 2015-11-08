@@ -49,6 +49,18 @@ PROC gen_sewer_up
 .endproc
 
 
+PROC gen_sewer_chest
+	lda current_bank
+	pha
+	lda #^do_gen_sewer_chest
+	jsr bankswitch
+	jsr do_gen_sewer_chest & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
 PROC gen_sewer_boss
 	lda current_bank
 	pha
@@ -85,10 +97,60 @@ PROC key_chest_2_interact
 .endproc
 
 
+PROC is_sewer_chest_interactable
+	lda minor_chests_opened
+	and #MINOR_CHEST_SEWER
+	rts
+.endproc
+
+
+PROC sewer_chest_interact
+	lda current_bank
+	pha
+	lda #^do_sewer_chest_interact
+	jsr bankswitch
+	jsr do_sewer_chest_interact & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
 .segment "EXTRA"
 
 PROC do_gen_sewer
 	jsr gen_sewer_common & $ffff
+	jsr spawn_sewer_enemies & $ffff
+	rts
+.endproc
+
+
+PROC do_gen_sewer_chest
+	jsr gen_sewer_common & $ffff
+
+	LOAD_ALL_TILES CHEST_TILES, forest_small_chest_tiles
+	lda #INTERACT_SEWER_CHEST
+	sta interactive_tile_types
+	lda #CHEST_TILES
+	sta interactive_tile_values
+
+	lda minor_chests_opened
+	and #MINOR_CHEST_SEWER
+	bne opened
+
+	ldx #7
+	ldy #4
+	lda #CHEST_TILES + CHEST_PALETTE
+	jsr write_gen_map
+	jmp chestdone & $ffff
+
+opened:
+	ldx #7
+	ldy #4
+	lda #CHEST_TILES + 4 + CHEST_PALETTE
+	jsr write_gen_map
+
+chestdone:
 	jsr spawn_sewer_enemies & $ffff
 	rts
 .endproc
@@ -284,6 +346,8 @@ PROC gen_sewer_common
 	and #$3f
 	cmp #MAP_SEWER_BOSS
 	beq nowater
+	cmp #MAP_SEWER_CHEST
+	beq nowater
 
 	lda #WATER_TILES + BORDER_CENTER + WATER_PALETTE
 	jsr gen_walkable_path
@@ -448,12 +512,13 @@ key2done:
 notallkeys:
 
 	lda #ITEM_SHOTGUN
-	jsr give_item
+	ldx #30
+	jsr give_weapon
 	lda #ITEM_GEM
-	ldx #35
+	ldx #4
 	jsr give_item_with_count
 	lda #ITEM_HEALTH_KIT
-	ldx #5
+	ldx #3
 	jsr give_item_with_count
 
 	jsr save
@@ -471,6 +536,34 @@ completed:
 	LOAD_PTR key_2_text
 	lda #^key_2_text
 	jsr show_chat_text
+	rts
+.endproc
+
+
+PROC do_sewer_chest_interact
+	lda #ITEM_SNEAKERS
+	jsr give_item
+	lda #ITEM_GEM
+	ldx #3
+	jsr give_item_with_count
+	lda #ITEM_HEALTH_KIT
+	ldx #2
+	jsr give_item_with_count
+
+	lda minor_chests_opened
+	ora #MINOR_CHEST_SEWER
+	sta minor_chests_opened
+
+	jsr save
+
+	jsr wait_for_vblank
+	ldx #7
+	ldy #4
+	lda #CHEST_TILES + 4 + CHEST_PALETTE
+	jsr write_large_tile
+	jsr prepare_for_rendering
+
+	PLAY_SOUND_EFFECT effect_open
 	rts
 .endproc
 
@@ -498,6 +591,10 @@ VAR sewer_exit_descriptor
 VAR key_chest_2_descriptor
 	.word always_interactable
 	.word key_chest_2_interact
+
+VAR sewer_chest_descriptor
+	.word is_sewer_chest_interactable
+	.word sewer_chest_interact
 
 
 TILES sewer_border_tiles, 4, "tiles/sewer/wall.chr", 60

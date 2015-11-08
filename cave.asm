@@ -49,6 +49,18 @@ PROC gen_cave_interior
 .endproc
 
 
+PROC gen_cave_chest
+	lda current_bank
+	pha
+	lda #^do_gen_cave_chest
+	jsr bankswitch
+	jsr do_gen_cave_chest & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
 PROC gen_cave_boss
 	lda current_bank
 	pha
@@ -85,12 +97,62 @@ PROC gen_blocky_cave_interior
 .endproc
 
 
+PROC gen_lost_cave_chest
+	lda current_bank
+	pha
+	lda #^do_gen_lost_cave_chest
+	jsr bankswitch
+	jsr do_gen_lost_cave_chest & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
 PROC gen_cave_common
 	lda current_bank
 	pha
 	lda #^do_gen_cave_common
 	jsr bankswitch
 	jsr do_gen_cave_common & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+PROC is_cave_chest_interactable
+	lda minor_chests_opened
+	and #MINOR_CHEST_CAVE
+	rts
+.endproc
+
+
+PROC is_lost_cave_chest_interactable
+	lda minor_chests_opened
+	and #MINOR_CHEST_CAVE
+	rts
+.endproc
+
+
+PROC cave_chest_interact
+	lda current_bank
+	pha
+	lda #^do_cave_chest_interact
+	jsr bankswitch
+	jsr do_cave_chest_interact & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+PROC lost_cave_chest_interact
+	lda current_bank
+	pha
+	lda #^do_lost_cave_chest_interact
+	jsr bankswitch
+	jsr do_lost_cave_chest_interact & $ffff
 	pla
 	jsr bankswitch
 	rts
@@ -139,6 +201,70 @@ opened:
 
 PROC do_gen_cave_interior
 	jsr do_gen_cave_common & $ffff
+	jsr gen_cave_enemies & $ffff
+	rts
+.endproc
+
+
+PROC do_gen_cave_chest
+	jsr do_gen_cave_common & $ffff
+
+	LOAD_ALL_TILES $0f0, small_chest_tiles
+
+	lda #INTERACT_CAVE_CHEST
+	sta interactive_tile_types
+	lda #$f0
+	sta interactive_tile_values
+
+	lda minor_chests_opened
+	and #MINOR_CHEST_CAVE
+	bne questcomplete
+
+	ldx #7
+	ldy #4
+	lda #$f0 + 2
+	jsr write_gen_map
+	jmp chestdone & $ffff
+
+questcomplete:
+	ldx #7
+	ldy #4
+	lda #$f4 + 2
+	jsr write_gen_map
+
+chestdone:
+	jsr gen_cave_enemies & $ffff
+	rts
+.endproc
+
+
+PROC do_gen_lost_cave_chest
+	jsr do_gen_cave_common & $ffff
+
+	LOAD_ALL_TILES $0f0, small_chest_tiles
+
+	lda #INTERACT_LOST_CAVE_CHEST
+	sta interactive_tile_types
+	lda #$f0
+	sta interactive_tile_values
+
+	lda minor_chests_opened
+	and #MINOR_CHEST_LOST_CAVE
+	bne questcomplete
+
+	ldx #7
+	ldy #4
+	lda #$f0 + 2
+	jsr write_gen_map
+	jmp chestdone & $ffff
+
+questcomplete:
+	ldx #7
+	ldy #4
+	lda #$f4 + 2
+	jsr write_gen_map
+
+chestdone:
 	jsr gen_cave_enemies & $ffff
 	rts
 .endproc
@@ -241,6 +367,10 @@ PROC do_gen_cave_boss
 	sta interactive_tile_types
 	lda #$f0
 	sta interactive_tile_values
+	lda #INTERACT_KEY_CHEST_4
+	sta interactive_tile_types + 1
+	lda #$f4
+	sta interactive_tile_values + 1
 
 	lda completed_quest_steps
 	and #QUEST_KEY_4
@@ -936,12 +1066,13 @@ key5done:
 notallkeys:
 
 	lda #ITEM_LMG
-	jsr give_item
+	ldx #60
+	jsr give_weapon
 	lda #ITEM_GEM
-	ldx #30
+	ldx #5
 	jsr give_item_with_count
 	lda #ITEM_HEALTH_KIT
-	ldx #5
+	ldx #3
 	jsr give_item_with_count
 
 	jsr save
@@ -959,6 +1090,63 @@ completed:
 	LOAD_PTR key_4_text
 	lda #^key_4_text
 	jsr show_chat_text
+	rts
+.endproc
+
+
+PROC do_cave_chest_interact
+	lda #ITEM_TINFOIL_HAT
+	jsr give_item
+	lda #ITEM_GEM
+	ldx #3
+	jsr give_item_with_count
+	lda #ITEM_HEALTH_KIT
+	ldx #1
+	jsr give_item_with_count
+
+	lda minor_chests_opened
+	ora #MINOR_CHEST_CAVE
+	sta minor_chests_opened
+
+	jsr save
+
+	jsr wait_for_vblank
+	ldx #7
+	ldy #4
+	lda #$f4 + 2
+	jsr write_large_tile
+	jsr prepare_for_rendering
+
+	PLAY_SOUND_EFFECT effect_open
+	rts
+.endproc
+
+
+PROC do_lost_cave_chest_interact
+	lda #ITEM_GRENADE
+	ldx #5
+	jsr give_item_with_count
+	lda #ITEM_GEM
+	ldx #3
+	jsr give_item_with_count
+	lda #ITEM_HEALTH_KIT
+	ldx #2
+	jsr give_item_with_count
+
+	lda minor_chests_opened
+	ora #MINOR_CHEST_LOST_CAVE
+	sta minor_chests_opened
+
+	jsr save
+
+	jsr wait_for_vblank
+	ldx #7
+	ldy #4
+	lda #$f4 + 2
+	jsr write_large_tile
+	jsr prepare_for_rendering
+
+	PLAY_SOUND_EFFECT effect_open
 	rts
 .endproc
 
@@ -1015,6 +1203,14 @@ VAR key_chest_4_descriptor
 	.word always_interactable
 	.word key_chest_4_interact
 
+VAR cave_chest_descriptor
+	.word is_cave_chest_interactable
+	.word cave_chest_interact
+
+VAR lost_cave_chest_descriptor
+	.word is_lost_cave_chest_interactable
+	.word lost_cave_chest_interact
+
 
 VAR cave_enemy_types
 	.byte ENEMY_NORMAL_MALE_ZOMBIE, ENEMY_NORMAL_FEMALE_ZOMBIE, ENEMY_SPIDER, ENEMY_SPIDER, ENEMY_SPIDER
@@ -1022,6 +1218,7 @@ VAR cave_enemy_types
 
 TILES cave_border_tiles, 2, "tiles/cave/border.chr", 60
 TILES chest_tiles, 2, "tiles/cave/chest2.chr", 8
+TILES small_chest_tiles, 3, "tiles/cave/chest-small.chr", 8
 TILES note_tiles, 2, "tiles/items/note.chr", 4
 TILES cave_ladder_tiles, 4, "tiles/cave/ladder.chr", 4
 

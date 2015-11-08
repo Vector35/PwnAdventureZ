@@ -327,15 +327,16 @@ namedone:
 	lda #100
 	sta player_health
 
-	lda secret_code
-;	beq nocode
-
-	lda #5
-	sta gold
-
+	; Move this into cheat code section when melee works properly
 	lda #ITEM_PISTOL
 	ldx #200
 	jsr give_weapon
+
+	lda secret_code
+	beq nocode
+
+	lda #5
+	sta gold
 
 	lda #ITEM_SWORD
 	jsr give_item
@@ -696,6 +697,9 @@ VAR key_count
 
 VAR death_count
 	.byte 0, 0, 0
+
+VAR minor_chests_opened
+	.byte 0
 
 
 .segment "TEMP"

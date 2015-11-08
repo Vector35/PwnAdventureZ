@@ -24,6 +24,17 @@ PROC gen_mine_up
 	rts
 .endproc
 
+PROC gen_mine_chest
+	lda current_bank
+	pha
+	lda #^do_gen_mine_chest
+	jsr bankswitch
+	jsr do_gen_mine_chest & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
 PROC gen_mine_boss
 	lda current_bank
 	pha
@@ -41,6 +52,23 @@ PROC key_chest_3_interact
 	lda #^do_key_chest_3_interact
 	jsr bankswitch
 	jsr do_key_chest_3_interact & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+PROC is_mine_chest_interactable
+	lda minor_chests_opened
+	and #MINOR_CHEST_MINE
+	rts
+.endproc
+
+PROC mine_chest_interact
+	lda current_bank
+	pha
+	lda #^do_mine_chest_interact
+	jsr bankswitch
+	jsr do_mine_chest_interact & $ffff
 	pla
 	jsr bankswitch
 	rts
@@ -128,6 +156,38 @@ PROC do_gen_mine_up
 .endproc
 
 
+PROC do_gen_mine_chest
+	jsr do_gen_cave_common & $ffff
+
+	LOAD_ALL_TILES $0f0, small_chest_tiles
+
+	lda #INTERACT_MINE_CHEST
+	sta interactive_tile_types
+	lda #$f0
+	sta interactive_tile_values
+
+	lda minor_chests_opened
+	and #MINOR_CHEST_MINE
+	bne opened
+
+	ldx #7
+	ldy #4
+	lda #$f0 + 2
+	jsr write_gen_map
+	jmp chestdone & $ffff
+
+opened:
+	ldx #7
+	ldy #4
+	lda #$f4 + 2
+	jsr write_gen_map
+
+chestdone:
+	jsr gen_mine_enemies & $ffff
+	rts
+.endproc
+
+
 PROC do_gen_mine_boss
 	jsr do_gen_cave_common & $ffff
 
@@ -137,6 +197,10 @@ PROC do_gen_mine_boss
 	sta interactive_tile_types
 	lda #$f0
 	sta interactive_tile_values
+	lda #INTERACT_KEY_CHEST_3
+	sta interactive_tile_types + 1
+	lda #$f4
+	sta interactive_tile_values + 1
 
 	lda completed_quest_steps
 	and #QUEST_KEY_3
@@ -270,12 +334,13 @@ key4done:
 notallkeys:
 
 	lda #ITEM_HAND_CANNON
-	jsr give_item
-	lda #ITEM_GEM
 	ldx #30
+	jsr give_weapon
+	lda #ITEM_GEM
+	ldx #5
 	jsr give_item_with_count
 	lda #ITEM_HEALTH_KIT
-	ldx #5
+	ldx #3
 	jsr give_item_with_count
 
 	jsr save
@@ -297,6 +362,34 @@ completed:
 .endproc
 
 
+PROC do_mine_chest_interact
+	lda #ITEM_WIZARD_HAT
+	jsr give_item
+	lda #ITEM_GEM
+	ldx #2
+	jsr give_item_with_count
+	lda #ITEM_HEALTH_KIT
+	ldx #1
+	jsr give_item_with_count
+
+	lda minor_chests_opened
+	ora #MINOR_CHEST_MINE
+	sta minor_chests_opened
+
+	jsr save
+
+	jsr wait_for_vblank
+	ldx #7
+	ldy #4
+	lda #$f4 + 2
+	jsr write_large_tile
+	jsr prepare_for_rendering
+
+	PLAY_SOUND_EFFECT effect_open
+	rts
+.endproc
+
+
 .data
 
 VAR mine_enemy_types
@@ -305,6 +398,10 @@ VAR mine_enemy_types
 VAR key_chest_3_descriptor
 	.word always_interactable
 	.word key_chest_3_interact
+
+VAR mine_chest_descriptor
+	.word is_mine_chest_interactable
+	.word mine_chest_interact
 
 
 .segment "UI"

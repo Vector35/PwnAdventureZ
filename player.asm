@@ -1873,6 +1873,13 @@ VAR interaction_descriptors
 	.word key_chest_4_descriptor
 	.word key_chest_5_descriptor
 	.word key_chest_6_descriptor
+	.word start_forest_chest_descriptor
+	.word cave_chest_descriptor
+	.word mine_chest_descriptor
+	.word sewer_chest_descriptor
+	.word dead_wood_chest_descriptor
+	.word unbearable_chest_descriptor
+	.word lost_cave_chest_descriptor
 
 VAR player_axe_descriptor
 	.word player_melee_tick
