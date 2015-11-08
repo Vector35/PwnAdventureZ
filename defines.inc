@@ -341,6 +341,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define INTERACT_DEAD_WOOD_CHEST    23
 .define INTERACT_UNBEARABLE_CHEST   24
 .define INTERACT_LOST_CAVE_CHEST    25
+.define INTERACT_FOREST_CHEST       26
 .define INTERACT_NONE               $ff
 
 .define INTERACT_DESC_IS_VALID 0

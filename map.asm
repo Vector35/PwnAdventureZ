@@ -2762,7 +2762,7 @@ VAR initial_map_generators
 	.word gen_boarded_house
 	.word gen_cave_chest
 	.word gen_cave_boss
-	.word gen_forest
+	.word gen_forest_chest
 	.word gen_mine_chest
 	.word gen_mine_boss
 	.word gen_sewer

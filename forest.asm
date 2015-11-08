@@ -71,6 +71,18 @@ PROC gen_forest
 .endproc
 
 
+PROC gen_forest_chest
+	lda current_bank
+	pha
+	lda #^do_gen_forest_chest
+	jsr bankswitch
+	jsr do_gen_forest_chest & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
 PROC gen_start_forest_chest
 	lda current_bank
 	pha
@@ -234,6 +246,27 @@ PROC is_start_forest_chest_interactable
 .endproc
 
 
+PROC is_forest_chest_interactable
+	ldx #0
+loop:
+	cpx opened_forest_chest_count
+	beq done
+	lda cur_screen_x
+	cmp opened_forest_chest_x, x
+	bne next
+	lda cur_screen_y
+	cmp opened_forest_chest_y, x
+	bne next
+	lda #1
+	jmp done
+next:
+	inx
+	jmp loop
+done:
+	rts
+.endproc
+
+
 PROC is_dead_wood_chest_interactable
 	lda minor_chests_opened
 	and #MINOR_CHEST_DEAD_WOOD
@@ -254,6 +287,18 @@ PROC start_forest_chest_interact
 	lda #^do_start_forest_chest_interact
 	jsr bankswitch
 	jsr do_start_forest_chest_interact & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+PROC forest_chest_interact
+	lda current_bank
+	pha
+	lda #^do_forest_chest_interact
+	jsr bankswitch
+	jsr do_forest_chest_interact & $ffff
 	pla
 	jsr bankswitch
 	rts
@@ -318,6 +363,44 @@ PROC do_gen_start_forest_chest
 
 	lda minor_chests_opened
 	and #MINOR_CHEST_START_FOREST
+	bne opened
+
+	ldx #7
+	ldy #4
+	lda #CHEST_TILES + CHEST_PALETTE
+	jsr write_gen_map
+	jmp chestdone & $ffff
+
+opened:
+	ldx #7
+	ldy #4
+	lda #CHEST_TILES + 4 + CHEST_PALETTE
+	jsr write_gen_map
+
+chestdone:
+	jsr finish_forest & $ffff
+
+	jsr spawn_forest_enemies & $ffff
+	rts
+.endproc
+
+
+PROC do_gen_forest_chest
+	lda #MUSIC_FOREST
+	jsr play_music
+
+	LOAD_PTR forest_palette
+	jsr load_background_game_palette
+
+	jsr gen_forest_common & $ffff
+
+	LOAD_ALL_TILES CHEST_TILES, forest_small_chest_tiles
+	lda #INTERACT_FOREST_CHEST
+	sta interactive_tile_types
+	lda #CHEST_TILES
+	sta interactive_tile_values
+
+	jsr is_forest_chest_interactable
 	bne opened
 
 	ldx #7
@@ -1759,6 +1842,44 @@ PROC do_start_forest_chest_interact
 .endproc
 
 
+PROC do_forest_chest_interact
+	lda #5
+	jsr rand_range
+	clc
+	adc #2
+	tax
+	lda #ITEM_GEM
+	jsr give_item_with_count
+
+	lda #3
+	jsr rand_range
+	clc
+	adc #1
+	tax
+	lda #ITEM_HEALTH_KIT
+	jsr give_item_with_count
+
+	ldx opened_forest_chest_count
+	lda cur_screen_x
+	sta opened_forest_chest_x, x
+	lda cur_screen_y
+	sta opened_forest_chest_y, x
+	inc opened_forest_chest_count
+
+	jsr save
+
+	jsr wait_for_vblank
+	ldx #7
+	ldy #4
+	lda #CHEST_TILES + 4 + CHEST_PALETTE
+	jsr write_large_tile
+	jsr prepare_for_rendering
+
+	PLAY_SOUND_EFFECT effect_open
+	rts
+.endproc
+
+
 PROC do_dead_wood_chest_interact
 	lda #ITEM_GEM
 	ldx #5
@@ -1811,6 +1932,16 @@ PROC do_unbearable_chest_interact
 	PLAY_SOUND_EFFECT effect_open
 	rts
 .endproc
+
+
+.bss
+
+VAR opened_forest_chest_x
+	.byte 0, 0, 0, 0, 0
+VAR opened_forest_chest_y
+	.byte 0, 0, 0, 0, 0
+VAR opened_forest_chest_count
+	.byte 0
 
 
 .data
@@ -1879,6 +2010,10 @@ VAR dead_wood_chest_descriptor
 VAR unbearable_chest_descriptor
 	.word is_unbearable_chest_interactable
 	.word unbearable_chest_interact
+
+VAR forest_chest_descriptor
+	.word is_forest_chest_interactable
+	.word forest_chest_interact
 
 
 TILES forest_tiles, 2, "tiles/forest/forest.chr", 8

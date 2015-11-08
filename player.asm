@@ -1880,6 +1880,7 @@ VAR interaction_descriptors
 	.word dead_wood_chest_descriptor
 	.word unbearable_chest_descriptor
 	.word lost_cave_chest_descriptor
+	.word forest_chest_descriptor
 
 VAR player_axe_descriptor
 	.word player_melee_tick
