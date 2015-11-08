@@ -565,6 +565,7 @@ VAR effect_descriptors
 	.word shark_laser_descriptor
 	.word shark_laser_hit_descriptor
 	.word shark_laser_damage_descriptor
+	.word reflected_laser_descriptor
 	.word warp_descriptor
 
 

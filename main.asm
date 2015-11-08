@@ -332,6 +332,9 @@ namedone:
 	ldx #200
 	jsr give_weapon
 
+	lda #ITEM_TINFOIL_HAT
+	jsr give_item
+
 	lda secret_code
 	beq nocode
 

@@ -890,7 +890,7 @@ VAR armor_item
 
 VAR tinfoil_hat_item
 	.word 0
-	.word blank_tiles & $ffff
+	.word tinfoil_hat_tiles & $ffff
 	.byte ITEM_TYPE_OUTFIT
 	.byte "TINFOIL HAT    ", 0
 	.byte "MAY REFLECT LASER BEAMS   ", 0
@@ -981,3 +981,4 @@ TILES wizard_hat_tiles, 3, "tiles/items/wizardhat.chr", 4
 TILES armor_tiles, 3, "tiles/items/armor.chr", 4
 TILES axe_tiles, 3, "tiles/weapons/axe.chr", 16
 TILES sword_tiles, 3, "tiles/weapons/ninjasword.chr", 16
+TILES tinfoil_hat_tiles, 3, "tiles/items/tinfoilhat.chr", 4

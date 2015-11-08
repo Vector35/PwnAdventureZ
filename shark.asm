@@ -54,6 +54,48 @@ PROC swiming_ai_tick
 .code
 
 PROC laser_hit_player
+	lda equipped_armor
+	cmp #ITEM_TINFOIL_HAT
+	bne noblock
+
+	lda #4
+	jsr rand_range
+	cmp #0
+	beq noblock
+
+	ldx cur_effect
+	lda effect_direction, x
+	sta temp
+	lsr
+	lsr
+	and #$30
+	sta effect_direction, x
+	lda temp
+	asl
+	asl
+	and #$c0
+	ora effect_direction, x
+	sta effect_direction, x
+
+	; Flip the x/y dominate flag
+	lda cur_effect
+	lsr
+	lsr
+	lsr
+	tay ;y is 0 or 1 indicating the byte of x_or_y_dominate to bit check
+	lda cur_effect
+	and #7
+	tax ;x is now position of taggle mask representing the bit to check
+	lda toggle_mask2 & $ffff, x ; get the toggle mask
+	eor x_or_y_dominate, y
+	sta x_or_y_dominate, y
+
+	ldx cur_effect
+	lda #EFFECT_REFLECTED_LASER
+	sta effect_type, x
+	rts
+
+noblock:
 	lda #4
 	jsr take_damage
 	jsr shark_laser_tick
@@ -699,15 +741,25 @@ VAR fractional_pixel_lookup
 
 VAR toggle_mask_invert
 	.byte $fe, $fd, $fb, $f7, $ef, $df, $bf, $7f
-VAR toggle_mask2
-	.byte 1, 2, 4, 8, 16, 32, 64, 128
 
 .data
+
+VAR toggle_mask2
+	.byte 1, 2, 4, 8, 16, 32, 64, 128
 
 VAR shark_laser_descriptor
 	.word shark_laser_tick
 	.word laser_hit_player
 	.word nothing
+	.word sniper_bullet_hit_world
+	.byte SPRITE_TILE_BULLET, 0
+	.byte 3
+	.byte 3, 3
+
+VAR reflected_laser_descriptor
+	.word shark_laser_tick
+	.word nothing
+	.word bullet_hit_enemy
 	.word sniper_bullet_hit_world
 	.byte SPRITE_TILE_BULLET, 0
 	.byte 3

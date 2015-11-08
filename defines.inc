@@ -399,7 +399,8 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define EFFECT_SHARK_LASER           13
 .define EFFECT_SHARK_LASER_HIT       14
 .define EFFECT_SHARK_LASER_DAMAGE    15
-.define EFFECT_WARP                  16
+.define EFFECT_REFLECTED_LASER       16
+.define EFFECT_WARP                  17
 .define EFFECT_NONE                 $ff
 
 .define EFFECT_MAX_COUNT     16
