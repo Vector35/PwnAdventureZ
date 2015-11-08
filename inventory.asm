@@ -246,6 +246,15 @@ equipweapon:
 	asl
 	tax
 	lda inventory + 1, x
+
+	cmp equipped_weapon
+	beq uneqipweapon
+
+	sta equipped_weapon
+	jmp updateequip
+
+uneqipweapon:
+	lda #$ff
 	sta equipped_weapon
 	jmp updateequip
 
@@ -256,8 +265,16 @@ equipwearable:
 	asl
 	tax
 	lda inventory + 1, x
+
+	cmp equipped_armor
+	beq unequiparmor
+
 	sta equipped_armor
 	jmp updateequip
+
+unequiparmor:
+	lda #$ff
+	sta equipped_armor
 
 updateequip:
 	jsr wait_for_vblank
