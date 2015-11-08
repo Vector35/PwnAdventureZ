@@ -104,14 +104,14 @@ VAR normal_zombie_drop_type
 VAR normal_zombie_drop_base_count
 	.byte 0, 0
 	.byte 2, 1, 1, 1
-	.byte 8, 8, 8, 8
-	.byte 8, 8, 8, 8
+	.byte 4, 4, 4, 4
+	.byte 4, 4, 4, 4
 	.byte 1, 1
 VAR normal_zombie_drop_rand_count
 	.byte 1, 1
 	.byte 5, 1, 1, 2
-	.byte 10, 10, 10, 10
-	.byte 10, 10, 10, 10
+	.byte 5, 5, 5, 5
+	.byte 5, 5, 5, 5
 	.byte 1, 1
 
 TILES normal_male_zombie_tiles, 2, "tiles/enemies/zombie/zombie-male.chr", 32

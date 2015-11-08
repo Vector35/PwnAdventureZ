@@ -332,22 +332,13 @@ namedone:
 	ldx #200
 	jsr give_weapon
 
-	lda #ITEM_TINFOIL_HAT
-	jsr give_item
-
 	lda secret_code
 	beq nocode
 
 	lda #5
 	sta gold
 
-	lda #ITEM_SWORD
-	jsr give_item
-
 	lda #ITEM_SNEAKERS
-	jsr give_item
-
-	lda #ITEM_GHILLIE_SUIT
 	jsr give_item
 
 	lda #ITEM_BANDAGE
@@ -356,26 +347,6 @@ namedone:
 
 	lda #ITEM_HEALTH_KIT
 	ldx #5
-	jsr give_item_with_count
-
-	lda #ITEM_METAL
-	ldx #10
-	jsr give_item_with_count
-
-	lda #ITEM_GUNPOWDER
-	ldx #10
-	jsr give_item_with_count
-
-	lda #ITEM_GEM
-	ldx #10
-	jsr give_item_with_count
-
-	lda #ITEM_CLOTH
-	ldx #30
-	jsr give_item_with_count
-
-	lda #ITEM_SHIRT
-	ldx #8
 	jsr give_item_with_count
 
 nocode:
