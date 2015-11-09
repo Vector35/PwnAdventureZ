@@ -81,6 +81,8 @@ PROC do_gen_blocky_puzzle
 	sta traversable_tiles
 	lda #$80 + BORDER_INTERIOR
 	sta spawnable_tiles
+	lda #0
+	sta spawnable_tiles + 1
 
 	jsr gen_map_opening_locations
 	; Generate the sides of the cave wall
@@ -553,30 +555,35 @@ PROC bigdoor_interact
 	cmp #0
 	bne opendoor
 
-	;TODO: fix enemy spawn
 	lda #1
 	sta horde_active
-	lda #ENEMY_SPIDER
+	lda #ENEMY_FAT_ZOMBIE
 	jsr spawn_starting_enemy
-	lda #ENEMY_SPIDER
+	lda #ENEMY_FAT_ZOMBIE
 	jsr spawn_starting_enemy
-	lda #ENEMY_SPIDER
+	lda #ENEMY_FAT_ZOMBIE
 	jsr spawn_starting_enemy
-	lda #ENEMY_SPIDER
+	lda #ENEMY_FAT_ZOMBIE
 	jsr spawn_starting_enemy
-	lda #ENEMY_SPIDER
+	lda #ENEMY_FAT_ZOMBIE
 	jsr spawn_starting_enemy
-	lda #ENEMY_SPIDER
+	lda #ENEMY_FAT_ZOMBIE
 	jsr spawn_starting_enemy
-	lda #ENEMY_SPIDER
+	lda #ENEMY_FAT_ZOMBIE
 	jsr spawn_starting_enemy
-	lda #ENEMY_SPIDER
+	lda #ENEMY_FAT_ZOMBIE
 	jsr spawn_starting_enemy
 	lda #0
 	sta horde_active
 
 	rts
 opendoor:
+	jsr wait_for_vblank
+	lda #INTERACT_NONE
+	sta interaction_type
+	jsr update_player_sprite
+	jsr prepare_for_rendering
+
 	ldx #30
 	jsr wait_for_frame_count
 
@@ -643,9 +650,8 @@ opendoor:
 	ora collision
 	sta collision
 	lda #$080
-	ldx 1
-	ora collision, x
-	sta collision, x
+	ora collision + 1
+	sta collision + 1
 	lda #36
 	sta blocky_door_state
 	rts
