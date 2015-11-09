@@ -2151,7 +2151,7 @@ VAR enemy_descriptors
 	.word spider_descriptor
 	.word rat_descriptor
 	.word bear_descriptor
-
+	.word thin_zombie_descriptor
 
 VAR enemy_death_descriptor
 	.word enemy_death_tick

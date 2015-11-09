@@ -299,6 +299,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define ENEMY_SPIDER               12
 .define ENEMY_RAT                  13
 .define ENEMY_BEAR                 14
+.define ENEMY_THIN_ZOMBIE          15
 .define ENEMY_NONE                 $ff
 
 .define ENEMY_MAX_COUNT          8

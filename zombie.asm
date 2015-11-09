@@ -77,6 +77,16 @@ VAR normal_female_zombie_descriptor
 	.byte 1, 0
 	.byte 20
 
+VAR thin_zombie_descriptor
+	.word walking_ai_tick
+	.word normal_zombie_die
+	.word normal_zombie_collide
+	.word walking_sprites_for_state
+	.byte SPRITE_TILE_THIN_ZOMBIE 
+	.byte 1
+	.byte 3, 0
+	.byte 20
+
 VAR fat_zombie_descriptor
 	.word walking_ai_tick
 	.word fat_zombie_explode
@@ -117,3 +127,4 @@ VAR normal_zombie_drop_rand_count
 TILES normal_male_zombie_tiles, 2, "tiles/enemies/zombie/zombie-male.chr", 32
 TILES normal_female_zombie_tiles, 2, "tiles/enemies/zombie/zombie-female.chr", 32
 TILES fat_zombie_tiles, 2, "tiles/enemies/zombie/zombie-fat.chr", 32
+TILES thin_zombie_tiles, 2, "tiles/enemies/zombie/zombie-thin.chr", 32
