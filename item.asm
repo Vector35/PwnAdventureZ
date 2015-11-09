@@ -532,6 +532,64 @@ failed:
 .endproc
 
 
+PROC fire_rocket
+	jsr use_one_ammo
+
+	PLAY_SOUND_EFFECT effect_pistol
+
+	lda player_x
+	clc
+	adc #7
+	sta arg0
+	lda player_y
+	clc
+	adc #7
+	sta arg1
+
+	lda player_direction
+	and #3
+	cmp #DIR_LEFT
+	beq left
+	cmp #DIR_RIGHT
+	beq right
+	cmp #DIR_UP
+	beq up
+
+	lda #EFFECT_PLAYER_ROCKET_DOWN
+	jmp dirdone
+
+left:
+	lda #EFFECT_PLAYER_ROCKET_LEFT
+	jmp dirdone
+
+right:
+	lda #EFFECT_PLAYER_ROCKET_RIGHT
+	jmp dirdone
+
+up:
+	lda #EFFECT_PLAYER_ROCKET_UP
+
+dirdone:
+	sta arg2
+	jsr get_player_direction_bits
+	sta arg3
+	jsr create_effect
+
+	cmp #$ff
+	beq failed
+
+	sta cur_effect
+	jsr player_bullet_tick
+	jsr player_bullet_tick
+
+	lda #60
+	sta attack_cooldown
+
+failed:
+	rts
+.endproc
+
+
 .segment "FIXED"
 
 PROC find_item
@@ -770,7 +828,7 @@ VAR hand_cannon_item
 	.byte "THE ENVY OF ALL PIRATES   ", 0
 
 VAR rocket_launcher_item
-	.word 0
+	.word fire_rocket
 	.word launcher_tiles & $ffff
 	.byte ITEM_TYPE_GUN
 	.byte "ROCKET LAUNCHER", 0

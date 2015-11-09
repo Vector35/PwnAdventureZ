@@ -1547,171 +1547,372 @@ remove:
 	rts
 .endproc
 
-.code
+PROC do_player_bullet_tick
+	ldx cur_effect
+	lda effect_direction, x
+	and #JOY_LEFT
+	beq notleft
+
+	dec effect_x, x
+	dec effect_x, x
+	dec effect_x, x
+
+notleft:
+	lda effect_direction, x
+	and #JOY_RIGHT
+	beq notright
+
+	inc effect_x, x
+	inc effect_x, x
+	inc effect_x, x
+
+notright:
+	lda effect_direction, x
+	and #JOY_UP
+	beq notup
+
+	dec effect_y, x
+	dec effect_y, x
+	dec effect_y, x
+
+notup:
+	lda effect_direction, x
+	and #JOY_DOWN
+	beq notdown
+
+	inc effect_y, x
+	inc effect_y, x
+	inc effect_y, x
+
+notdown:
+	rts
+.endproc
+
+
+PROC do_player_rocket_horizontal_tick
+	jsr player_bullet_tick
+
+	ldx cur_effect
+	inc effect_time, x
+	lda effect_time, x
+
+	cmp #8
+	beq secondframe
+	cmp #16
+	beq firstframe
+	rts
+
+secondframe:
+	lda effect_tile, x
+	clc
+	adc #4
+	sta effect_tile, x
+	rts
+
+firstframe:
+	lda effect_tile, x
+	sec
+	sbc #4
+	sta effect_tile, x
+	lda #0
+	sta effect_time, x
+	rts
+.endproc
+
+
+PROC do_player_rocket_vertical_tick
+	jsr player_bullet_tick
+
+	ldx cur_effect
+	inc effect_time, x
+	lda effect_time, x
+
+	cmp #8
+	beq secondframe
+	cmp #16
+	beq firstframe
+	rts
+
+secondframe:
+	lda effect_tile, x
+	clc
+	adc #2
+	sta effect_tile, x
+	rts
+
+firstframe:
+	lda effect_tile, x
+	sec
+	sbc #2
+	sta effect_tile, x
+	lda #0
+	sta effect_time, x
+	rts
+.endproc
+
+
+PROC do_player_ak_bullet_tick
+	jsr player_bullet_tick
+	jsr player_bullet_tick
+	rts
+.endproc
+
+
+PROC do_player_shotgun_bullet_tick
+	ldx cur_effect
+	lda effect_direction, x
+	and #JOY_LEFT
+	beq notleft
+
+	dec effect_x, x
+	dec effect_x, x
+	dec effect_x, x
+	dec effect_x, x
+
+notleft:
+	lda effect_direction, x
+	and #JOY_RIGHT
+	beq notright
+
+	inc effect_x, x
+	inc effect_x, x
+	inc effect_x, x
+	inc effect_x, x
+
+notright:
+	lda effect_direction, x
+	and #JOY_UP
+	beq notup
+
+	dec effect_y, x
+	dec effect_y, x
+	dec effect_y, x
+	dec effect_y, x
+
+notup:
+	lda effect_direction, x
+	and #JOY_DOWN
+	beq notdown
+
+	inc effect_y, x
+	inc effect_y, x
+	inc effect_y, x
+	inc effect_y, x
+
+notdown:
+	rts
+.endproc
+
+
+PROC do_player_left_bullet_tick
+	jsr player_shotgun_bullet_tick
+
+	ldx cur_effect
+	lda effect_direction, x
+	and #JOY_LEFT
+	beq notleft
+
+	inc effect_y, x
+
+notleft:
+	lda effect_direction, x
+	and #JOY_RIGHT
+	beq notright
+
+	dec effect_y, x
+
+notright:
+	lda effect_direction, x
+	and #JOY_UP
+	beq notup
+
+	dec effect_x, x
+
+notup:
+	lda effect_direction, x
+	and #JOY_DOWN
+	beq notdown
+
+	inc effect_x, x
+
+notdown:
+	rts
+.endproc
+
+
+PROC do_player_right_bullet_tick
+	jsr player_shotgun_bullet_tick
+
+	ldx cur_effect
+	lda effect_direction, x
+	and #JOY_LEFT
+	beq notleft
+
+	dec effect_y, x
+
+notleft:
+	lda effect_direction, x
+	and #JOY_RIGHT
+	beq notright
+
+	inc effect_y, x
+
+notright:
+	lda effect_direction, x
+	and #JOY_UP
+	beq notup
+
+	inc effect_x, x
+
+notup:
+	lda effect_direction, x
+	and #JOY_DOWN
+	beq notdown
+
+	dec effect_x, x
+
+notdown:
+	rts
+.endproc
+
+
+.segment "FIXED"
 
 PROC player_bullet_tick
-	ldx cur_effect
-	lda effect_direction, x
-	and #JOY_LEFT
-	beq notleft
-
-	dec effect_x, x
-	dec effect_x, x
-	dec effect_x, x
-
-notleft:
-	lda effect_direction, x
-	and #JOY_RIGHT
-	beq notright
-
-	inc effect_x, x
-	inc effect_x, x
-	inc effect_x, x
-
-notright:
-	lda effect_direction, x
-	and #JOY_UP
-	beq notup
-
-	dec effect_y, x
-	dec effect_y, x
-	dec effect_y, x
-
-notup:
-	lda effect_direction, x
-	and #JOY_DOWN
-	beq notdown
-
-	inc effect_y, x
-	inc effect_y, x
-	inc effect_y, x
-
-notdown:
+	lda current_bank
+	pha
+	lda #^do_player_bullet_tick
+	jsr bankswitch
+	jsr do_player_bullet_tick & $ffff
+	pla
+	jsr bankswitch
 	rts
 .endproc
-
 
 PROC player_ak_bullet_tick
-	jsr player_bullet_tick
-	jsr player_bullet_tick
+	lda current_bank
+	pha
+	lda #^do_player_ak_bullet_tick
+	jsr bankswitch
+	jsr do_player_ak_bullet_tick & $ffff
+	pla
+	jsr bankswitch
 	rts
 .endproc
-
-
-PROC player_shotgun_bullet_tick
-	ldx cur_effect
-	lda effect_direction, x
-	and #JOY_LEFT
-	beq notleft
-
-	dec effect_x, x
-	dec effect_x, x
-	dec effect_x, x
-	dec effect_x, x
-
-notleft:
-	lda effect_direction, x
-	and #JOY_RIGHT
-	beq notright
-
-	inc effect_x, x
-	inc effect_x, x
-	inc effect_x, x
-	inc effect_x, x
-
-notright:
-	lda effect_direction, x
-	and #JOY_UP
-	beq notup
-
-	dec effect_y, x
-	dec effect_y, x
-	dec effect_y, x
-	dec effect_y, x
-
-notup:
-	lda effect_direction, x
-	and #JOY_DOWN
-	beq notdown
-
-	inc effect_y, x
-	inc effect_y, x
-	inc effect_y, x
-	inc effect_y, x
-
-notdown:
-	rts
-.endproc
-
 
 PROC player_left_bullet_tick
-	jsr player_shotgun_bullet_tick
+	lda current_bank
+	pha
+	lda #^do_player_left_bullet_tick
+	jsr bankswitch
+	jsr do_player_left_bullet_tick & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
 
-	ldx cur_effect
-	lda effect_direction, x
-	and #JOY_LEFT
-	beq notleft
+PROC player_right_bullet_tick
+	lda current_bank
+	pha
+	lda #^do_player_right_bullet_tick
+	jsr bankswitch
+	jsr do_player_right_bullet_tick & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
 
-	inc effect_y, x
+PROC player_rocket_horizontal_tick
+	lda current_bank
+	pha
+	lda #^do_player_rocket_horizontal_tick
+	jsr bankswitch
+	jsr do_player_rocket_horizontal_tick & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
 
-notleft:
-	lda effect_direction, x
-	and #JOY_RIGHT
-	beq notright
+PROC player_rocket_vertical_tick
+	lda current_bank
+	pha
+	lda #^do_player_rocket_vertical_tick
+	jsr bankswitch
+	jsr do_player_rocket_vertical_tick & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
 
-	dec effect_y, x
-
-notright:
-	lda effect_direction, x
-	and #JOY_UP
-	beq notup
-
-	dec effect_x, x
-
-notup:
-	lda effect_direction, x
-	and #JOY_DOWN
-	beq notdown
-
-	inc effect_x, x
-
-notdown:
+PROC player_shotgun_bullet_tick
+	lda current_bank
+	pha
+	lda #^do_player_shotgun_bullet_tick
+	jsr bankswitch
+	jsr do_player_shotgun_bullet_tick & $ffff
+	pla
+	jsr bankswitch
 	rts
 .endproc
 
 
-PROC player_right_bullet_tick
-	jsr player_shotgun_bullet_tick
+.code
 
-	ldx cur_effect
-	lda effect_direction, x
-	and #JOY_LEFT
-	beq notleft
+PROC rocket_hit
+	lda cur_enemy
+	sta saved_enemy
 
-	dec effect_y, x
+	ldx #0
+	ldy cur_effect
+enemyloop:
+	lda enemy_type, x
+	cmp #ENEMY_NONE
+	beq nextenemy
 
-notleft:
-	lda effect_direction, x
-	and #JOY_RIGHT
-	beq notright
+	lda enemy_x, x
+	sec
+	sbc effect_x, y
 
-	inc effect_y, x
+	cmp #$20
+	bcc enemyxoverlap
+	cmp #$e0
+	bcs enemyxoverlap
+	jmp nextenemy
 
-notright:
-	lda effect_direction, x
-	and #JOY_UP
-	beq notup
+enemyxoverlap:
+	lda enemy_y, x
+	sec
+	sbc effect_y, y
 
-	inc effect_x, x
+	cmp #$20
+	bcc enemyhit
+	cmp #$e0
+	bcc nextenemy
 
-notup:
-	lda effect_direction, x
-	and #JOY_DOWN
-	beq notdown
+enemyhit:
+	txa
+	pha
+	tya
+	pha
 
-	dec effect_x, x
+	stx cur_enemy
+	lda #40
+	jsr enemy_damage
 
-notdown:
+	pla
+	tay
+	pla
+	tax
+
+nextenemy:
+	inx
+	cpx #8
+	bne enemyloop
+
+	jsr remove_effect
+
+	lda saved_enemy
+	sta cur_enemy
 	rts
 .endproc
 
@@ -1794,6 +1995,9 @@ VAR attack_cooldown
 	.byte 0
 
 VAR extra_player_move
+	.byte 0
+
+VAR saved_enemy
 	.byte 0
 
 
@@ -1924,6 +2128,42 @@ VAR player_sword_hit_descriptor
 	.byte SPRITE_TILE_MELEE, 1
 	.byte 2
 	.byte 16, 16
+
+VAR player_rocket_left_descriptor
+	.word player_rocket_horizontal_tick
+	.word nothing
+	.word rocket_hit
+	.word rocket_hit
+	.byte SPRITE_TILE_ROCKET_FLIP, 1
+	.byte 3
+	.byte 16, 8
+
+VAR player_rocket_right_descriptor
+	.word player_rocket_horizontal_tick
+	.word nothing
+	.word rocket_hit
+	.word rocket_hit
+	.byte SPRITE_TILE_ROCKET, 1
+	.byte 3
+	.byte 16, 8
+
+VAR player_rocket_up_descriptor
+	.word player_rocket_vertical_tick
+	.word nothing
+	.word rocket_hit
+	.word rocket_hit
+	.byte SPRITE_TILE_ROCKET + 8, 0
+	.byte 3
+	.byte 8, 16
+
+VAR player_rocket_down_descriptor
+	.word player_rocket_vertical_tick
+	.word nothing
+	.word rocket_hit
+	.word rocket_hit
+	.byte SPRITE_TILE_ROCKET_FLIP + 8, 0
+	.byte 3
+	.byte 8, 16
 
 VAR player_bullet_descriptor
 	.word player_bullet_tick

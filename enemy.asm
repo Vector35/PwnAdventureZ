@@ -449,6 +449,8 @@ done:
 	beq key4done
 	cmp #MAP_DEAD_WOOD_BOSS
 	beq key5done
+	cmp #MAP_UNBEARABLE_BOSS
+	beq key6done
 	rts
 
 key1done:
@@ -496,6 +498,17 @@ key4done:
 	rts
 
 key5done:
+	jsr wait_for_vblank
+	LOAD_PTR normal_forest_chest_palette
+	lda #2
+	jsr load_single_palette
+	jsr prepare_for_rendering
+
+	lda #MUSIC_FOREST
+	jsr play_music
+	rts
+
+key6done:
 	jsr wait_for_vblank
 	LOAD_PTR normal_forest_chest_palette
 	lda #2

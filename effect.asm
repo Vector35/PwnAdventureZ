@@ -35,6 +35,8 @@ PROC load_effect_sprites
 	LOAD_ALL_TILES $100 + SPRITE_TILE_SPLAT, splat_tiles
 	LOAD_ALL_TILES $100 + SPRITE_TILE_ORB, orb_tiles
 	LOAD_ALL_TILES $100 + SPRITE_TILE_WARP, warp_tiles
+	LOAD_ALL_TILES $100 + SPRITE_TILE_ROCKET, rocket_tiles
+	LOAD_ALL_TILES $100 + SPRITE_TILE_ROCKET_FLIP, rocket_flip_tiles
 
 	lda equipped_weapon
 	cmp #ITEM_AXE
@@ -574,6 +576,10 @@ VAR effect_descriptors
 	.word player_axe_hit_descriptor
 	.word player_sword_descriptor
 	.word player_sword_hit_descriptor
+	.word player_rocket_left_descriptor
+	.word player_rocket_right_descriptor
+	.word player_rocket_up_descriptor
+	.word player_rocket_down_descriptor
 	.word player_bullet_descriptor
 	.word player_lmg_bullet_descriptor
 	.word player_ak_bullet_descriptor
@@ -593,3 +599,5 @@ VAR effect_descriptors
 
 
 TILES bullet_tiles, 2, "tiles/effects/bullet.chr", 6
+TILES rocket_tiles, 4, "tiles/weapons/rocket.chr", 12
+TILES rocket_flip_tiles, 4, "tiles/weapons/rocket-flip.chr", 12
