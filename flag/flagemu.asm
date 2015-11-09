@@ -31,3 +31,9 @@ VAR boarded_house_flag_text
 	.byte "PWN ON THE REAL SYSTEM", 0
 	.byte "TO GET THE ACTUAL FLAG", 0
 	.byte 0
+
+.segment "CHR1"
+
+VAR credit_flag
+	.byte "THE FLAG IS:               ", 0
+	.byte " XXXXXXXXXXXXXXXXXXXXXXXXX  ", 0

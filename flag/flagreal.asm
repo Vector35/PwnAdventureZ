@@ -31,3 +31,9 @@ VAR boarded_house_flag_text
 	.byte "                      ", 0
 	.byte "                      ", 0
 	.byte 0
+
+.segment "CHR1"
+
+VAR credit_flag
+	.byte "THE FLAG IS:               ", 0
+	.byte " PATIENTZERODAYNEARLYGOTME  ", 0
