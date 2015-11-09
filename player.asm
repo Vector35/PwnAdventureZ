@@ -1490,7 +1490,7 @@ PROC do_player_melee_tick
 	sta effect_tile, x
 	lda player_x
 	sec
-	sbc #8
+	sbc #12
 	sta effect_x, x
 	lda player_y
 	clc
@@ -1521,7 +1521,7 @@ notright:
 	sta effect_tile, x
 	lda player_y
 	sec
-	sbc #8
+	sbc #12
 	sta effect_y, x
 	lda player_x
 	clc
