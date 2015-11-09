@@ -839,45 +839,45 @@ VAR shooting_sprites_for_state
 
 VAR swiming_sprites_for_state
 
-	.byte $0c + 1, $00
-	.byte $0e + 1, $00
-	.byte $0c + 1, $00
-	.byte $0e + 1, $00
+	.byte $04 + 1, $00
+	.byte $06 + 1, $00
+	.byte $04 + 1, $00
+	.byte $06 + 1, $00
 
-	.byte $0c + 1, $00
-	.byte $0e + 1, $00
-	.byte $0c + 1, $00
-	.byte $0e + 1, $00
+	.byte $04 + 1, $00
+	.byte $06 + 1, $00
+	.byte $04 + 1, $00
+	.byte $06 + 1, $00
 
-	.byte $0c + 1, $00
-	.byte $0e + 1, $00
-	.byte $0c + 1, $00
-	.byte $0e + 1, $00
+	.byte $04 + 1, $00
+	.byte $06 + 1, $00
+	.byte $04 + 1, $00
+	.byte $06 + 1, $00
 
-	.byte $0c + 1, $00
-	.byte $0e + 1, $00
-	.byte $0c + 1, $00
-	.byte $0e + 1, $00
+	.byte $04 + 1, $00
+	.byte $06 + 1, $00
+	.byte $04 + 1, $00
+	.byte $06 + 1, $00
 
-	.byte $0c + 1, $00
-	.byte $0e + 1, $00
-	.byte $0c + 1, $00
-	.byte $0e + 1, $00
+	.byte $04 + 1, $00
+	.byte $06 + 1, $00
+	.byte $04 + 1, $00
+	.byte $06 + 1, $00
 
-	.byte $0c + 1, $00
-	.byte $0e + 1, $00
-	.byte $0c + 1, $00
-	.byte $0e + 1, $00
+	.byte $04 + 1, $00
+	.byte $06 + 1, $00
+	.byte $04 + 1, $00
+	.byte $06 + 1, $00
 
-	.byte $0c + 1, $00
-	.byte $0e + 1, $00
-	.byte $0c + 1, $00
-	.byte $0e + 1, $00
+	.byte $04 + 1, $00
+	.byte $06 + 1, $00
+	.byte $04 + 1, $00
+	.byte $06 + 1, $00
 
-	.byte $0c + 1, $00
-	.byte $0e + 1, $00
-	.byte $0c + 1, $00
-	.byte $0e + 1, $00
+	.byte $04 + 1, $00
+	.byte $06 + 1, $00
+	.byte $04 + 1, $00
+	.byte $06 + 1, $00
 
-TILES shark_tiles, 2, "tiles/enemies/shark/shark.chr", 16
+TILES shark_tiles, 2, "tiles/enemies/shark/shark.chr", 8
 

@@ -327,6 +327,10 @@ namedone:
 	lda #100
 	sta player_health
 
+	lda #ITEM_ROCKET
+	ldx #200
+	jsr give_weapon
+
 	lda secret_code
 	beq nocode
 

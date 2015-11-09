@@ -366,14 +366,13 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define SPRITE_TILE_RAT                  $80
 .define SPRITE_TILE_BEAR                 $80
 .define SPRITE_TILE_SPIDER               $a0
-.define SPRITE_TILE_SHARK                $30
+.define SPRITE_TILE_SHARK                $38
 
 .define SPRITE_TILE_MALE_NPC        $40
 .define SPRITE_TILE_FEMALE_NPC      $60
 .define SPRITE_TILE_MALE_THIN_NPC   $80
 .define SPRITE_TILE_FEMALE_THIN_NPC $a0
 
-.define SPRITE_TILE_ROCKET_FLIP   $34
 .define SPRITE_TILE_ROCKET        $c0
 .define SPRITE_TILE_WARP          $cc
 .define SPRITE_TILE_MELEE 		  $d0
@@ -419,7 +418,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define EFFECT_DESC_ENEMY_COLLIDE  4
 .define EFFECT_DESC_WORLD_COLLIDE  6
 .define EFFECT_DESC_TILE           8
-.define EFFECT_DESC_LARGE          9
+.define EFFECT_DESC_FLAGS          9
 .define EFFECT_DESC_PALETTE        10
 .define EFFECT_DESC_COLLIDE_WIDTH  11
 .define EFFECT_DESC_COLLIDE_HEIGHT 12

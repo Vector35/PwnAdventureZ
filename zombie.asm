@@ -51,6 +51,18 @@ PROC normal_zombie_collide
 
 
 PROC fat_zombie_explode
+	LOAD_PTR normal_zombie_drop_table
+	jsr enemy_die_with_drop_table
+
+	jsr remove_enemy
+
+	ldx cur_enemy
+	lda enemy_x, x
+	sta arg0
+	lda enemy_y, x
+	sta arg1
+	jsr explode
+
 	rts
 .endproc
 

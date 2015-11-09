@@ -1858,12 +1858,11 @@ PROC player_shotgun_bullet_tick
 
 .code
 
-PROC rocket_hit
+PROC explode
 	lda cur_enemy
 	sta saved_enemy
 
 	ldx #0
-	ldy cur_effect
 enemyloop:
 	lda enemy_type, x
 	cmp #ENEMY_NONE
@@ -1871,22 +1870,22 @@ enemyloop:
 
 	lda enemy_x, x
 	sec
-	sbc effect_x, y
+	sbc arg0
 
-	cmp #$20
+	cmp #$18
 	bcc enemyxoverlap
-	cmp #$e0
+	cmp #$d8
 	bcs enemyxoverlap
 	jmp nextenemy
 
 enemyxoverlap:
 	lda enemy_y, x
 	sec
-	sbc effect_y, y
+	sbc arg1
 
-	cmp #$20
+	cmp #$18
 	bcc enemyhit
-	cmp #$e0
+	cmp #$d8
 	bcc nextenemy
 
 enemyhit:
@@ -1909,10 +1908,47 @@ nextenemy:
 	cpx #8
 	bne enemyloop
 
-	jsr remove_effect
-
 	lda saved_enemy
 	sta cur_enemy
+
+	lda player_x
+	sec
+	sbc arg0
+
+	cmp #$18
+	bcc playerxoverlap
+	cmp #$d8
+	bcs playerxoverlap
+	jmp noplayerdamage
+
+playerxoverlap:
+	lda player_y
+	sec
+	sbc arg1
+
+	cmp #$18
+	bcc playerhit
+	cmp #$d8
+	bcc noplayerdamage
+
+playerhit:
+	lda #20
+	jsr take_damage
+	jsr explosion_knockback
+
+noplayerdamage:
+	rts
+.endproc
+
+PROC rocket_hit
+	ldx cur_effect
+	lda effect_x, x
+	sta arg0
+	lda effect_y, x
+	sta arg1
+	jsr explode
+
+	jsr remove_effect
 	rts
 .endproc
 
@@ -2134,7 +2170,7 @@ VAR player_rocket_left_descriptor
 	.word nothing
 	.word rocket_hit
 	.word rocket_hit
-	.byte SPRITE_TILE_ROCKET_FLIP, 1
+	.byte SPRITE_TILE_ROCKET, $41
 	.byte 3
 	.byte 16, 8
 
@@ -2161,7 +2197,7 @@ VAR player_rocket_down_descriptor
 	.word nothing
 	.word rocket_hit
 	.word rocket_hit
-	.byte SPRITE_TILE_ROCKET_FLIP + 8, 0
+	.byte SPRITE_TILE_ROCKET + 8, $80
 	.byte 3
 	.byte 8, 16
 

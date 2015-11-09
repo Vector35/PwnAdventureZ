@@ -661,15 +661,13 @@ next:
 .endproc
 
 
-PROC enemy_knockback
-	ldx cur_enemy
-
+PROC knockback_player
 	; Get the absolute value of the X distance from the player
-	lda enemy_x, x
+	lda arg2
 	cmp player_x
 	bcc leftofplayer
 
-	lda enemy_x, x
+	lda arg2
 	sec
 	sbc player_x
 	sta arg0
@@ -678,16 +676,16 @@ PROC enemy_knockback
 leftofplayer:
 	lda player_x
 	sec
-	sbc enemy_x, x
+	sbc arg2
 	sta arg0
 
 checkvert:
 	; Get the absolute value of the Y distance from the player
-	lda enemy_y, x
+	lda arg3
 	cmp player_y
 	bcc upfromplayer
 
-	lda enemy_y, x
+	lda arg3
 	sec
 	sbc player_y
 	sta arg1
@@ -696,7 +694,7 @@ checkvert:
 upfromplayer:
 	lda player_y
 	sec
-	sbc enemy_y, x
+	sbc arg3
 	sta arg1
 
 finddir:
@@ -706,7 +704,7 @@ finddir:
 	cmp arg1
 	bcc usevert
 
-	lda enemy_x, x
+	lda arg2
 	cmp player_x
 	bcc right
 
@@ -728,7 +726,7 @@ right:
 	rts
 
 usevert:
-	lda enemy_y, x
+	lda arg3
 	cmp player_y
 	bcc down
 
@@ -750,6 +748,26 @@ down:
 	rts
 .endproc
 
+
+PROC enemy_knockback
+	ldx cur_enemy
+	lda enemy_x, x
+	sta arg2
+	lda enemy_y, x
+	sta arg3
+	jsr knockback_player
+	rts
+.endproc
+
+
+PROC explosion_knockback
+	lda arg0
+	sta arg2
+	lda arg1
+	sta arg3
+	jsr knockback_player
+	rts
+.endproc
 
 
 PROC walking_ai_tick
