@@ -302,6 +302,43 @@ failed:
 	rts
 .endproc
 
+
+PROC throw_grenade
+	jsr use_one_ammo
+
+	PLAY_SOUND_EFFECT effect_pistol
+
+	lda player_x
+	clc
+	adc #7
+	sta arg0
+	lda player_y
+	clc
+	adc #7
+	sta arg1
+	lda #EFFECT_PLAYER_GRENADE
+	sta arg2
+	jsr get_player_direction_bits
+	sta arg3
+	jsr create_effect
+
+	cmp #$ff
+	beq failed
+
+	sta cur_effect
+	jsr player_bullet_tick
+	jsr player_bullet_tick
+
+	lda #60
+	sta attack_cooldown
+	lda #1
+	sta attack_held
+
+failed:
+	rts
+.endproc
+
+
 PROC fire_pistol
 	jsr use_one_ammo
 
@@ -842,7 +879,7 @@ VAR flamethrower_item
 	.byte "BURNINATE THE INFECTED    ", 0
 
 VAR grenade_item
-	.word 0
+	.word throw_grenade
 	.word grenade_tiles & $ffff
 	.byte ITEM_TYPE_GRENADE
 	.byte "FRAG GRENADE   ", 0

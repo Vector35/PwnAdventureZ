@@ -1256,14 +1256,7 @@ dead:
 .endproc
 
 
-PROC bullet_hit_enemy
-	PLAY_SOUND_EFFECT effect_enemyhit
-
-	lda #10
-	jsr enemy_damage
-
-	jsr player_bullet_tick
-
+PROC show_bullet_damage_effect
 	ldx cur_effect
 	dec effect_x, x
 	dec effect_x, x
@@ -1277,7 +1270,18 @@ PROC bullet_hit_enemy
 	sta effect_tile, x
 	lda #0
 	sta effect_time, x
+	rts
+.endproc
 
+
+PROC bullet_hit_enemy
+	PLAY_SOUND_EFFECT effect_enemyhit
+
+	lda #10
+	jsr enemy_damage
+
+	jsr player_bullet_tick
+	jsr show_bullet_damage_effect
 	rts
 .endproc
 
@@ -1315,21 +1319,7 @@ PROC ak_bullet_hit_enemy
 	jsr enemy_damage
 
 	jsr player_bullet_tick
-
-	ldx cur_effect
-	dec effect_x, x
-	dec effect_x, x
-	dec effect_x, x
-	dec effect_y, x
-	dec effect_y, x
-	dec effect_y, x
-	lda #EFFECT_PLAYER_BULLET_DAMAGE
-	sta effect_type, x
-	lda #SPRITE_TILE_BULLET_DAMAGE
-	sta effect_tile, x
-	lda #0
-	sta effect_time, x
-
+	jsr show_bullet_damage_effect
 	rts
 .endproc
 
@@ -1341,21 +1331,7 @@ PROC sniper_bullet_hit_enemy
 	jsr enemy_damage
 
 	jsr player_bullet_tick
-
-	ldx cur_effect
-	dec effect_x, x
-	dec effect_x, x
-	dec effect_x, x
-	dec effect_y, x
-	dec effect_y, x
-	dec effect_y, x
-	lda #EFFECT_PLAYER_BULLET_DAMAGE
-	sta effect_type, x
-	lda #SPRITE_TILE_BULLET_DAMAGE
-	sta effect_tile, x
-	lda #0
-	sta effect_time, x
-
+	jsr show_bullet_damage_effect
 	rts
 .endproc
 
@@ -1367,21 +1343,7 @@ PROC shotgun_bullet_hit_enemy
 	jsr enemy_damage
 
 	jsr player_bullet_tick
-
-	ldx cur_effect
-	dec effect_x, x
-	dec effect_x, x
-	dec effect_x, x
-	dec effect_y, x
-	dec effect_y, x
-	dec effect_y, x
-	lda #EFFECT_PLAYER_BULLET_DAMAGE
-	sta effect_type, x
-	lda #SPRITE_TILE_BULLET_DAMAGE
-	sta effect_tile, x
-	lda #0
-	sta effect_time, x
-
+	jsr show_bullet_damage_effect
 	rts
 .endproc
 
@@ -2092,11 +2054,19 @@ enemyhit:
 	pha
 	tya
 	pha
+	lda arg0
+	pha
+	lda arg1
+	pha
 
 	stx cur_enemy
 	lda #40
 	jsr enemy_damage
 
+	pla
+	sta arg1
+	pla
+	sta arg0
 	pla
 	tay
 	pla
@@ -2157,6 +2127,43 @@ noplayerdamage:
 
 	jsr create_explosion_effect
 	PLAY_SOUND_EFFECT effect_boom
+	rts
+.endproc
+
+
+PROC grenade_tick
+	ldx cur_effect
+	inc effect_time, x
+	lda effect_time, x
+	cmp #12
+	bcc fast
+	cmp #24
+	bcc slow
+	cmp #90
+	bne done
+
+	lda effect_x, x
+	sta arg0
+	lda effect_y, x
+	sta arg1
+	jsr explode
+	jsr remove_effect
+	rts
+
+slow:
+	and #1
+	beq done
+fast:
+	jsr player_bullet_tick
+done:
+	rts
+.endproc
+
+
+PROC grenade_hit
+	ldx cur_effect
+	lda #0
+	sta effect_direction, x
 	rts
 .endproc
 
@@ -2396,6 +2403,15 @@ VAR player_rocket_down_descriptor
 	.byte SPRITE_TILE_ROCKET + 8, $80
 	.byte 3
 	.byte 8, 16
+
+VAR player_grenade_descriptor
+	.word grenade_tick
+	.word nothing
+	.word nothing
+	.word grenade_hit
+	.byte SPRITE_TILE_GRENADE, 1
+	.byte 2
+	.byte 16, 16
 
 VAR player_bullet_descriptor
 	.word player_bullet_tick

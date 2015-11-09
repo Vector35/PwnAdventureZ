@@ -37,6 +37,7 @@ PROC load_effect_sprites
 	LOAD_ALL_TILES $100 + SPRITE_TILE_WARP, warp_tiles
 	LOAD_ALL_TILES $100 + SPRITE_TILE_ROCKET, rocket_tiles
 	LOAD_ALL_TILES $100 + SPRITE_TILE_FIREBALL, fireball_tiles
+	LOAD_ALL_TILES $100 + SPRITE_TILE_GRENADE, grenade_tiles
 
 	lda equipped_weapon
 	cmp #ITEM_AXE
@@ -617,6 +618,7 @@ VAR effect_descriptors
 	.word player_rocket_right_descriptor
 	.word player_rocket_up_descriptor
 	.word player_rocket_down_descriptor
+	.word player_grenade_descriptor
 	.word player_bullet_descriptor
 	.word player_lmg_bullet_descriptor
 	.word player_ak_bullet_descriptor
