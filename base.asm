@@ -24,12 +24,12 @@
 
 .segment "FIXED"
 
-PROC gen_base
+PROC gen_base_interior
 	lda current_bank
 	pha
-	lda #^do_gen_base
+	lda #^do_gen_base_interior
 	jsr bankswitch
-	jsr do_gen_base & $ffff
+	jsr do_gen_base_interior & $ffff
 	pla
 	jsr bankswitch
 	rts
@@ -50,7 +50,7 @@ PROC gen_base_horde
 
 .segment "EXTRA"
 
-PROC do_gen_base
+PROC do_gen_base_interior
 	jsr gen_base_common & $ffff
 	jsr spawn_base_enemies & $ffff
 	rts

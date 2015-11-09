@@ -1627,6 +1627,10 @@ done:
 key2done:
 	inc key_count
 
+	jsr wait_for_vblank
+	jsr load_key_count_tiles
+	jsr prepare_for_rendering
+
 	lda key_count
 	cmp #6
 	bne notallkeys
@@ -1753,6 +1757,10 @@ done:
 key6done:
 	inc key_count
 
+	jsr wait_for_vblank
+	jsr load_key_count_tiles
+	jsr prepare_for_rendering
+
 	lda key_count
 	cmp #6
 	bne notallkeys
@@ -1871,6 +1879,10 @@ done:
 	sta highlighted_quest_steps
 
 	inc key_count
+
+	jsr wait_for_vblank
+	jsr load_key_count_tiles
+	jsr prepare_for_rendering
 
 	lda key_count
 	cmp #6

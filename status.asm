@@ -41,6 +41,17 @@ PROC load_area_name_tiles
 	rts
 .endproc
 
+PROC load_key_count_tiles
+	lda current_bank
+	pha
+	lda #^do_load_key_count_tiles
+	jsr bankswitch
+	jsr do_load_key_count_tiles & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
 
 .segment "UI"
 
@@ -258,6 +269,7 @@ PROC init_status_tiles
 PROC do_init_status_tiles
 	LOAD_ALL_TILES 0, status_ui_tiles
 	LOAD_ALL_TILES RIGHT_PANEL_TILES, key_tiles
+	jsr do_load_key_count_tiles & $ffff
 	jsr load_area_name_tiles
 
 	; Load status bar palette into palette 3
@@ -452,6 +464,55 @@ renderitem:
 	lda #0
 	sta status_display_state
 
+	rts
+.endproc
+
+
+PROC do_load_key_count_tiles
+	lda key_count
+	cmp #1
+	beq one
+	cmp #2
+	beq two
+	cmp #3
+	beq three
+	cmp #4
+	beq four
+	cmp #5
+	beq five
+	cmp #6
+	beq six
+
+	LOAD_ALL_TILES RIGHT_PANEL_TILES + 5, zero_key_tiles
+	rts
+
+five:
+	jmp dofive & $ffff
+six:
+	jmp dosix & $ffff
+
+one:
+	LOAD_ALL_TILES RIGHT_PANEL_TILES + 5, one_key_tiles
+	rts
+
+two:
+	LOAD_ALL_TILES RIGHT_PANEL_TILES + 5, two_key_tiles
+	rts
+
+three:
+	LOAD_ALL_TILES RIGHT_PANEL_TILES + 5, three_key_tiles
+	rts
+
+four:
+	LOAD_ALL_TILES RIGHT_PANEL_TILES + 5, four_key_tiles
+	rts
+
+dofive:
+	LOAD_ALL_TILES RIGHT_PANEL_TILES + 5, five_key_tiles
+	rts
+
+dosix:
+	LOAD_ALL_TILES RIGHT_PANEL_TILES + 5, six_key_tiles
 	rts
 .endproc
 
@@ -706,3 +767,11 @@ TILES blocky_cave_name_tiles, 2, "tiles/status/blocky.chr", 22
 TILES dead_wood_name_tiles, 2, "tiles/status/deadwood.chr", 22
 TILES sewer_name_tiles, 2, "tiles/status/sewer.chr", 22
 TILES base_name_tiles, 2, "tiles/status/base.chr", 22
+
+TILES zero_key_tiles, 4, "tiles/status/0.chr", 1
+TILES one_key_tiles, 4, "tiles/status/1.chr", 1
+TILES two_key_tiles, 4, "tiles/status/2.chr", 1
+TILES three_key_tiles, 4, "tiles/status/3.chr", 1
+TILES four_key_tiles, 4, "tiles/status/4.chr", 1
+TILES five_key_tiles, 4, "tiles/status/5.chr", 1
+TILES six_key_tiles, 4, "tiles/status/6.chr", 1

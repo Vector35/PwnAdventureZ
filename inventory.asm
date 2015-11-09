@@ -705,6 +705,53 @@ PROC do_render_inventory_status_bar
 
 	; Show key count and gold
 	LOAD_ALL_TILES $7b, inventory_key_tiles
+	lda key_count
+	cmp #1
+	beq one
+	cmp #2
+	beq two
+	cmp #3
+	beq three
+	cmp #4
+	beq four
+	cmp #5
+	beq five
+	cmp #6
+	beq six
+
+	LOAD_ALL_TILES $7b, zero_key_tiles
+	jmp keydone & $ffff
+
+five:
+	jmp dofive & $ffff
+six:
+	jmp dosix & $ffff
+
+one:
+	LOAD_ALL_TILES $7b, one_key_tiles
+	jmp keydone & $ffff
+
+two:
+	LOAD_ALL_TILES $7b, two_key_tiles
+	jmp keydone & $ffff
+
+three:
+	LOAD_ALL_TILES $7b, three_key_tiles
+	jmp keydone & $ffff
+
+four:
+	LOAD_ALL_TILES $7b, four_key_tiles
+	jmp keydone & $ffff
+
+dofive:
+	LOAD_ALL_TILES $7b, five_key_tiles
+	jmp keydone & $ffff
+
+dosix:
+	LOAD_ALL_TILES $7b, six_key_tiles
+	jmp keydone & $ffff
+
+keydone:
 	LOAD_PTR inventory_keys
 	ldx #24
 	ldy #32 + 25

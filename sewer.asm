@@ -503,6 +503,10 @@ done:
 key2done:
 	inc key_count
 
+	jsr wait_for_vblank
+	jsr load_key_count_tiles
+	jsr prepare_for_rendering
+
 	lda key_count
 	cmp #6
 	bne notallkeys

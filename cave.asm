@@ -1142,24 +1142,13 @@ PROC is_starting_chest_interactable
 
 
 PROC starting_chest_interact
-	jsr wait_for_vblank
-
-	ldx interaction_tile_x
-	ldy interaction_tile_y
-	lda #$f4
-	jsr write_large_tile
-
-	jsr prepare_for_rendering
-
-	lda #ITEM_AXE
-	jsr give_item
-
-	lda #1
-	sta starting_chest_opened
-
-	jsr save
-
-	PLAY_SOUND_EFFECT effect_open
+	lda current_bank
+	pha
+	lda #^do_starting_chest_interact
+	jsr bankswitch
+	jsr do_starting_chest_interact & $ffff
+	pla
+	jsr bankswitch
 	rts
 .endproc
 
@@ -1221,6 +1210,29 @@ PROC key_chest_4_interact
 
 
 .segment "EXTRA"
+
+PROC do_starting_chest_interact
+	jsr wait_for_vblank
+
+	ldx interaction_tile_x
+	ldy interaction_tile_y
+	lda #$f4
+	jsr write_large_tile
+
+	jsr prepare_for_rendering
+
+	lda #ITEM_AXE
+	jsr give_item
+
+	lda #1
+	sta starting_chest_opened
+
+	jsr save
+
+	PLAY_SOUND_EFFECT effect_open
+	rts
+.endproc
+
 
 PROC do_mine_entrance_interact
 	jsr fade_out
@@ -1363,6 +1375,10 @@ done:
 
 key5done:
 	inc key_count
+
+	jsr wait_for_vblank
+	jsr load_key_count_tiles
+	jsr prepare_for_rendering
 
 	lda key_count
 	cmp #6
