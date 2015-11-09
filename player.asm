@@ -2125,6 +2125,8 @@ noplayerdamage:
 	sbc #4
 	sta arg1
 
+	jsr check_lost_cave_wall_explosion
+
 	jsr create_explosion_effect
 	PLAY_SOUND_EFFECT effect_boom
 	rts
@@ -2331,6 +2333,8 @@ VAR interaction_descriptors
 	.word unbearable_chest_descriptor
 	.word lost_cave_chest_descriptor
 	.word forest_chest_descriptor
+	.word lost_cave_end_descriptor
+	.word lost_cave_note_descriptor
 
 VAR player_axe_descriptor
 	.word player_melee_tick

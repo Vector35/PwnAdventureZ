@@ -97,6 +97,54 @@ PROC gen_blocky_cave_interior
 .endproc
 
 
+PROC gen_lost_cave
+	lda current_bank
+	pha
+	lda #^do_gen_lost_cave
+	jsr bankswitch
+	jsr do_gen_lost_cave & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+PROC gen_lost_cave_wall
+	lda current_bank
+	pha
+	lda #^do_gen_lost_cave_wall
+	jsr bankswitch
+	jsr do_gen_lost_cave_wall & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+PROC gen_lost_cave_end
+	lda current_bank
+	pha
+	lda #^do_gen_lost_cave_end
+	jsr bankswitch
+	jsr do_gen_lost_cave_end & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+PROC check_lost_cave_wall_explosion
+	lda current_bank
+	pha
+	lda #^do_check_lost_cave_wall_explosion
+	jsr bankswitch
+	jsr do_check_lost_cave_wall_explosion & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
 PROC gen_lost_cave_chest
 	lda current_bank
 	pha
@@ -153,6 +201,36 @@ PROC lost_cave_chest_interact
 	lda #^do_lost_cave_chest_interact
 	jsr bankswitch
 	jsr do_lost_cave_chest_interact & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+PROC is_lost_cave_end_interactable
+	lda lost_cave_large_chest_opened
+	rts
+.endproc
+
+
+PROC lost_cave_end_interact
+	lda current_bank
+	pha
+	lda #^do_lost_cave_end_interact
+	jsr bankswitch
+	jsr do_lost_cave_end_interact & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+PROC lost_cave_note_interact
+	lda current_bank
+	pha
+	lda #^do_lost_cave_note_interact
+	jsr bankswitch
+	jsr do_lost_cave_note_interact & $ffff
 	pla
 	jsr bankswitch
 	rts
@@ -233,6 +311,234 @@ questcomplete:
 	jsr write_gen_map
 
 chestdone:
+	jsr gen_cave_enemies & $ffff
+	rts
+.endproc
+
+
+PROC do_gen_lost_cave
+	jsr do_gen_cave_common & $ffff
+
+	jsr read_overworld_left
+	and #$3f
+	cmp #MAP_LOST_CAVE_WALL
+	bne done
+
+	lda #$b8
+	ldx #0
+	ldy #5
+	jsr write_gen_map
+	ldx #1
+	jsr write_gen_map
+	ldx #2
+	jsr write_gen_map
+	ldx #0
+	ldy #7
+	jsr write_gen_map
+	ldx #1
+	jsr write_gen_map
+	ldx #2
+	jsr write_gen_map
+	lda #0
+	ldx #0
+	ldy #6
+	jsr write_gen_map
+	ldx #1
+	jsr write_gen_map
+	ldx #2
+	jsr write_gen_map
+
+done:
+	jsr gen_cave_enemies & $ffff
+	rts
+.endproc
+
+
+PROC do_gen_lost_cave_wall
+	jsr do_gen_cave_common & $ffff
+
+	LOAD_ALL_TILES $0f0, small_chest_tiles
+
+	lda lost_cave_wall_state
+	beq notblown
+
+	lda #$b8
+	ldx #12
+	ldy #5
+	jsr write_gen_map
+	ldx #13
+	jsr write_gen_map
+	ldx #14
+	jsr write_gen_map
+	ldx #12
+	ldy #7
+	jsr write_gen_map
+	ldx #13
+	jsr write_gen_map
+	ldx #14
+	jsr write_gen_map
+	lda #0
+	ldx #12
+	ldy #6
+	jsr write_gen_map
+	ldx #13
+	jsr write_gen_map
+	ldx #14
+	jsr write_gen_map
+notblown:
+
+chestdone:
+	jsr gen_cave_enemies & $ffff
+	rts
+.endproc
+
+
+PROC do_check_lost_cave_wall_explosion
+	jsr read_overworld_cur
+	and #$3f
+	cmp #MAP_LOST_CAVE_WALL
+	beq look
+	rts
+
+look:
+	lda lost_cave_wall_state
+	bne done
+
+	lda arg0
+	cmp #$a0
+	bcc done
+
+	lda arg1
+	cmp #$30
+	bcc done
+	cmp #$90
+	bcs done
+
+	jmp blown & $ffff
+
+done:
+	rts
+
+blown:
+	lda arg0
+	pha
+	lda arg1
+	pha
+
+	lda #1
+	sta lost_cave_wall_state
+
+	jsr wait_for_vblank
+	lda #$b8
+	ldx #12
+	ldy #5
+	jsr write_large_tile
+	lda #$b8
+	ldx #13
+	ldy #5
+	jsr write_large_tile
+
+	jsr prepare_for_rendering
+	jsr wait_for_vblank
+
+	lda #$b8
+	ldx #14
+	ldy #5
+	jsr write_large_tile
+	lda #$b8
+	ldx #12
+	ldy #7
+	jsr write_large_tile
+
+	jsr prepare_for_rendering
+	jsr wait_for_vblank
+
+	lda #$b8
+	ldx #13
+	ldy #7
+	jsr write_large_tile
+	lda #$b8
+	ldx #14
+	ldy #7
+	jsr write_large_tile
+
+	jsr prepare_for_rendering
+	jsr wait_for_vblank
+
+	lda #0
+	ldx #12
+	ldy #6
+	jsr write_large_tile
+	lda #0
+	ldx #13
+	ldy #6
+	jsr write_large_tile
+
+	jsr prepare_for_rendering
+	jsr wait_for_vblank
+
+	lda #0
+	ldx #14
+	ldy #6
+	jsr write_large_tile
+
+	jsr prepare_for_rendering
+
+	lda collision + 11
+	and #$f0
+	sta collision + 11
+	lda collision + 13
+	ora #$f
+	sta collision + 13
+	lda collision + 15
+	and #$f0
+	sta collision + 15
+
+	pla
+	sta arg1
+	pla
+	sta arg0
+	rts
+.endproc
+
+
+PROC do_gen_lost_cave_end
+	jsr do_gen_cave_common & $ffff
+
+	LOAD_ALL_TILES $0f0, chest_tiles
+	LOAD_ALL_TILES $0f8, note_tiles
+
+	lda #INTERACT_LOST_CAVE_END
+	sta interactive_tile_types
+	lda #$f0
+	sta interactive_tile_values
+
+	lda #INTERACT_LOST_CAVE_NOTE
+	sta interactive_tile_types + 1
+	lda #$f8
+	sta interactive_tile_values + 1
+
+	lda lost_cave_large_chest_opened
+	bne questcomplete
+
+	ldx #7
+	ldy #4
+	lda #$f0 + 2
+	jsr write_gen_map
+	jmp chestdone & $ffff
+
+questcomplete:
+	ldx #7
+	ldy #4
+	lda #$f4 + 2
+	jsr write_gen_map
+
+chestdone:
+	ldx #9
+	ldy #5
+	lda #$f8 + NOTE_PALETTE
+	jsr write_gen_map
+
 	jsr gen_cave_enemies & $ffff
 	rts
 .endproc
@@ -1152,8 +1458,56 @@ PROC do_lost_cave_chest_interact
 .endproc
 
 
+PROC do_lost_cave_end_interact
+	lda lost_cave_wall_state
+	beq done
+
+	jsr wait_for_vblank
+
+	ldx interaction_tile_x
+	ldy interaction_tile_y
+	lda #$f4
+	jsr write_large_tile
+
+	jsr prepare_for_rendering
+
+	lda #ITEM_ROCKET
+	ldx #20
+	jsr give_weapon
+	lda #ITEM_GEM
+	ldx #5
+	jsr give_item_with_count
+
+	lda #1
+	sta lost_cave_large_chest_opened
+
+	jsr save
+
+	PLAY_SOUND_EFFECT effect_open
+done:
+	rts
+.endproc
+
+
+PROC do_lost_cave_note_interact
+	PLAY_SOUND_EFFECT effect_select
+
+	LOAD_PTR lost_cave_flag_text
+	lda #^lost_cave_flag_text
+	jsr show_chat_text
+
+	rts
+.endproc
+
+
 .bss
 VAR starting_chest_opened
+	.byte 0
+
+VAR lost_cave_wall_state
+	.byte 0
+
+VAR lost_cave_large_chest_opened
 	.byte 0
 
 
@@ -1211,6 +1565,14 @@ VAR cave_chest_descriptor
 VAR lost_cave_chest_descriptor
 	.word is_lost_cave_chest_interactable
 	.word lost_cave_chest_interact
+
+VAR lost_cave_end_descriptor
+	.word is_lost_cave_end_interactable
+	.word lost_cave_end_interact
+
+VAR lost_cave_note_descriptor
+	.word always_interactable
+	.word lost_cave_note_interact
 
 
 VAR cave_enemy_types

@@ -32,6 +32,13 @@ VAR boarded_house_flag_text
 	.byte "                      ", 0
 	.byte 0
 
+VAR lost_cave_flag_text
+	.byte "THE FLAG IS:", 0
+	.byte "ONCEWASLOSTNOWISFOUND ", 0
+	.byte "                      ", 0
+	.byte "                      ", 0
+	.byte 0
+
 .segment "CHR1"
 
 VAR credit_flag

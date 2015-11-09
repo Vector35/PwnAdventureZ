@@ -445,6 +445,18 @@ PROC do_gen_shop_inside
 	lda #NPC_FLOOR_TILE
 	sta interactive_tile_values
 
+	; Spawn NPCs as "enemies"
+	jsr prepare_spawn
+
+	jsr read_overworld_cur
+	and #$3f
+	cmp #MAP_OUTPOST_SHOP
+	beq outpostshop
+	cmp #MAP_SECRET_SHOP
+	bne normalshop
+	jmp secretshop & $ffff
+
+normalshop:
 	ldx #7
 	ldy #3
 	lda #NPC_FLOOR_TILE
@@ -458,8 +470,6 @@ PROC do_gen_shop_inside
 	lda #NPC_FLOOR_TILE
 	jsr write_gen_map
 
-	; Spawn NPCs as "enemies"
-	jsr prepare_spawn
 	lda #ENEMY_MALE_NPC_1
 	sta arg0
 	lda #DIR_DOWN
@@ -488,12 +498,66 @@ PROC do_gen_shop_inside
 	jsr spawn_npc
 
 	rts
+
+outpostshop:
+	ldx #8
+	ldy #3
+	lda #NPC_FLOOR_TILE
+	jsr write_gen_map
+	ldx #4
+	ldy #6
+	lda #NPC_FLOOR_TILE
+	jsr write_gen_map
+
+	lda #ENEMY_FEMALE_NPC_2
+	sta arg0
+	lda #DIR_LEFT
+	sta arg1
+	ldx #$80
+	ldy #$30
+	lda #0
+	jsr spawn_npc
+
+	lda #ENEMY_MALE_THIN_NPC_1
+	sta arg0
+	lda #DIR_RIGHT
+	sta arg1
+	ldx #$40
+	ldy #$60
+	lda #1
+	jsr spawn_npc
+
+	rts
+
+secretshop:
+	ldx #7
+	ldy #5
+	lda #NPC_FLOOR_TILE
+	jsr write_gen_map
+
+	lda #ENEMY_MALE_THIN_NPC_1
+	sta arg0
+	lda #DIR_DOWN
+	sta arg1
+	ldx #$70
+	ldy #$50
+	lda #0
+	jsr spawn_npc
+
+	rts
 .endproc
 
 
 .code
 
 PROC shop_npc_interact
+	jsr read_overworld_cur
+	and #$3f
+	cmp #MAP_OUTPOST_SHOP
+	beq outpostshop
+	cmp #MAP_SECRET_SHOP
+	beq secretshop
+
 	lda interaction_tile_x
 	cmp #7
 	beq guns
@@ -531,6 +595,25 @@ drinks:
 	jsr setup_town_coffee_shop
 	jsr show_shop
 	rts
+
+outpostshop:
+	lda interaction_tile_x
+	cmp #8
+	beq outpostguns
+
+	jsr setup_outpost_coffee_shop
+	jsr show_shop
+	rts
+
+outpostguns:
+	jsr setup_outpost_gun_shop
+	jsr show_shop
+	rts
+
+secretshop:
+	jsr setup_secret_shop
+	jsr show_shop
+	rts
 .endproc
 
 
@@ -553,6 +636,39 @@ PROC setup_town_coffee_shop
 	lda #^do_setup_town_coffee_shop
 	jsr bankswitch
 	jsr do_setup_town_coffee_shop & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+PROC setup_outpost_gun_shop
+	lda current_bank
+	pha
+	lda #^do_setup_outpost_gun_shop
+	jsr bankswitch
+	jsr do_setup_outpost_gun_shop & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+PROC setup_outpost_coffee_shop
+	lda current_bank
+	pha
+	lda #^do_setup_outpost_coffee_shop
+	jsr bankswitch
+	jsr do_setup_outpost_coffee_shop & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+PROC setup_secret_shop
+	lda current_bank
+	pha
+	lda #^do_setup_secret_shop
+	jsr bankswitch
+	jsr do_setup_secret_shop & $ffff
 	pla
 	jsr bankswitch
 	rts
@@ -637,13 +753,13 @@ PROC do_setup_town_gun_shop
 	lda #0
 	sta sell_price_low + 1
 
-	lda #ITEM_ROCKET
+	lda #ITEM_GRENADE
 	sta sell_items + 2
-	lda #1
+	lda #0
 	sta sell_price_high + 2
 	lda #0
 	sta sell_price_mid + 2
-	lda #0
+	lda #5
 	sta sell_price_low + 2
 
 	lda #ITEM_METAL
@@ -747,6 +863,252 @@ PROC do_setup_town_coffee_shop
 	sta sell_price_low + 4
 
 	lda #5
+	sta sell_item_count
+	rts
+.endproc
+
+
+PROC do_setup_outpost_gun_shop
+	lda #ITEM_PISTOL
+	sta purchase_items
+	lda #0
+	sta purchase_price_high
+	lda #3
+	sta purchase_price_mid
+	lda #5
+	sta purchase_price_low
+
+	lda #ITEM_SMG
+	sta purchase_items + 1
+	lda #1
+	sta purchase_price_high + 1
+	lda #4
+	sta purchase_price_mid + 1
+	lda #5
+	sta purchase_price_low + 1
+
+	lda #ITEM_METAL
+	sta purchase_items + 2
+	lda #0
+	sta purchase_price_high + 2
+	lda #0
+	sta purchase_price_mid + 2
+	lda #2
+	sta purchase_price_low + 2
+
+	lda #ITEM_GUNPOWDER
+	sta purchase_items + 3
+	lda #0
+	sta purchase_price_high + 3
+	lda #0
+	sta purchase_price_mid + 3
+	lda #2
+	sta purchase_price_low + 3
+
+	lda #ITEM_HEALTH_KIT
+	sta purchase_items + 4
+	lda #0
+	sta purchase_price_high + 4
+	lda #3
+	sta purchase_price_mid + 4
+	lda #0
+	sta purchase_price_low + 4
+
+	lda #ITEM_FUEL
+	sta purchase_items + 5
+	lda #1
+	sta purchase_price_high + 5
+	lda #5
+	sta purchase_price_mid + 5
+	lda #0
+	sta purchase_price_low + 5
+
+	lda #6
+	sta purchase_item_count
+
+	lda #ITEM_PISTOL
+	sta sell_items
+	lda #0
+	sta sell_price_high
+	lda #2
+	sta sell_price_mid
+	lda #5
+	sta sell_price_low
+
+	lda #ITEM_SMG
+	sta sell_items + 1
+	lda #1
+	sta sell_price_high + 1
+	lda #0
+	sta sell_price_mid + 1
+	lda #0
+	sta sell_price_low + 1
+
+	lda #ITEM_GRENADE
+	sta sell_items + 2
+	lda #0
+	sta sell_price_high + 2
+	lda #0
+	sta sell_price_mid + 2
+	lda #5
+	sta sell_price_low + 2
+
+	lda #ITEM_METAL
+	sta sell_items + 3
+	lda #0
+	sta sell_price_high + 3
+	lda #0
+	sta sell_price_mid + 3
+	lda #1
+	sta sell_price_low + 3
+
+	lda #ITEM_GUNPOWDER
+	sta sell_items + 4
+	lda #0
+	sta sell_price_high + 4
+	lda #0
+	sta sell_price_mid + 4
+	lda #1
+	sta sell_price_low + 4
+
+	lda #ITEM_FUEL
+	sta sell_items + 5
+	lda #0
+	sta sell_price_high + 5
+	lda #8
+	sta sell_price_mid + 5
+	lda #5
+	sta sell_price_low + 5
+
+	lda #6
+	sta sell_item_count
+	rts
+.endproc
+
+
+PROC do_setup_outpost_coffee_shop
+	lda #ITEM_COFFEE
+	sta purchase_items
+	lda #0
+	sta purchase_price_high
+	lda #1
+	sta purchase_price_mid
+	lda #0
+	sta purchase_price_low
+
+	lda #ITEM_WINE
+	sta purchase_items + 1
+	lda #0
+	sta purchase_price_high + 1
+	lda #7
+	sta purchase_price_mid + 1
+	lda #5
+	sta purchase_price_low + 1
+
+	lda #2
+	sta purchase_item_count
+
+	lda #ITEM_HEALTH_KIT
+	sta sell_items
+	lda #0
+	sta sell_price_high
+	lda #2
+	sta sell_price_mid
+	lda #0
+	sta sell_price_low
+
+	lda #ITEM_CLOTH
+	sta sell_items + 1
+	lda #0
+	sta sell_price_high + 1
+	lda #0
+	sta sell_price_mid + 1
+	lda #1
+	sta sell_price_low + 1
+
+	lda #ITEM_GEM
+	sta sell_items + 2
+	lda #0
+	sta sell_price_high + 2
+	lda #3
+	sta sell_price_mid + 2
+	lda #5
+	sta sell_price_low + 2
+
+	lda #ITEM_COFFEE
+	sta sell_items + 3
+	lda #0
+	sta sell_price_high + 3
+	lda #0
+	sta sell_price_mid + 3
+	lda #5
+	sta sell_price_low + 3
+
+	lda #ITEM_WINE
+	sta sell_items + 4
+	lda #0
+	sta sell_price_high + 4
+	lda #4
+	sta sell_price_mid + 4
+	lda #0
+	sta sell_price_low + 4
+
+	lda #5
+	sta sell_item_count
+	rts
+.endproc
+
+
+PROC do_setup_secret_shop
+	lda #ITEM_HEALTH_KIT
+	sta purchase_items
+	lda #0
+	sta purchase_price_high
+	lda #3
+	sta purchase_price_mid
+	lda #0
+	sta purchase_price_low
+
+	lda #ITEM_FUEL
+	sta purchase_items + 1
+	lda #0
+	sta purchase_price_high + 1
+	lda #5
+	sta purchase_price_mid + 1
+	lda #0
+	sta purchase_price_low + 1
+
+	lda #ITEM_STICKS
+	sta purchase_items + 2
+	lda #0
+	sta purchase_price_high + 2
+	lda #1
+	sta purchase_price_mid + 2
+	lda #0
+	sta purchase_price_low + 2
+
+	lda #3
+	sta purchase_item_count
+
+	lda #ITEM_HEALTH_KIT
+	sta sell_items
+	lda #0
+	sta sell_price_high
+	lda #2
+	sta sell_price_mid
+	lda #0
+	sta sell_price_low
+
+	lda #ITEM_GEM
+	sta sell_items + 2
+	lda #0
+	sta sell_price_high + 2
+	lda #5
+	sta sell_price_mid + 2
+	lda #0
+	sta sell_price_low + 2
+
+	lda #2
 	sta sell_item_count
 	rts
 .endproc

@@ -51,6 +51,7 @@ PROC spawn_npc
 	sta enemy_sprite_state_high, x
 	lda #0
 	sta enemy_anim_frame, x
+	sta enemy_knockback_time, x
 	lda #255
 	sta enemy_health, x
 	rts

@@ -871,13 +871,6 @@ VAR rocket_launcher_item
 	.byte "ROCKET LAUNCHER", 0
 	.byte "MAKE IT GO BOOM           ", 0
 
-VAR flamethrower_item
-	.word 0
-	.word blank_tiles & $ffff
-	.byte ITEM_TYPE_GUN
-	.byte "FLAMETHROWER   ", 0
-	.byte "BURNINATE THE INFECTED    ", 0
-
 VAR grenade_item
 	.word throw_grenade
 	.word grenade_tiles & $ffff
@@ -1025,7 +1018,6 @@ VAR item_descriptors
 	.word sniper_item
 	.word hand_cannon_item
 	.word rocket_launcher_item
-	.word flamethrower_item
 	.word grenade_item
 	.word bandage_item
 	.word health_kit_item
