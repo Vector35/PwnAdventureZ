@@ -132,7 +132,7 @@ double:
 .endproc
 
 
-.segment "EXTRA"
+.segment "UI"
 
 VAR byte_to_low_digit_table
 	.byte 0, 1, 2, 3, 4, 5, 6, 7, 8, 9

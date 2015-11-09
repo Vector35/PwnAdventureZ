@@ -77,14 +77,22 @@ selectloop:
 	jmp done
 
 salvage:
+	lda horde_active
+	bne nosalvage
 	PLAY_SOUND_EFFECT effect_uimove
 	jsr fade_out
 	jmp show_salvage_tab
+nosalvage:
+	jmp waitfordepress
 
 craft:
+	lda horde_active
+	bne nocraft
 	PLAY_SOUND_EFFECT effect_uimove
 	jsr fade_out
 	jmp show_crafting_tab
+nocraft:
+	jmp waitfordepress
 
 nobutton:
 	lda #30
@@ -551,6 +559,16 @@ PROC do_render_inventory_screen
 	sta arg3
 	jsr draw_large_box
 
+	lda horde_active
+	beq craft
+
+	LOAD_PTR no_craft_inventory_str
+	ldx #3
+	ldy #32 + 1
+	jsr write_string
+	jmp titledone & $ffff
+
+craft:
 	LOAD_PTR inventory_str
 	ldx #3
 	ldy #32 + 1
@@ -581,6 +599,7 @@ PROC do_render_inventory_screen
 	sta arg4
 	jsr set_box_palette
 
+titledone:
 	; Set palette for inside of box
 	lda #1
 	sta arg0
@@ -1400,6 +1419,9 @@ VAR repeat_time
 
 VAR inventory_str
 	.byte "SALVAGE", $3c, $3b, " ITEMS ", $3d, $3c, "CRAFT", 0
+
+VAR no_craft_inventory_str
+	.byte $3c, $3c, $3c, $3c, $3c, $3c, $3c, $3c, $3b, " ITEMS ", $3d, $3c, $3c, $3c, $3c, $3c, $3c, 0
 
 VAR inventory_help_str
 	.byte "A:USE/EQUIP  B:MOVE  ", $23, "/", $25, ":TAB", 0

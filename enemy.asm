@@ -451,7 +451,14 @@ done:
 	beq key5done
 	cmp #MAP_UNBEARABLE_BOSS
 	beq key6done
+	cmp #MAP_BASE_HORDE
+	beq basehordedone
 	rts
+
+key6done:
+	jmp dokey6done & $ffff
+basehordedone:
+	jmp dobasehordedone & $ffff
 
 key1done:
 	jsr wait_for_vblank
@@ -508,7 +515,7 @@ key5done:
 	jsr play_music
 	rts
 
-key6done:
+dokey6done:
 	jsr wait_for_vblank
 	LOAD_PTR normal_forest_chest_palette
 	lda #2
@@ -516,6 +523,11 @@ key6done:
 	jsr prepare_for_rendering
 
 	lda #MUSIC_FOREST
+	jsr play_music
+	rts
+
+dobasehordedone:
+	lda #MUSIC_CAVE
 	jsr play_music
 	rts
 
@@ -661,7 +673,23 @@ next:
 .endproc
 
 
+.segment "FIXED"
+
 PROC knockback_player
+	lda current_bank
+	pha
+	lda #^do_knockback_player
+	jsr bankswitch
+	jsr do_knockback_player & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+.segment "EXTRA"
+
+PROC do_knockback_player
 	; Get the absolute value of the X distance from the player
 	lda arg2
 	cmp player_x
@@ -671,7 +699,7 @@ PROC knockback_player
 	sec
 	sbc player_x
 	sta arg0
-	jmp checkvert
+	jmp checkvert & $ffff
 
 leftofplayer:
 	lda player_x
@@ -689,7 +717,7 @@ checkvert:
 	sec
 	sbc player_y
 	sta arg1
-	jmp finddir
+	jmp finddir & $ffff
 
 upfromplayer:
 	lda player_y
@@ -748,6 +776,8 @@ down:
 	rts
 .endproc
 
+
+.code
 
 PROC enemy_knockback
 	ldx cur_enemy
