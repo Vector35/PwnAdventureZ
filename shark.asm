@@ -395,10 +395,11 @@ failed3:
 ; swiming - where the fin is shown and is moving
 ; shooting - when the head is shown, stationary, and we are shooting lasers
 PROC do_swiming_ai_tick
+	ldx cur_enemy
 	lda #0
+	sta enemy_knockback_time, x
 	sta arg0
 	;is it time to shoot?
-	ldx cur_enemy
 	lda enemy_idle_time, x ;here we use idle time as a count down to fire
 	cmp #0
 	bne swiming
