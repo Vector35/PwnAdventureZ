@@ -93,32 +93,21 @@ collidepos:
 	lda effect_descriptors + 1, y
 	sta ptr + 1
 
-	lda effect_direction, x
-	and #JOY_RIGHT
-	bne colliderightpos
 	lda effect_x, x
-	sta effect_collide_x
-	jmp checkvertpos
-colliderightpos:
+	sta effect_collide_left_x
 	ldy #EFFECT_DESC_COLLIDE_WIDTH
 	lda (ptr), y
 	clc
 	adc effect_x, x
-	sta effect_collide_x
+	sta effect_collide_right_x
 
-checkvertpos:
-	lda effect_direction, x
-	and #JOY_DOWN
-	bne collidedownpos
 	lda effect_y, x
-	sta effect_collide_y
-	jmp checkcollide
-collidedownpos:
+	sta effect_collide_top_y
 	ldy #EFFECT_DESC_COLLIDE_HEIGHT
 	lda (ptr), y
 	clc
 	adc effect_y, x
-	sta effect_collide_y
+	sta effect_collide_bot_y
 
 	; Check for enemy collision
 checkcollide:
@@ -133,17 +122,31 @@ enemyloop:
 
 	lda enemy_x, x
 	sec
-	sbc effect_collide_x
+	sbc effect_collide_left_x
 	cmp #$f0
 	bcs xoverlapenemy
+
+	lda enemy_x, x
+	sec
+	sbc effect_collide_right_x
+	cmp #$f0
+	bcs xoverlapenemy
+
 	jmp nextenemy
 
 xoverlapenemy:
 	lda enemy_y, x
 	sec
-	sbc effect_collide_y
+	sbc effect_collide_top_y
 	cmp #$f0
 	bcs yoverlapenemy
+
+	lda enemy_y, x
+	sec
+	sbc effect_collide_bot_y
+	cmp #$f0
+	bcs yoverlapenemy
+
 	jmp nextenemy
 
 yoverlapenemy:
@@ -182,17 +185,31 @@ nextenemy:
 	; Check for player collision
 	lda player_x
 	sec
-	sbc effect_collide_x
+	sbc effect_collide_left_x
 	cmp #$f0
 	bcs xoverlapplayer
+
+	lda player_x
+	sec
+	sbc effect_collide_right_x
+	cmp #$f0
+	bcs xoverlapplayer
+
 	jmp noplayercollide
 
 xoverlapplayer:
 	lda player_y
 	sec
-	sbc effect_collide_y
+	sbc effect_collide_top_y
 	cmp #$f0
 	bcs yoverlapplayer
+
+	lda player_y
+	sec
+	sbc effect_collide_bot_y
+	cmp #$f0
+	bcs yoverlapplayer
+
 	jmp noplayercollide
 
 yoverlapplayer:
@@ -223,13 +240,13 @@ yoverlapplayer:
 
 	; Check for world collision
 noplayercollide:
-	lda effect_collide_x
+	lda effect_collide_left_x
 	lsr
 	lsr
 	lsr
 	lsr
 	tax
-	lda effect_collide_y
+	lda effect_collide_top_y
 	lsr
 	lsr
 	lsr
@@ -496,9 +513,13 @@ VAR next_effect_spawn_index
 VAR effect_sprite_rotation
 	.byte 0
 
-VAR effect_collide_x
+VAR effect_collide_left_x
 	.byte 0
-VAR effect_collide_y
+VAR effect_collide_right_x
+	.byte 0
+VAR effect_collide_top_y
+	.byte 0
+VAR effect_collide_bot_y
 	.byte 0
 
 VAR effect_type
