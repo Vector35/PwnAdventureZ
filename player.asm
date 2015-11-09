@@ -2335,6 +2335,7 @@ VAR interaction_descriptors
 	.word forest_chest_descriptor
 	.word lost_cave_end_descriptor
 	.word lost_cave_note_descriptor
+	.word base_entrance_descriptor
 
 VAR player_axe_descriptor
 	.word player_melee_tick

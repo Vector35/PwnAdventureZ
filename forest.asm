@@ -18,12 +18,21 @@
 .define FOREST_TILES   $80
 .define CHEST_TILES    $b8
 .define ENTRANCE_TILES $b8
+.define BIGDOOR_TILE  $08c
+.define BIGDOOR_TILE2 $098
+.define BIGDOOR_TILE3 $0a4
+.define BIGDOOR_TILE4 $0b0
 .define BORDER_TILES   $c0
 
 .define FOREST_PALETTE   0
 .define BORDER_PALETTE   1
 .define CHEST_PALETTE    2
 .define ENTRANCE_PALETTE 2
+.define BIGDOOR_PALETTE  2
+
+.define TILE1 0
+.define TILE2 4
+.define TILE3 8
 
 
 .segment "FIXED"
@@ -323,6 +332,18 @@ PROC unbearable_chest_interact
 	lda #^do_unbearable_chest_interact
 	jsr bankswitch
 	jsr do_unbearable_chest_interact & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+PROC base_entrance_interact
+	lda current_bank
+	pha
+	lda #^do_base_entrance_interact
+	jsr bankswitch
+	jsr do_base_entrance_interact & $ffff
 	pla
 	jsr bankswitch
 	rts
@@ -967,6 +988,14 @@ bordertypedone:
 	beq caveborderset
 	cmp #MAP_MINE_ENTRANCE
 	beq caveborderset
+	cmp #MAP_BOSS
+	beq caveborderset
+	cmp #MAP_BASE_HORDE
+	beq caveborderset
+	cmp #MAP_BASE_INTERIOR
+	beq caveborderset
+	cmp #MAP_MINE_ENTRANCE
+	beq caveborderset
 	cmp #MAP_LAKE
 	beq lakeborderset
 
@@ -1303,9 +1332,14 @@ leftnotrock:
 rightnotrock:
 	jsr read_overworld_up
 	and #$3f
-	jsr is_map_type_forest
-	bne topnotrock
+	cmp #MAP_BASE_INTERIOR
+	beq baseentrance
 
+	jsr is_map_type_forest
+	beq toprock
+	jmp topnotrock & $ffff
+
+toprock:
 	lda border_type
 	cmp #MAP_CAVE_INTERIOR
 	beq rightcave
@@ -1324,6 +1358,65 @@ rightcave:
 rightnotcave:
 	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
 	jsr gen_top_wall_large
+	jmp topnotrock & $ffff
+
+baseentrance:
+	jsr can_travel_up
+	bne rightnotcave
+	lda #BORDER_TILES + BORDER_CENTER + BORDER_PALETTE
+	jsr gen_top_wall_single
+
+	LOAD_ALL_TILES BIGDOOR_TILE, bigdoor_tiles
+
+	; Write our door in the open space
+	; and make it interactive
+	lda #INTERACT_BASE_ENTRANCE
+	sta interactive_tile_types
+	lda #INTERACT_BASE_ENTRANCE
+	sta interactive_tile_types + 1
+	lda #INTERACT_BASE_ENTRANCE
+	sta interactive_tile_types + 2
+
+	;Make sure the open door variant is traversable
+	lda #BIGDOOR_TILE4 + TILE1
+	sta traversable_tiles + 2
+	lda #BIGDOOR_TILE4 + TILE2
+	sta traversable_tiles + 3
+	lda #BIGDOOR_TILE4 + TILE3
+	sta traversable_tiles + 4
+
+	ldx #6
+	ldy #0
+	lda #BIGDOOR_TILE + TILE1
+	clc
+	adc base_door_opened
+	sta interactive_tile_values
+	clc
+	adc #BIGDOOR_PALETTE
+	jsr write_gen_map
+	
+	ldx #7
+	ldy #0
+	lda #BIGDOOR_TILE + TILE2
+	clc
+	adc base_door_opened
+	sta interactive_tile_values + 1
+	clc
+	adc #BIGDOOR_PALETTE
+	jsr write_gen_map
+
+	ldx #8
+	ldy #0
+	lda #BIGDOOR_TILE + TILE3
+	clc
+	adc base_door_opened
+	sta interactive_tile_values + 2
+	clc
+	adc #BIGDOOR_PALETTE
+	jsr write_gen_map
+
+	LOAD_PTR base_entrance_door_palette
+	jsr load_game_palette_2
 
 topnotrock:
 	jsr read_overworld_down
@@ -1934,6 +2027,98 @@ PROC do_unbearable_chest_interact
 .endproc
 
 
+PROC do_base_entrance_interact
+	lda key_count
+	cmp #6
+	beq unlocked
+
+	LOAD_PTR base_locked_text
+	lda #^base_locked_text
+	jsr show_chat_text
+	rts
+
+unlocked:
+	jsr wait_for_vblank
+	lda #INTERACT_NONE
+	sta interaction_type
+	jsr update_player_sprite
+	jsr prepare_for_rendering
+
+	ldx #30
+	jsr wait_for_frame_count
+
+	PLAY_SOUND_EFFECT effect_open
+
+	ldy #0
+	ldx #6
+	lda #BIGDOOR_TILE2 + TILE1 + BIGDOOR_PALETTE
+	jsr write_large_tile
+	ldy #0
+	ldx #7
+	lda #BIGDOOR_TILE2 + TILE2 + BIGDOOR_PALETTE
+	jsr write_large_tile
+
+	ldy #0
+	ldx #8
+	lda #BIGDOOR_TILE2 + TILE3 + BIGDOOR_PALETTE
+	jsr write_large_tile
+
+	jsr prepare_for_rendering
+
+	ldx #30
+	jsr wait_for_frame_count
+
+	PLAY_SOUND_EFFECT effect_open
+
+	ldy #0
+	ldx #6
+	lda #BIGDOOR_TILE3 + TILE1 + BIGDOOR_PALETTE
+	jsr write_large_tile
+	ldy #0
+	ldx #7
+	lda #BIGDOOR_TILE3 + TILE2 + BIGDOOR_PALETTE
+	jsr write_large_tile
+
+	ldy #0
+	ldx #8
+	lda #BIGDOOR_TILE3 + TILE3 + BIGDOOR_PALETTE
+	jsr write_large_tile
+
+	jsr prepare_for_rendering
+	ldx #30
+	jsr wait_for_frame_count
+
+	PLAY_SOUND_EFFECT effect_open
+
+	ldy #0
+	ldx #6
+	lda #BIGDOOR_TILE4 + TILE1 + BIGDOOR_PALETTE
+	jsr write_large_tile
+	ldy #0
+	ldx #7
+	lda #BIGDOOR_TILE4 + TILE2 + BIGDOOR_PALETTE
+	jsr write_large_tile
+
+	ldy #0
+	ldx #8
+	lda #BIGDOOR_TILE4 + TILE3 + BIGDOOR_PALETTE
+	jsr write_large_tile
+
+	jsr prepare_for_rendering
+
+	lda #3
+	ora collision
+	sta collision
+	lda #$080
+	ora collision + 1
+	sta collision + 1
+
+	lda #36
+	sta base_door_opened
+	rts
+.endproc
+
+
 .bss
 
 VAR opened_forest_chest_x
@@ -1941,6 +2126,8 @@ VAR opened_forest_chest_x
 VAR opened_forest_chest_y
 	.byte 0, 0, 0, 0, 0
 VAR opened_forest_chest_count
+	.byte 0
+VAR base_door_opened
 	.byte 0
 
 
@@ -1962,6 +2149,9 @@ VAR dead_wood_palette
 	.byte $0f, $09, $19, $08
 	.byte $0f, $19, $07, $27
 	.byte $0f, $09, $19, $08
+
+VAR base_entrance_door_palette
+	.byte $0f, $10, $01, $31
 
 VAR forest_rock_border_palette
 	.byte $0f, $19, $07, $17
@@ -2015,6 +2205,10 @@ VAR forest_chest_descriptor
 	.word is_forest_chest_interactable
 	.word forest_chest_interact
 
+VAR base_entrance_descriptor
+	.word always_interactable
+	.word base_entrance_interact
+
 
 TILES forest_tiles, 2, "tiles/forest/forest.chr", 8
 TILES forest_rock_border_tiles, 2, "tiles/forest/rock.chr", 60
@@ -2058,4 +2252,11 @@ VAR key_6_text
 	.byte "KEY! OPEN THE DOOR", 0
 	.byte "TO THE LAB WITH ALL", 0
 	.byte "SIX KEYS.", 0
+	.byte 0
+
+VAR base_locked_text
+	.byte "THIS DOOR IS LOCKED", 0
+	.byte "WITH SIX KEYS. FIND", 0
+	.byte "THE KEYS AND RETURN", 0
+	.byte "HERE LATER.", 0
 	.byte 0
