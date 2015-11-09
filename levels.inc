@@ -92,9 +92,9 @@ VAR normal_sewer_map
 	.byte $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $c1, $c1, $c1, $c1, $c1, $5d, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $c1, $c1, $c1, $c1, $c1, $9d, $9d, $9d, $df, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $c1, $c1, $c1, $c1, $c1, $c1, $5d, $c1, $c1, $5f, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
-	.byte $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
+	.byte $c1, $c1, $c1, $c1, $c1, $c1, $9d, $9d, $9d, $dd, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 	.byte $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
