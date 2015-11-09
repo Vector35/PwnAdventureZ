@@ -571,7 +571,9 @@ VAR x_or_y_dominate
 
 VAR effect_descriptors
 	.word player_axe_descriptor
+	.word player_axe_hit_descriptor
 	.word player_sword_descriptor
+	.word player_sword_hit_descriptor
 	.word player_bullet_descriptor
 	.word player_lmg_bullet_descriptor
 	.word player_ak_bullet_descriptor

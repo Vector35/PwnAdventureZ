@@ -383,24 +383,26 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 
 
 ; Effects
-.define EFFECT_PLAYER_AXE			 0
-.define EFFECT_PLAYER_SWORD          1
-.define EFFECT_PLAYER_BULLET         2
-.define EFFECT_PLAYER_LMG_BULLET     3
-.define EFFECT_PLAYER_AK_BULLET      4
-.define EFFECT_PLAYER_SNIPER_BULLET  5
-.define EFFECT_PLAYER_SHOTGUN_BULLET 6
-.define EFFECT_PLAYER_LEFT_BULLET    7
-.define EFFECT_PLAYER_RIGHT_BULLET   8
-.define EFFECT_DROP                  9
-.define EFFECT_ENEMY_DEATH           10
-.define EFFECT_PLAYER_BULLET_DAMAGE  11
-.define EFFECT_PLAYER_BULLET_HIT     12
-.define EFFECT_SHARK_LASER           13
-.define EFFECT_SHARK_LASER_HIT       14
-.define EFFECT_SHARK_LASER_DAMAGE    15
-.define EFFECT_REFLECTED_LASER       16
-.define EFFECT_WARP                  17
+.define EFFECT_PLAYER_AXE            0
+.define EFFECT_PLAYER_AXE_HIT        1
+.define EFFECT_PLAYER_SWORD          2
+.define EFFECT_PLAYER_SWORD_HIT      3
+.define EFFECT_PLAYER_BULLET         4
+.define EFFECT_PLAYER_LMG_BULLET     5
+.define EFFECT_PLAYER_AK_BULLET      6
+.define EFFECT_PLAYER_SNIPER_BULLET  7
+.define EFFECT_PLAYER_SHOTGUN_BULLET 8
+.define EFFECT_PLAYER_LEFT_BULLET    9
+.define EFFECT_PLAYER_RIGHT_BULLET   10
+.define EFFECT_DROP                  11
+.define EFFECT_ENEMY_DEATH           12
+.define EFFECT_PLAYER_BULLET_DAMAGE  13
+.define EFFECT_PLAYER_BULLET_HIT     14
+.define EFFECT_SHARK_LASER           15
+.define EFFECT_SHARK_LASER_HIT       16
+.define EFFECT_SHARK_LASER_DAMAGE    17
+.define EFFECT_REFLECTED_LASER       18
+.define EFFECT_WARP                  19
 .define EFFECT_NONE                 $ff
 
 .define EFFECT_MAX_COUNT     16

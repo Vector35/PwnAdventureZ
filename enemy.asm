@@ -204,6 +204,9 @@ slotfound:
 	ldx arg4
 	sta enemy_idle_time, x
 
+	lda #0
+	sta enemy_knockback_time, x
+
 	lda arg5
 	asl
 	tay
@@ -737,6 +740,26 @@ down:
 
 
 PROC walking_ai_tick
+	ldx cur_enemy
+	lda enemy_knockback_time, x
+	beq noknockback
+
+	jsr enemy_move
+	jsr enemy_move
+	jsr enemy_move
+	jsr enemy_move
+
+	ldx cur_enemy
+	dec enemy_knockback_time, x
+	bne notknockbackend
+
+	lda enemy_direction, x
+	sta enemy_walk_direction, x
+
+notknockbackend:
+	rts
+
+noknockback:
 	lda player_direction
 	and #4
 	bne nothidden
@@ -1094,9 +1117,15 @@ leftsnapbot:
 noleftcollide:
 	ldx cur_enemy
 	dec enemy_x, x
+
+	lda enemy_knockback_time, x
+	bne leftknockback
+
 	lda #DIR_RUN_LEFT
 	sta enemy_direction, x
 	inc enemy_anim_frame, x
+
+leftknockback:
 	lda #1
 	rts
 
@@ -1132,9 +1161,15 @@ rightsnapbot:
 norightcollide:
 	ldx cur_enemy
 	inc enemy_x, x
+
+	lda enemy_knockback_time, x
+	bne rightknockback
+
 	lda #DIR_RUN_RIGHT
 	sta enemy_direction, x
 	inc enemy_anim_frame, x
+
+rightknockback:
 	lda #1
 	rts
 
@@ -1170,9 +1205,15 @@ upsnapright:
 noupcollide:
 	ldx cur_enemy
 	dec enemy_y, x
+
+	lda enemy_knockback_time, x
+	bne upknockback
+
 	lda #DIR_RUN_UP
 	sta enemy_direction, x
 	inc enemy_anim_frame, x
+
+upknockback:
 	lda #1
 	rts
 
@@ -1208,9 +1249,15 @@ downsnapright:
 nodowncollide:
 	ldx cur_enemy
 	inc enemy_y, x
+
+	lda enemy_knockback_time, x
+	bne downknockback
+
 	lda #DIR_RUN_DOWN
 	sta enemy_direction, x
 	inc enemy_anim_frame, x
+
+downknockback:
 	lda #1
 	rts
 
@@ -1230,9 +1277,15 @@ snapleftmoveinvalid:
 nosnapleftcollide:
 	ldx cur_enemy
 	dec enemy_x, x
+
+	lda enemy_knockback_time, x
+	bne leftsnapknockback
+
 	lda #DIR_RUN_LEFT
 	sta enemy_direction, x
 	inc enemy_anim_frame, x
+
+leftsnapknockback:
 	lda #1
 	rts
 
@@ -1252,9 +1305,15 @@ snaprightmoveinvalid:
 nosnaprightcollide:
 	ldx cur_enemy
 	inc enemy_x, x
+
+	lda enemy_knockback_time, x
+	bne rightsnapknockback
+
 	lda #DIR_RUN_RIGHT
 	sta enemy_direction, x
 	inc enemy_anim_frame, x
+
+rightsnapknockback:
 	lda #1
 	rts
 
@@ -1274,9 +1333,15 @@ snapupmoveinvalid:
 nosnapupcollide:
 	ldx cur_enemy
 	dec enemy_y, x
+
+	lda enemy_knockback_time, x
+	bne upsnapknockback
+
 	lda #DIR_RUN_UP
 	sta enemy_direction, x
 	inc enemy_anim_frame, x
+
+upsnapknockback:
 	lda #1
 	rts
 
@@ -1296,9 +1361,15 @@ snapdownmoveinvalid:
 nosnapdowncollide:
 	ldx cur_enemy
 	inc enemy_y, x
+
+	lda enemy_knockback_time, x
+	bne downsnapknockback
+
 	lda #DIR_RUN_DOWN
 	sta enemy_direction, x
 	inc enemy_anim_frame, x
+
+downsnapknockback:
 	lda #1
 	rts
 .endproc
@@ -1530,6 +1601,14 @@ present:
 	lda (ptr), y
 	sta arg1
 
+	lda enemy_knockback_time, x
+	beq noknockback
+
+	; Flash enemy after a knockback hit
+	lda #3
+	sta arg1
+
+noknockback:
 	lda enemy_sprite_state_low, x
 	sta ptr
 	lda enemy_sprite_state_high, x
@@ -1950,12 +2029,6 @@ VAR saved_enemy_types
 	.byte 0, 0, 0, 0, 0, 0, 0, 0
 	.byte 0, 0, 0, 0, 0, 0, 0, 0
 
-
-.segment "TEMP"
-
-VAR enemy_sprite_rotation
-	.byte 0
-
 VAR enemy_type
 	.repeat ENEMY_MAX_COUNT
 	.byte 0
@@ -1975,6 +2048,12 @@ VAR enemy_health
 	.repeat ENEMY_MAX_COUNT
 	.byte 0
 	.endrepeat
+
+
+.segment "TEMP"
+
+VAR enemy_sprite_rotation
+	.byte 0
 
 VAR enemy_sprite_state_low
 	.repeat ENEMY_MAX_COUNT
@@ -2012,6 +2091,11 @@ VAR enemy_moved
 	.endrepeat
 
 VAR enemy_idle_time
+	.repeat ENEMY_MAX_COUNT
+	.byte 0
+	.endrepeat
+
+VAR enemy_knockback_time
 	.repeat ENEMY_MAX_COUNT
 	.byte 0
 	.endrepeat

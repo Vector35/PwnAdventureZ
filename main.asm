@@ -327,16 +327,15 @@ namedone:
 	lda #100
 	sta player_health
 
-	; Move this into cheat code section when melee works properly
-	lda #ITEM_PISTOL
-	ldx #200
-	jsr give_weapon
-
 	lda secret_code
 	beq nocode
 
 	lda #5
 	sta gold
+
+	lda #ITEM_PISTOL
+	ldx #200
+	jsr give_weapon
 
 	lda #ITEM_SNEAKERS
 	jsr give_item

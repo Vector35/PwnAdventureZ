@@ -263,7 +263,7 @@ PROC swing_axe
 
 	sta cur_effect
 
-	lda #15
+	lda #30
 	sta attack_cooldown
 	lda #1
 	sta attack_held
@@ -293,7 +293,7 @@ PROC swing_sword
 
 	sta cur_effect
 
-	lda #15
+	lda #30
 	sta attack_cooldown
 	lda #1
 	sta attack_held

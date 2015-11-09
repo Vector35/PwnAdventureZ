@@ -835,8 +835,6 @@ PROC is_starting_chest_interactable
 
 
 PROC starting_chest_interact
-	PLAY_SOUND_EFFECT effect_open
-
 	jsr wait_for_vblank
 
 	ldx interaction_tile_x
@@ -853,6 +851,8 @@ PROC starting_chest_interact
 	sta starting_chest_opened
 
 	jsr save
+
+	PLAY_SOUND_EFFECT effect_open
 	rts
 .endproc
 

@@ -1429,6 +1429,19 @@ nocollide:
 .endproc
 
 
+PROC melee_attack_knockback
+	ldx cur_enemy
+	lda #4
+	sta enemy_knockback_time, x
+	lda player_direction
+	and #3
+	sta enemy_walk_direction, x
+	lda #1
+	sta enemy_idle_time, x
+	rts
+.endproc
+
+
 PROC axe_hit_enemy
 	PLAY_SOUND_EFFECT effect_enemyhit
 
@@ -1436,13 +1449,10 @@ PROC axe_hit_enemy
 	jsr enemy_damage
 
 	ldx cur_effect
-	lda #EFFECT_PLAYER_BULLET_DAMAGE
+	lda #EFFECT_PLAYER_AXE_HIT
 	sta effect_type, x
-	lda #SPRITE_TILE_BULLET_DAMAGE
-	sta effect_tile, x
-	lda #0
-	sta effect_time, x
 
+	jsr melee_attack_knockback
 	rts
 .endproc
 
@@ -1453,13 +1463,10 @@ PROC sword_hit_enemy
 	jsr enemy_damage
 
 	ldx cur_effect
-	lda #EFFECT_PLAYER_BULLET_DAMAGE
+	lda #EFFECT_PLAYER_SWORD_HIT
 	sta effect_type, x
-	lda #SPRITE_TILE_BULLET_DAMAGE
-	sta effect_tile, x
-	lda #0
-	sta effect_time, x
 
+	jsr melee_attack_knockback
 	rts
 .endproc
 
@@ -1891,10 +1898,28 @@ VAR player_axe_descriptor
 	.byte 2
 	.byte 16, 16
 
+VAR player_axe_hit_descriptor
+	.word player_melee_tick
+	.word nothing
+	.word nothing
+	.word nothing
+	.byte SPRITE_TILE_MELEE, 1
+	.byte 2
+	.byte 16, 16
+
 VAR player_sword_descriptor
 	.word player_melee_tick
 	.word nothing
 	.word sword_hit_enemy
+	.word nothing
+	.byte SPRITE_TILE_MELEE, 1
+	.byte 2
+	.byte 16, 16
+
+VAR player_sword_hit_descriptor
+	.word player_melee_tick
+	.word nothing
+	.word nothing
 	.word nothing
 	.byte SPRITE_TILE_MELEE, 1
 	.byte 2
