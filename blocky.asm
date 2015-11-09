@@ -472,6 +472,8 @@ write_urn:
 .endproc
 
 
+.segment "FIXED"
+
 ;x = urns x value
 ;y = urns y value
 PROC toggle_urn
@@ -507,9 +509,6 @@ PROC toggle_urn
 	sta blocky_state, x
 	rts
 .endproc
-
-
-.segment "FIXED"
 
 ;x = urns x value
 ;y = urns y value
