@@ -398,6 +398,7 @@ chestdone:
 	lda #ENEMY_SPIDER
 	sta horde_enemy_types + 1
 	sta horde_enemy_types + 2
+	lda #ENEMY_FAT_ZOMBIE
 	sta horde_enemy_types + 3
 
 	jsr gen_cave_enemies & $ffff
@@ -1213,7 +1214,7 @@ VAR lost_cave_chest_descriptor
 
 
 VAR cave_enemy_types
-	.byte ENEMY_NORMAL_MALE_ZOMBIE, ENEMY_NORMAL_FEMALE_ZOMBIE, ENEMY_SPIDER, ENEMY_SPIDER, ENEMY_SPIDER
+	.byte ENEMY_NORMAL_MALE_ZOMBIE, ENEMY_NORMAL_FEMALE_ZOMBIE, ENEMY_SPIDER, ENEMY_SPIDER, ENEMY_FAT_ZOMBIE
 
 
 TILES cave_border_tiles, 2, "tiles/cave/border.chr", 60
