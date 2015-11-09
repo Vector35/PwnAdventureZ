@@ -76,6 +76,12 @@ PROC do_gen_blocky_puzzle
 	jsr load_background_game_palette
 	jsr init_zombie_sprites
 
+	; Set up collision and spawning info
+	lda #$80 + BORDER_INTERIOR
+	sta traversable_tiles
+	lda #$80 + BORDER_INTERIOR
+	sta spawnable_tiles
+
 	jsr gen_map_opening_locations
 	; Generate the sides of the cave wall
 	lda #CAVE_TILE + BORDER_CENTER + CAVE_PALETTE
@@ -509,7 +515,7 @@ PROC toggle_urn
 ;y = urns y value
 ; return 0 or non-zero in a
 PROC is_urn_on
-	; same tirckery as above
+	; same trickery as above
 	txa
 	sec
 	sbc #2
@@ -547,7 +553,29 @@ PROC bigdoor_interact
 	jsr check_blocky_state
 	cmp #0
 	bne opendoor
-	;TODO spawn zombies
+
+	;TODO: fix enemy spawn
+	lda #1
+	sta horde_active
+	lda #ENEMY_SPIDER
+	jsr spawn_starting_enemy
+	lda #ENEMY_SPIDER
+	jsr spawn_starting_enemy
+	lda #ENEMY_SPIDER
+	jsr spawn_starting_enemy
+	lda #ENEMY_SPIDER
+	jsr spawn_starting_enemy
+	lda #ENEMY_SPIDER
+	jsr spawn_starting_enemy
+	lda #ENEMY_SPIDER
+	jsr spawn_starting_enemy
+	lda #ENEMY_SPIDER
+	jsr spawn_starting_enemy
+	lda #ENEMY_SPIDER
+	jsr spawn_starting_enemy
+	lda #0
+	sta horde_active
+
 	rts
 opendoor:
 	ldx #30
@@ -636,12 +664,19 @@ PROC blocky_chest_interact
 	jsr write_large_tile
 	jsr prepare_for_rendering
 
+	lda #ITEM_GEM
+	ldx #5
+	jsr give_item_with_count
+	lda #ITEM_ARMOR
+	jsr give_item
+	jsr save
+
 	PLAY_SOUND_EFFECT effect_open
 
-	;TODO: Grant item
 	rts
 done:
-	;TODO: HAX they got here without solving the puzzle kill them with FIRE!
+	jsr game_over
+
 	rts
 .endproc
 
