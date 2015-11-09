@@ -118,11 +118,11 @@ VAR normal_zombie_drop_table
 	.word normal_zombie_drop_base_count
 	.word normal_zombie_drop_rand_count
 VAR normal_zombie_drop_type
-	.byte ITEM_NONE, ITEM_NONE
+	.byte ITEM_NONE, ITEM_STICKS
 	.byte ITEM_CLOTH, ITEM_SHIRT, ITEM_PANTS, ITEM_STICKS
 	.byte ITEM_GUNPOWDER, ITEM_GUNPOWDER, ITEM_GUNPOWDER, ITEM_GUNPOWDER
 	.byte ITEM_METAL, ITEM_METAL, ITEM_METAL, ITEM_METAL
-	.byte ITEM_GEM, ITEM_NONE
+	.byte ITEM_GEM, ITEM_STICKS
 VAR normal_zombie_drop_base_count
 	.byte 0, 0
 	.byte 2, 1, 1, 1
