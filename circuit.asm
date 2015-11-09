@@ -38,6 +38,12 @@ one:
 
 PROC out_bit
 	pha
+	lda #255
+pointlessloop1:
+	sec
+	sbc #1
+	cmp #0
+	bne pointlessloop1
 	txa
 	lsr
 	lsr
