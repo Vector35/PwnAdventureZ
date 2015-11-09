@@ -2751,7 +2751,7 @@ VAR initial_map_generators
 	.word gen_blocky_puzzle
 	.word gen_blocky_cave_interior
 	.word gen_starting_cave
-	.word gen_cave_interior
+	.word gen_lost_cave
 	.word gen_cave_interior
 	.word gen_mine_down
 	.word gen_dead_wood
@@ -2772,9 +2772,9 @@ VAR initial_map_generators
 	.word gen_dead_wood_boss
 	.word gen_unbearable_chest
 	.word gen_unbearable_boss
-	.word gen_cave_interior
+	.word gen_lost_cave_wall
 	.word gen_lost_cave_chest
-	.word gen_cave_interior
+	.word gen_lost_cave_end
 	.word gen_shop
 	.word gen_shop
 	.word gen_sewer_down
