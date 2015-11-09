@@ -51,6 +51,18 @@ PROC normal_zombie_collide
 
 
 PROC fat_zombie_explode
+	LOAD_PTR normal_zombie_drop_table
+	jsr enemy_die_with_drop_table
+
+	jsr remove_enemy
+
+	ldx cur_enemy
+	lda enemy_x, x
+	sta arg0
+	lda enemy_y, x
+	sta arg1
+	jsr explode
+
 	rts
 .endproc
 
@@ -75,6 +87,16 @@ VAR normal_female_zombie_descriptor
 	.byte SPRITE_TILE_NORMAL_FEMALE_ZOMBIE
 	.byte 1
 	.byte 1, 0
+	.byte 20
+
+VAR thin_zombie_descriptor
+	.word walking_ai_tick
+	.word normal_zombie_die
+	.word normal_zombie_collide
+	.word walking_sprites_for_state
+	.byte SPRITE_TILE_THIN_ZOMBIE 
+	.byte 1
+	.byte 3, 0
 	.byte 20
 
 VAR fat_zombie_descriptor
@@ -117,3 +139,4 @@ VAR normal_zombie_drop_rand_count
 TILES normal_male_zombie_tiles, 2, "tiles/enemies/zombie/zombie-male.chr", 32
 TILES normal_female_zombie_tiles, 2, "tiles/enemies/zombie/zombie-female.chr", 32
 TILES fat_zombie_tiles, 2, "tiles/enemies/zombie/zombie-fat.chr", 32
+TILES thin_zombie_tiles, 2, "tiles/enemies/zombie/zombie-thin.chr", 32

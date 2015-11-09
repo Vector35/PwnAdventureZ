@@ -299,6 +299,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define ENEMY_SPIDER               12
 .define ENEMY_RAT                  13
 .define ENEMY_BEAR                 14
+.define ENEMY_THIN_ZOMBIE          15
 .define ENEMY_NONE                 $ff
 
 .define ENEMY_MAX_COUNT          8
@@ -365,14 +366,15 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define SPRITE_TILE_RAT                  $80
 .define SPRITE_TILE_BEAR                 $80
 .define SPRITE_TILE_SPIDER               $a0
-.define SPRITE_TILE_SHARK                $30
+.define SPRITE_TILE_SHARK                $38
 
 .define SPRITE_TILE_MALE_NPC        $40
 .define SPRITE_TILE_FEMALE_NPC      $60
 .define SPRITE_TILE_MALE_THIN_NPC   $80
 .define SPRITE_TILE_FEMALE_THIN_NPC $a0
 
-.define SPRITE_TILE_ROCKET_FLIP   $34
+.define SPRITE_TILE_GRENADE       $2c
+.define SPRITE_TILE_FIREBALL      $30
 .define SPRITE_TILE_ROCKET        $c0
 .define SPRITE_TILE_WARP          $cc
 .define SPRITE_TILE_MELEE 		  $d0
@@ -393,22 +395,25 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define EFFECT_PLAYER_ROCKET_RIGHT   5
 .define EFFECT_PLAYER_ROCKET_UP      6
 .define EFFECT_PLAYER_ROCKET_DOWN    7
-.define EFFECT_PLAYER_BULLET         8
-.define EFFECT_PLAYER_LMG_BULLET     9
-.define EFFECT_PLAYER_AK_BULLET      10
-.define EFFECT_PLAYER_SNIPER_BULLET  11
-.define EFFECT_PLAYER_SHOTGUN_BULLET 12
-.define EFFECT_PLAYER_LEFT_BULLET    13
-.define EFFECT_PLAYER_RIGHT_BULLET   14
-.define EFFECT_DROP                  15
-.define EFFECT_ENEMY_DEATH           16
-.define EFFECT_PLAYER_BULLET_DAMAGE  17
-.define EFFECT_PLAYER_BULLET_HIT     18
-.define EFFECT_SHARK_LASER           19
-.define EFFECT_SHARK_LASER_HIT       20
-.define EFFECT_SHARK_LASER_DAMAGE    21
-.define EFFECT_REFLECTED_LASER       22
-.define EFFECT_WARP                  23
+.define EFFECT_PLAYER_GRENADE        8
+.define EFFECT_PLAYER_BULLET         9
+.define EFFECT_PLAYER_LMG_BULLET     10
+.define EFFECT_PLAYER_AK_BULLET      11
+.define EFFECT_PLAYER_SNIPER_BULLET  12
+.define EFFECT_PLAYER_SHOTGUN_BULLET 13
+.define EFFECT_PLAYER_LEFT_BULLET    14
+.define EFFECT_PLAYER_RIGHT_BULLET   15
+.define EFFECT_DROP                  16
+.define EFFECT_ENEMY_DEATH           17
+.define EFFECT_PLAYER_BULLET_DAMAGE  18
+.define EFFECT_PLAYER_BULLET_HIT     19
+.define EFFECT_SHARK_LASER           20
+.define EFFECT_SHARK_LASER_HIT       21
+.define EFFECT_SHARK_LASER_DAMAGE    22
+.define EFFECT_EXPLOSION_STAGE_1     23
+.define EFFECT_EXPLOSION_STAGE_2     24
+.define EFFECT_REFLECTED_LASER       25
+.define EFFECT_WARP                  26
 .define EFFECT_NONE                 $ff
 
 .define EFFECT_MAX_COUNT     16
@@ -418,7 +423,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define EFFECT_DESC_ENEMY_COLLIDE  4
 .define EFFECT_DESC_WORLD_COLLIDE  6
 .define EFFECT_DESC_TILE           8
-.define EFFECT_DESC_LARGE          9
+.define EFFECT_DESC_FLAGS          9
 .define EFFECT_DESC_PALETTE        10
 .define EFFECT_DESC_COLLIDE_WIDTH  11
 .define EFFECT_DESC_COLLIDE_HEIGHT 12

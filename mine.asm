@@ -77,8 +77,14 @@ PROC mine_chest_interact
 
 .segment "EXTRA"
 
-PROC do_gen_mine
+PROC do_gen_mine_common
 	jsr do_gen_cave_common & $ffff
+	LOAD_ALL_TILES $100 + SPRITE_TILE_THIN_ZOMBIE , thin_zombie_tiles
+	rts
+.endproc
+
+PROC do_gen_mine
+	jsr do_gen_mine_common & $ffff
 	jsr gen_mine_enemies & $ffff
 	rts
 .endproc
@@ -139,7 +145,7 @@ restoredspawn:
 
 
 PROC do_gen_mine_up
-	jsr do_gen_cave_common & $ffff
+	jsr do_gen_mine_common & $ffff
 
 	LOAD_PTR mine_down_palette
 	jsr load_background_game_palette
@@ -157,7 +163,7 @@ PROC do_gen_mine_up
 
 
 PROC do_gen_mine_chest
-	jsr do_gen_cave_common & $ffff
+	jsr do_gen_mine_common & $ffff
 
 	LOAD_ALL_TILES $0f0, small_chest_tiles
 
@@ -189,7 +195,7 @@ chestdone:
 
 
 PROC do_gen_mine_boss
-	jsr do_gen_cave_common & $ffff
+	jsr do_gen_mine_common & $ffff
 
 	LOAD_ALL_TILES $0f0, chest_tiles
 
@@ -223,10 +229,10 @@ chestdone:
 	sta horde_active
 	sta horde_complete
 
-	lda #ENEMY_NORMAL_MALE_ZOMBIE
+	lda #ENEMY_THIN_ZOMBIE
 	sta horde_enemy_types
 	sta horde_enemy_types + 1
-	lda #ENEMY_NORMAL_FEMALE_ZOMBIE
+	lda #ENEMY_SPIDER
 	sta horde_enemy_types + 2
 	sta horde_enemy_types + 3
 
@@ -393,7 +399,7 @@ PROC do_mine_chest_interact
 .data
 
 VAR mine_enemy_types
-	.byte ENEMY_NORMAL_MALE_ZOMBIE, ENEMY_NORMAL_FEMALE_ZOMBIE
+	.byte ENEMY_THIN_ZOMBIE, ENEMY_SPIDER
 
 VAR key_chest_3_descriptor
 	.word always_interactable

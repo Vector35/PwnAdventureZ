@@ -36,7 +36,8 @@ PROC load_effect_sprites
 	LOAD_ALL_TILES $100 + SPRITE_TILE_ORB, orb_tiles
 	LOAD_ALL_TILES $100 + SPRITE_TILE_WARP, warp_tiles
 	LOAD_ALL_TILES $100 + SPRITE_TILE_ROCKET, rocket_tiles
-	LOAD_ALL_TILES $100 + SPRITE_TILE_ROCKET_FLIP, rocket_flip_tiles
+	LOAD_ALL_TILES $100 + SPRITE_TILE_FIREBALL, fireball_tiles
+	LOAD_ALL_TILES $100 + SPRITE_TILE_GRENADE, grenade_tiles
 
 	lda equipped_weapon
 	cmp #ITEM_AXE
@@ -316,8 +317,14 @@ ok:
 	lda (ptr), y
 	sta arg0
 
-	ldy #EFFECT_DESC_LARGE
+	ldy #EFFECT_DESC_FLAGS
 	lda (ptr), y
+	and #$c0
+	ora arg0
+	sta arg0
+
+	lda (ptr), y
+	and #1
 	bne large
 
 	txa
@@ -364,6 +371,10 @@ large:
 	adc #SPRITE_OAM_EFFECTS
 	tay
 
+	lda arg0
+	and #$40
+	bne fliphoriz
+
 	lda effect_y, x
 	clc
 	adc #7
@@ -383,6 +394,33 @@ large:
 	sta sprites + 1, y
 	adc #2
 	sta sprites + 5, y
+
+	lda arg0
+	sta sprites + 2, y
+	sta sprites + 6, y
+
+	jmp next
+
+fliphoriz:
+	lda effect_y, x
+	clc
+	adc #7
+	sta sprites, y
+	sta sprites + 4, y
+
+	lda effect_x, x
+	clc
+	adc #8
+	sta sprites + 3, y
+	adc #8
+	sta sprites + 7, y
+
+	lda effect_tile, x
+	clc
+	adc #1
+	sta sprites + 5, y
+	adc #2
+	sta sprites + 1, y
 
 	lda arg0
 	sta sprites + 2, y
@@ -580,6 +618,7 @@ VAR effect_descriptors
 	.word player_rocket_right_descriptor
 	.word player_rocket_up_descriptor
 	.word player_rocket_down_descriptor
+	.word player_grenade_descriptor
 	.word player_bullet_descriptor
 	.word player_lmg_bullet_descriptor
 	.word player_ak_bullet_descriptor
@@ -594,10 +633,12 @@ VAR effect_descriptors
 	.word shark_laser_descriptor
 	.word shark_laser_hit_descriptor
 	.word shark_laser_damage_descriptor
+	.word explosion_stage_1_descriptor
+	.word explosion_stage_2_descriptor
 	.word reflected_laser_descriptor
 	.word warp_descriptor
 
 
 TILES bullet_tiles, 2, "tiles/effects/bullet.chr", 6
 TILES rocket_tiles, 4, "tiles/weapons/rocket.chr", 12
-TILES rocket_flip_tiles, 4, "tiles/weapons/rocket-flip.chr", 12
+TILES fireball_tiles, 4, "tiles/weapons/fire2.chr", 8
