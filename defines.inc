@@ -367,8 +367,8 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define SPRITE_TILE_THIN_ZOMBIE          $80
 .define SPRITE_TILE_RAT                  $80
 .define SPRITE_TILE_BEAR                 $80
+.define SPRITE_TILE_SHARK                $80
 .define SPRITE_TILE_SPIDER               $a0
-.define SPRITE_TILE_SHARK                $38
 
 .define SPRITE_TILE_MALE_NPC        $40
 .define SPRITE_TILE_FEMALE_NPC      $60

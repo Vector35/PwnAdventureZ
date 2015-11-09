@@ -394,6 +394,13 @@ chestdone:
 
 
 PROC do_check_lost_cave_wall_explosion
+	jsr read_overworld_cur
+	and #$3f
+	cmp #MAP_LOST_CAVE_WALL
+	beq look
+	rts
+
+look:
 	lda lost_cave_wall_state
 	bne done
 
