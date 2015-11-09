@@ -558,6 +558,7 @@ VAR music_loop_bank_ptr
 .include "audio/sell.asm"
 .include "audio/laser.asm"
 .include "audio/warp.asm"
+.include "audio/boom.asm"
 
 .segment "AUDIO1"
 .include "audio/cave.asm"

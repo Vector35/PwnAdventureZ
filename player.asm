@@ -1776,6 +1776,147 @@ notdown:
 .endproc
 
 
+PROC do_explosion_stage_1_tick
+	ldx cur_effect
+	inc effect_time, x
+	lda effect_time, x
+	cmp #3
+	beq secondframe
+	cmp #6
+	bne done
+
+	lda effect_direction, x
+	cmp #DIR_LEFT
+	beq left
+	cmp #DIR_RIGHT
+	beq right
+	cmp #DIR_UP
+	beq up
+
+	lda effect_y, x
+	clc
+	adc #12
+	sta effect_y, x
+	jmp nextstage & $ffff
+
+left:
+	lda effect_x, x
+	sec
+	sbc #12
+	sta effect_x, x
+	jmp nextstage & $ffff
+
+right:
+	lda effect_x, x
+	clc
+	adc #12
+	sta effect_x, x
+	jmp nextstage & $ffff
+
+up:
+	lda effect_y, x
+	sec
+	sbc #12
+	sta effect_y, x
+
+nextstage:
+	lda #0
+	sta effect_time, x
+	lda #SPRITE_TILE_FIREBALL
+	sta effect_tile, x
+	lda #EFFECT_EXPLOSION_STAGE_2
+	sta effect_type, x
+	rts
+
+secondframe:
+	lda #SPRITE_TILE_FIREBALL + 4
+	sta effect_tile, x
+
+done:
+	rts
+.endproc
+
+
+PROC do_explosion_stage_2_tick
+	ldx cur_effect
+	inc effect_time, x
+	lda effect_time, x
+	cmp #3
+	beq secondframe
+	cmp #6
+	bne done
+
+	jsr remove_effect
+	rts
+
+secondframe:
+	lda #SPRITE_TILE_FIREBALL + 4
+	sta effect_tile, x
+
+done:
+	rts
+.endproc
+
+
+PROC do_create_explosion_effect
+	lda #EFFECT_EXPLOSION_STAGE_2
+	sta arg2
+	lda #0
+	sta arg3
+	jsr create_effect
+
+	lda #EFFECT_EXPLOSION_STAGE_1
+	sta arg2
+	lda arg0
+	sec
+	sbc #12
+	sta arg0
+	lda #DIR_UP
+	sta arg3
+	jsr create_effect
+
+	lda #EFFECT_EXPLOSION_STAGE_1
+	sta arg2
+	lda arg0
+	clc
+	adc #12
+	sta arg0
+	lda arg1
+	sec
+	sbc #12
+	sta arg1
+	lda #DIR_RIGHT
+	sta arg3
+	jsr create_effect
+
+	lda #EFFECT_EXPLOSION_STAGE_1
+	sta arg2
+	lda arg1
+	clc
+	adc #24
+	sta arg1
+	lda #DIR_LEFT
+	sta arg3
+	jsr create_effect
+
+	lda #EFFECT_EXPLOSION_STAGE_1
+	sta arg2
+	lda arg0
+	clc
+	adc #12
+	sta arg0
+	lda arg1
+	sec
+	sbc #12
+	sta arg1
+	lda #DIR_DOWN
+	sta arg3
+	jsr create_effect
+
+	rts
+.endproc
+
+
 .segment "FIXED"
 
 PROC player_bullet_tick
@@ -1855,8 +1996,66 @@ PROC player_shotgun_bullet_tick
 	rts
 .endproc
 
+PROC explosion_stage_1_tick
+	lda current_bank
+	pha
+	lda #^do_explosion_stage_1_tick
+	jsr bankswitch
+	jsr do_explosion_stage_1_tick & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+PROC explosion_stage_2_tick
+	lda current_bank
+	pha
+	lda #^do_explosion_stage_2_tick
+	jsr bankswitch
+	jsr do_explosion_stage_2_tick & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+PROC create_explosion_effect
+	lda current_bank
+	pha
+	lda #^do_create_explosion_effect
+	jsr bankswitch
+	jsr do_create_explosion_effect & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
 
 .code
+
+PROC rocket_hit
+	ldx cur_effect
+	lda effect_x, x
+	sta arg0
+	lda effect_y, x
+	sta arg1
+	jsr explode
+
+	jsr remove_effect
+	rts
+.endproc
+
+
+PROC player_bullet_hit_tick
+	ldx cur_effect
+	inc effect_time, x
+	lda effect_time, x
+	cmp #8
+	bne done
+	jsr remove_effect
+done:
+	rts
+.endproc
+
 
 PROC explode
 	lda cur_enemy
@@ -1876,7 +2075,7 @@ enemyloop:
 	bcc enemyxoverlap
 	cmp #$d8
 	bcs enemyxoverlap
-	jmp nextenemy
+	jmp nextenemy & $ffff
 
 enemyxoverlap:
 	lda enemy_y, x
@@ -1919,7 +2118,7 @@ nextenemy:
 	bcc playerxoverlap
 	cmp #$d8
 	bcs playerxoverlap
-	jmp noplayerdamage
+	jmp noplayerdamage & $ffff
 
 playerxoverlap:
 	lda player_y
@@ -1932,35 +2131,32 @@ playerxoverlap:
 	bcc noplayerdamage
 
 playerhit:
+	lda arg0
+	pha
+	lda arg1
+	pha
+
 	lda #20
 	jsr take_damage
 	jsr explosion_knockback
 
-noplayerdamage:
-	rts
-.endproc
-
-PROC rocket_hit
-	ldx cur_effect
-	lda effect_x, x
-	sta arg0
-	lda effect_y, x
+	pla
 	sta arg1
-	jsr explode
+	pla
+	sta arg0
 
-	jsr remove_effect
-	rts
-.endproc
+noplayerdamage:
+	lda arg0
+	sec
+	sbc #4
+	sta arg0
+	lda arg1
+	sec
+	sbc #4
+	sta arg1
 
-
-PROC player_bullet_hit_tick
-	ldx cur_effect
-	inc effect_time, x
-	lda effect_time, x
-	cmp #8
-	bne done
-	jsr remove_effect
-done:
+	jsr create_explosion_effect
+	PLAY_SOUND_EFFECT effect_boom
 	rts
 .endproc
 
@@ -2279,6 +2475,24 @@ VAR player_bullet_damage_descriptor
 	.word nothing
 	.word nothing
 	.byte SPRITE_TILE_BULLET_DAMAGE, 0
+	.byte 3
+	.byte 0, 0
+
+VAR explosion_stage_1_descriptor
+	.word explosion_stage_1_tick
+	.word nothing
+	.word nothing
+	.word nothing
+	.byte SPRITE_TILE_FIREBALL, 1
+	.byte 3
+	.byte 0, 0
+
+VAR explosion_stage_2_descriptor
+	.word explosion_stage_2_tick
+	.word nothing
+	.word nothing
+	.word nothing
+	.byte SPRITE_TILE_FIREBALL, 1
 	.byte 3
 	.byte 0, 0
 

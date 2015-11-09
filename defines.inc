@@ -373,6 +373,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define SPRITE_TILE_MALE_THIN_NPC   $80
 .define SPRITE_TILE_FEMALE_THIN_NPC $a0
 
+.define SPRITE_TILE_FIREBALL      $30
 .define SPRITE_TILE_ROCKET        $c0
 .define SPRITE_TILE_WARP          $cc
 .define SPRITE_TILE_MELEE 		  $d0
@@ -407,8 +408,10 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define EFFECT_SHARK_LASER           19
 .define EFFECT_SHARK_LASER_HIT       20
 .define EFFECT_SHARK_LASER_DAMAGE    21
-.define EFFECT_REFLECTED_LASER       22
-.define EFFECT_WARP                  23
+.define EFFECT_EXPLOSION_STAGE_1     22
+.define EFFECT_EXPLOSION_STAGE_2     23
+.define EFFECT_REFLECTED_LASER       24
+.define EFFECT_WARP                  25
 .define EFFECT_NONE                 $ff
 
 .define EFFECT_MAX_COUNT     16

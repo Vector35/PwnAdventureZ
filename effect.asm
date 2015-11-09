@@ -36,6 +36,7 @@ PROC load_effect_sprites
 	LOAD_ALL_TILES $100 + SPRITE_TILE_ORB, orb_tiles
 	LOAD_ALL_TILES $100 + SPRITE_TILE_WARP, warp_tiles
 	LOAD_ALL_TILES $100 + SPRITE_TILE_ROCKET, rocket_tiles
+	LOAD_ALL_TILES $100 + SPRITE_TILE_FIREBALL, fireball_tiles
 
 	lda equipped_weapon
 	cmp #ITEM_AXE
@@ -630,9 +631,12 @@ VAR effect_descriptors
 	.word shark_laser_descriptor
 	.word shark_laser_hit_descriptor
 	.word shark_laser_damage_descriptor
+	.word explosion_stage_1_descriptor
+	.word explosion_stage_2_descriptor
 	.word reflected_laser_descriptor
 	.word warp_descriptor
 
 
 TILES bullet_tiles, 2, "tiles/effects/bullet.chr", 6
 TILES rocket_tiles, 4, "tiles/weapons/rocket.chr", 12
+TILES fireball_tiles, 4, "tiles/weapons/fire2.chr", 8
