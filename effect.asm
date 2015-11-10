@@ -464,6 +464,11 @@ PROC remove_effect
 .endproc
 
 PROC create_effect
+	lda current_bank
+	pha
+	lda #0
+	jsr bankswitch
+
 	; Find a free effect slot
 	ldx next_effect_spawn_index
 loop:
@@ -498,6 +503,9 @@ overwrite:
 
 failed:
 	; Failed to find a valid slot, don't create the effect
+	pla
+	jsr bankswitch
+
 	lda #$ff
 	rts
 
@@ -537,6 +545,10 @@ found:
 	lda #0
 nowrap:
 	sta next_effect_spawn_index
+
+	pla
+	jsr bankswitch
+
 	txa
 	rts
 .endproc

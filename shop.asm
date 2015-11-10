@@ -56,7 +56,7 @@ outside:
 .endproc
 
 
-.segment "EXTRA"
+.segment "CHR4"
 
 PROC do_gen_shop_outside
 	; Load forest tiles

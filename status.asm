@@ -264,7 +264,7 @@ PROC init_status_tiles
 .endproc
 
 
-.segment "EXTRA"
+.segment "UI"
 
 PROC do_init_status_tiles
 	LOAD_ALL_TILES 0, status_ui_tiles

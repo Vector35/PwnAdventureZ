@@ -2744,7 +2744,7 @@ VAR initial_map_generators
 	.word gen_shop
 	.word gen_park
 	.word gen_cave_interior
-	.word gen_base_interior
+	.word gen_boss
 	.word gen_base_horde
 	.word gen_base_interior
 	.word gen_blocky_treasure 

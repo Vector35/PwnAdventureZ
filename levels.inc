@@ -53,7 +53,7 @@ VAR normal_overworld_map
 	.byte $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1
 
 ; Maps other than main overworld are stored in extra bank
-.segment "UI"
+.segment "CHR4"
 
 VAR normal_sewer_map
 	.byte $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1, $c1

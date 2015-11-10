@@ -1664,13 +1664,27 @@ cavedone:
 
 
 PROC process_minimap_border_sides
+	lda current_bank
+	pha
+	lda #^do_process_minimap_border_sides
+	jsr bankswitch
+	jsr do_process_minimap_border_sides & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+.segment "UI"
+
+PROC do_process_minimap_border_sides
 	; Convert borders into the correct tile to account for surroundings.  This will
 	; give them a contour along the edges.
 	ldy #0
 yloop:
 	ldx #0
 xloop:
-	jsr process_minimap_border_sides_for_tile
+	jsr process_minimap_border_sides_for_tile & $ffff
 	inx
 	cpx #26
 	bne xloop
@@ -1695,26 +1709,26 @@ PROC process_minimap_border_sides_for_tile
 	beq checklake
 	cmp #MINIMAP_TILE_BASE + SMALL_BORDER_CENTER
 	beq checkbase
-	jmp done
+	jmp done & $ffff
 
 checkrock:
 	lda #MINIMAP_TILE_ROCK
 	sta border_tile_base
 	lda #MINIMAP_TILE_ROCK + SMALL_BORDER_INTERIOR
 	sta border_tile_interior
-	jmp solid
+	jmp solid & $ffff
 checklake:
 	lda #MINIMAP_TILE_LAKE
 	sta border_tile_base
 	lda #MINIMAP_TILE_LAKE + SMALL_BORDER_INTERIOR
 	sta border_tile_interior
-	jmp solid
+	jmp solid & $ffff
 checkbase:
 	lda #MINIMAP_TILE_BASE
 	sta border_tile_base
 	lda #MINIMAP_TILE_BASE + SMALL_BORDER_INTERIOR
 	sta border_tile_interior
-	jmp solid
+	jmp solid & $ffff
 
 solid:
 	; Create a bit mask based on the 8 surrounding tiles, where the bit is set
@@ -1737,7 +1751,7 @@ xloop:
 	lda arg3
 	cmp #0
 	bne notcenter
-	jmp skip
+	jmp skip & $ffff
 
 notcenter:
 	; Compute X and check for bounds
@@ -1814,6 +1828,8 @@ done:
 	rts
 .endproc
 
+
+.segment "FIXED"
 
 PROC get_minimap_cache_ptr
 	tya

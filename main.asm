@@ -104,6 +104,16 @@ loop:
 	jmp prepare
 
 notdead:
+	lda boss_beaten
+	beq notbeaten
+
+	dec boss_transition_time
+	bne notbeaten
+
+	jsr save
+	jmp show_credits
+
+notbeaten:
 	; Get latest controller state and look for movement
 	jsr update_controller
 

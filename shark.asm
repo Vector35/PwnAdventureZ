@@ -318,11 +318,11 @@ PROC fire_laser
 	ldx cur_enemy
 	lda enemy_x, x
 	clc
-	adc #7
+	adc arg4
 	sta arg0
 	lda enemy_y, x
 	clc
-	adc #7
+	adc arg5
 	sta arg1
 	lda #EFFECT_SHARK_LASER
 	sta arg2
@@ -345,11 +345,11 @@ failed1:
 	ldx cur_enemy
 	lda enemy_x, x
 	clc
-	adc #7
+	adc arg4
 	sta arg0
 	lda enemy_y, x
 	clc
-	adc #7
+	adc arg5
 	sta arg1
 	lda #EFFECT_SHARK_LASER
 	sta arg2
@@ -371,11 +371,11 @@ failed2:
 	ldx cur_enemy
 	lda enemy_x, x
 	clc
-	adc #7
+	adc arg4
 	sta arg0
 	lda enemy_y, x
 	clc
-	adc #7
+	adc arg5
 	sta arg1
 	lda #EFFECT_SHARK_LASER
 	sta arg2
@@ -414,6 +414,9 @@ PROC do_swiming_ai_tick
 	lda #$30
 	cmp shark_fire_count, x
 	bne dontfire
+	lda #7
+	sta arg4
+	sta arg5
 	jsr fire_laser & $ffff
 dontfire:
 	rts

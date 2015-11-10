@@ -300,6 +300,10 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define ENEMY_RAT                  13
 .define ENEMY_BEAR                 14
 .define ENEMY_THIN_ZOMBIE          15
+.define ENEMY_BOSS_TOP_LEFT        16
+.define ENEMY_BOSS_TOP_RIGHT       17
+.define ENEMY_BOSS_BOT_LEFT        18
+.define ENEMY_BOSS_BOT_RIGHT       19
 .define ENEMY_NONE                 $ff
 
 .define ENEMY_MAX_COUNT          8
@@ -370,6 +374,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define SPRITE_TILE_BEAR                 $80
 .define SPRITE_TILE_SHARK                $80
 .define SPRITE_TILE_SPIDER               $a0
+.define SPRITE_TILE_BOSS                 $40
 
 .define SPRITE_TILE_MALE_NPC        $40
 .define SPRITE_TILE_FEMALE_NPC      $60

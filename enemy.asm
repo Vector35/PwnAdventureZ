@@ -416,6 +416,13 @@ PROC update_horde
 	jmp nohorde & $ffff
 
 hashorde:
+	jsr read_overworld_cur
+	and #$3f
+	cmp #MAP_BOSS
+	bne notboss
+	rts
+
+notboss:
 	ldx horde_timer + 1
 	beq framezero
 	dex
@@ -1767,16 +1774,66 @@ done:
 	rts
 .endproc
 
-.segment "FIXED"
+
+.code
+
 PROC enemy_damage
 	sta temp
 	ldx cur_enemy
+
+	lda enemy_type, x
+	cmp #ENEMY_BOSS_TOP_LEFT
+	beq boss
+	cmp #ENEMY_BOSS_TOP_RIGHT
+	beq boss
+	cmp #ENEMY_BOSS_BOT_LEFT
+	beq boss
+	cmp #ENEMY_BOSS_BOT_RIGHT
+	beq boss
+
 	lda enemy_health, x
 	sec
 	sbc temp
 	beq dead
 	bcc dead
 	sta enemy_health, x
+	rts
+
+boss:
+	lda enemy_health + 1
+	cmp #$ff
+	beq bossalreadydead
+
+	lda enemy_health
+	sec
+	sbc temp
+	sta enemy_health
+	lda enemy_health + 1
+	sbc #0
+	bcc bossdead
+	sta enemy_health + 1
+
+bossalreadydead:
+	rts
+
+bossdead:
+	lda cur_enemy
+	pha
+
+	lda #0
+	sta cur_enemy
+	jsr boss_die
+	lda #1
+	sta cur_enemy
+	jsr boss_die
+	lda #2
+	sta cur_enemy
+	jsr boss_die
+	lda #3
+	sta cur_enemy
+	jsr boss_die
+
+	pla
 	rts
 
 dead:
@@ -1803,9 +1860,24 @@ dead:
 	rts
 .endproc
 
-.code
+
+.segment "FIXED"
 
 PROC save_enemies
+	lda current_bank
+	pha
+	lda #^do_save_enemies
+	jsr bankswitch
+	jsr do_save_enemies & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+.segment "EXTRA"
+
+PROC do_save_enemies
 	ldx #0
 findloop:
 	lda saved_enemy_screen_x, x
@@ -1821,7 +1893,7 @@ findnext:
 	inx
 	cpx #8
 	bne findloop
-	jmp newscreen
+	jmp newscreen & $ffff
 
 found:
 	lda saved_enemy_screen_x
@@ -1843,7 +1915,7 @@ swaploop:
 	iny
 	cpy #8
 	bne swaploop
-	jmp save
+	jmp save & $ffff
 
 newscreen:
 	ldx #7
@@ -1883,6 +1955,8 @@ saveloop:
 	rts
 .endproc
 
+
+.code
 
 PROC enemy_die
 	lda #ITEM_NONE
@@ -2176,7 +2250,8 @@ VAR knockback_time
 VAR knockback_control
 	.byte 0
 
-VAR shark_fire_count 
+VAR enemy_ai_state
+VAR shark_fire_count
 	.repeat ENEMY_MAX_COUNT
 	.byte 0
 	.endrepeat
@@ -2200,6 +2275,10 @@ VAR enemy_descriptors
 	.word rat_descriptor
 	.word bear_descriptor
 	.word thin_zombie_descriptor
+	.word boss_top_left_descriptor
+	.word boss_top_right_descriptor
+	.word boss_bot_left_descriptor
+	.word boss_bot_right_descriptor
 
 VAR enemy_death_descriptor
 	.word enemy_death_tick
