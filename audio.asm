@@ -564,9 +564,9 @@ VAR music_loop_bank_ptr
 
 .segment "AUDIO1"
 .include "audio/forest.asm"
-.include "audio/town.asm"
 
 .segment "AUDIO2"
+.include "audio/town.asm"
 .include "audio/mine.asm"
 
 .segment "AUDIO3"
