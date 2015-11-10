@@ -56,7 +56,7 @@ outside:
 .endproc
 
 
-.segment "CHR4"
+.segment "EXTRA"
 
 PROC do_gen_shop_outside
 	lda #MUSIC_TOWN
