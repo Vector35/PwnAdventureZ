@@ -133,6 +133,7 @@ PROC update_player_sprite
 
 PROC do_init_player_sprites
 	LOAD_ALL_TILES $100 + SPRITE_TILE_INTERACT, interact_tiles
+	LOAD_ALL_TILES $100 + SPRITE_TILE_CAMPFIRE, campfire_tiles
 
 	lda equipped_armor
 	cmp #ITEM_GHILLIE_SUIT
@@ -286,6 +287,50 @@ palettedone:
 	adc #8
 	sta sprites + SPRITE_OAM_PLAYER + 7
 
+	lda inside
+	bne nocampfire
+
+	ldx #0
+campfireloop:
+	lda cur_screen_x
+	cmp campfire_screen_x, x
+	bne nextcampfire
+	lda cur_screen_y
+	cmp campfire_screen_y, x
+	bne nextcampfire
+
+	lda campfire_y, x
+	clc
+	adc #7
+	sta sprites + SPRITE_OAM_CAMPFIRE
+	sta sprites + SPRITE_OAM_CAMPFIRE + 4
+	lda #SPRITE_TILE_CAMPFIRE + 1
+	sta sprites + SPRITE_OAM_CAMPFIRE + 1
+	lda #SPRITE_TILE_CAMPFIRE + 3
+	sta sprites + SPRITE_OAM_CAMPFIRE + 5
+	lda #3
+	sta sprites + SPRITE_OAM_CAMPFIRE + 2
+	sta sprites + SPRITE_OAM_CAMPFIRE + 6
+	lda campfire_x, x
+	clc
+	adc #8
+	sta sprites + SPRITE_OAM_CAMPFIRE + 3
+	adc #8
+	sta sprites + SPRITE_OAM_CAMPFIRE + 7
+
+	jmp campfiredone & $ffff
+
+nextcampfire:
+	inx
+	cpx #3
+	bne campfireloop
+
+nocampfire:
+	lda #$ff
+	sta sprites + SPRITE_OAM_CAMPFIRE
+	sta sprites + SPRITE_OAM_CAMPFIRE + 4
+
+campfiredone:
 	lda interaction_type
 	cmp #INTERACT_NONE
 	beq nointeract
@@ -2321,8 +2366,6 @@ VAR gun_palette
 VAR fire_palette
 	.byte $0f, $06, $16, $37
 
-.rodata
-
 VAR interaction_descriptors
 	.word starting_chest_descriptor
 	.word blocky_urn 
@@ -2354,6 +2397,8 @@ VAR interaction_descriptors
 	.word lost_cave_end_descriptor
 	.word lost_cave_note_descriptor
 	.word base_entrance_descriptor
+
+.rodata
 
 VAR player_axe_descriptor
 	.word player_melee_tick

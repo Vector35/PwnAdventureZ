@@ -149,7 +149,7 @@ sell:
 	jsr write_string
 	jsr prepare_for_rendering
 
-	PLAY_SOUND_EFFECT effect_sell
+	PLAY_SOUND_EFFECT_NO_OVERRIDE effect_sell
 
 	lda controller
 	and #JOY_B

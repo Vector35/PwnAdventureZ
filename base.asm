@@ -147,7 +147,7 @@ PROC boss_bot_right_tick
 .endproc
 
 
-.segment "EXTRA"
+.segment "UI"
 
 PROC do_gen_base_interior
 	lda #MUSIC_MINE

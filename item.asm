@@ -198,6 +198,59 @@ alreadymax:
 .endproc
 
 
+PROC use_campfire
+	lda inside
+	bne notok
+	jsr read_overworld_cur
+	and #$3f
+	cmp #MAP_BOSS
+	beq notok
+	cmp #MAP_BASE_HORDE
+	beq notok
+	jmp ok
+
+notok:
+	lda #0
+	rts
+
+ok:
+	ldx #2
+loop:
+	lda campfire_screen_x - 1, x
+	sta campfire_screen_x, x
+	lda campfire_screen_y - 1, x
+	sta campfire_screen_y, x
+	lda campfire_x - 1, x
+	sta campfire_x, x
+	lda campfire_y - 1, x
+	sta campfire_y, x
+	dex
+	bne loop
+
+	lda cur_screen_x
+	sta campfire_screen_x
+	sta spawn_screen_x
+	lda cur_screen_y
+	sta campfire_screen_y
+	sta spawn_screen_y
+	lda inside
+	sta spawn_inside
+	lda player_x
+	sta campfire_x
+	lda player_y
+	sta campfire_y
+	lda player_entry_x
+	sta spawn_pos_x
+	lda player_entry_y
+	sta spawn_pos_y
+
+	PLAY_SOUND_EFFECT effect_light
+
+	lda #1
+	rts
+.endproc
+
+
 PROC use_one_ammo
 	lda equipped_weapon_slot
 	asl
@@ -876,7 +929,7 @@ VAR gunpowder_item
 	.byte "EXPLOSIVE POWDER          ", 0
 
 VAR campfire_item
-	.word 0
+	.word use_campfire
 	.word campfire_tiles & $ffff
 	.byte ITEM_TYPE_CAMPFIRE
 	.byte "CAMPFIRE       ", 0

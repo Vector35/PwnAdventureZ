@@ -93,6 +93,35 @@ prepare:
 
 	jsr save_enemies
 
+	lda inside
+	bne nocampfire
+
+	ldx #0
+checkcampfireloop:
+	lda cur_screen_x
+	cmp campfire_screen_x, x
+	bne nextcampfire
+	lda cur_screen_y
+	cmp campfire_screen_y, x
+	bne nextcampfire
+
+	lda cur_screen_x
+	sta spawn_screen_x
+	lda cur_screen_y
+	sta spawn_screen_y
+	lda inside
+	sta spawn_inside
+	lda player_entry_x
+	sta spawn_pos_x
+	lda player_entry_y
+	sta spawn_pos_y
+
+nextcampfire:
+	inx
+	cpx #3
+	bne checkcampfireloop
+
+nocampfire:
 	jsr save
 
 	LOAD_PTR game_palette
@@ -372,6 +401,10 @@ namedone:
 	sta player_anim_frame
 	lda #100
 	sta player_health
+
+	lda #ITEM_CAMPFIRE
+	ldx #8
+	jsr give_item_with_count
 
 	lda secret_code
 	beq nocode
@@ -722,6 +755,15 @@ VAR death_count
 
 VAR minor_chests_opened
 	.byte 0
+
+VAR campfire_screen_x
+	.byte 0, 0, 0
+VAR campfire_screen_y
+	.byte 0, 0, 0
+VAR campfire_x
+	.byte 0, 0, 0
+VAR campfire_y
+	.byte 0, 0, 0
 
 
 .segment "TEMP"

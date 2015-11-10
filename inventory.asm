@@ -310,7 +310,7 @@ performuse:
 	jmp invaliduse
 
 validuse:
-	PLAY_SOUND_EFFECT effect_select
+	PLAY_SOUND_EFFECT_NO_OVERRIDE effect_select
 
 	jsr deselect_inventory_item
 

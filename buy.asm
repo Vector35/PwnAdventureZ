@@ -237,7 +237,7 @@ notgun:
 	jsr buy_item
 
 buydone:
-	PLAY_SOUND_EFFECT effect_buy
+	PLAY_SOUND_EFFECT_NO_OVERRIDE effect_buy
 
 	jsr wait_for_vblank
 	jsr generate_gold_string

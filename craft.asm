@@ -183,7 +183,7 @@ craft:
 	cmp #0
 	beq waitfordepresslong
 
-	PLAY_SOUND_EFFECT effect_craft
+	PLAY_SOUND_EFFECT_NO_OVERRIDE effect_craft
 
 	lda controller
 	and #JOY_B

@@ -1039,13 +1039,27 @@ PROC process_border_sides
 	adc #BORDER_CENTER
 	sta border_tile_wall
 
+	lda current_bank
+	pha
+	lda #^do_process_border_sides
+	jsr bankswitch
+	jsr do_process_border_sides & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+.segment "CHR4"
+
+PROC do_process_border_sides
 	; Convert rock walls into the correct tile to account for surroundings.  This will
 	; give them a contour along the edges.
 	ldy #0
 yloop:
 	ldx #0
 xloop:
-	jsr process_border_sides_for_tile
+	jsr process_border_sides_for_tile & $ffff
 	inx
 	cpx #MAP_WIDTH
 	bne xloop
@@ -1066,7 +1080,7 @@ PROC process_border_sides_for_tile
 	jsr read_gen_map
 	cmp border_tile_wall
 	beq solid
-	jmp done
+	jmp done & $ffff
 solid:
 
 	; Create a bit mask based on the 8 surrounding tiles, where the bit is set
@@ -1089,7 +1103,7 @@ xloop:
 	lda arg3
 	cmp #0
 	bne notcenter
-	jmp skip
+	jmp skip & $ffff
 
 notcenter:
 	; Compute X and check for bounds
@@ -1164,6 +1178,8 @@ done:
 	rts
 .endproc
 
+
+.segment "FIXED"
 
 PROC is_starting_chest_interactable
 	lda starting_chest_opened

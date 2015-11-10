@@ -48,6 +48,12 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 	jsr play_sound_effect
 .endmacro
 
+.macro PLAY_SOUND_EFFECT_NO_OVERRIDE var
+	LOAD_PTR var
+	lda #^var
+	jsr play_sound_effect_no_override
+.endmacro
+
 
 ; NES hardware defines
 .define PPUCTRL    $2000
@@ -361,6 +367,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define SPRITE_OAM_INTERACT $08
 .define SPRITE_OAM_ENEMIES  $90
 .define SPRITE_OAM_EFFECTS  $10
+.define SPRITE_OAM_CAMPFIRE $e8
 .define SPRITE_OAM_EQUIP_WEAPON $f0
 .define SPRITE_OAM_EQUIP_ARMOR  $f8
 
@@ -383,6 +390,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 
 .define SPRITE_TILE_GRENADE       $2c
 .define SPRITE_TILE_FIREBALL      $30
+.define SPRITE_TILE_CAMPFIRE      $38
 .define SPRITE_TILE_ROCKET        $c0
 .define SPRITE_TILE_WARP          $cc
 .define SPRITE_TILE_MELEE 		  $d0

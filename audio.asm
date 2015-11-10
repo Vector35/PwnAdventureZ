@@ -173,6 +173,21 @@ soundeffect:
 .endproc
 
 
+PROC play_sound_effect_no_override
+	pha
+
+	lda sound_effect_playing
+	bne dontplay
+
+	pla
+	jmp play_sound_effect
+
+dontplay:
+	pla
+	rts
+.endproc
+
+
 PROC play_sound_effect
 	pha
 
