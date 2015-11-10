@@ -402,10 +402,6 @@ namedone:
 	lda #100
 	sta player_health
 
-	lda #ITEM_CAMPFIRE
-	ldx #8
-	jsr give_item_with_count
-
 	lda secret_code
 	beq nocode
 
@@ -426,6 +422,9 @@ namedone:
 	lda #ITEM_HEALTH_KIT
 	ldx #5
 	jsr give_item_with_count
+
+	lda #ITEM_CAMPFIRE
+	jsr give_item
 
 nocode:
 	lda #ITEM_NONE
