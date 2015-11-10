@@ -1,10 +1,23 @@
 Welcome to Pwn Adventure Z! The latest iteration of the Pwn Adventure Series.
 
+READ CAREFULLY, PLEASE!
+
 For CSAW 2015, a special retro-edition of Pwn Adventure was created combining some modern gaming concepts with traditional game programming. After all, it's the 30th anniversary of Mario -- what better way than to celebrate with an NES style PwnAdventure game!
 
 For this challenge, you will find the enclosed files handy. The .nl files are debug symbol files for the FCEUX Emulator. Note that only the Windows version supports debugging unfortunately. The .map file is created by the assembler/compiler and was used to create the .nl files.
 
-As to the game itself, you'll just have to investigate. There are five challenges related to the game. The first can be solved using only the files included here. The next four all require you to play the game on one of the physical NES systems set up in the CTF room. The flags are clearly identified in the game by their format, always something like: CSAW(flaggoeshere), or "THE FLAG IS FLAGGOESHERE".
+As to the game itself, there are seven challenges built in. The first can be solved using only the files included here, the next six are all only solvable if you play the game on one of the physical NES systems set up in the CTF room. The flags are clearly identified in the game by their format, usually something like "THE FLAG IS FLAGGOESHERE".
+
+DO NOT LOOK FOR FLAGS IN THE HARD OR APOCALYPSE MODES! Those game modes are purely for your enjoyment in playing the game later. While it's possible we have a flaw only available from there that gets flags, it's unlikely and we encourage you to focus on the easy mode that has all the intended solutions.
+
+Points - Category - Name (Description)
+25 - Forensics - GreetingsEarthling (Only challenge included in the ROM file)
+25 - GamePlay - CreditForCredits (Get to the credits)
+150 - RE - HiddenCave (Finding it is the challenge!)
+250 - RE/GameHacking - QuarantineBreaker (Enter the boarded up house)
+250 - RE - BLOX (Cave in the NW Corner of the Map)
+400 - Exploitation - get_flag (What it says in the name)
+500 - Exploitation - memory_disclosure_flag (Harder than get_flag)
 
 Good luck.
 

@@ -9,7 +9,7 @@ VAR flag_strings
 	.byte "A REAL ZOMBIE, THE 6502", 0
 	.byte 0
 
-VAR memory_leak_flag
+VAR memory_disclosure_flag
 	.byte "LEAK THIS FLAG FOR MAXIMUM POINTS.", 0
 	.byte "THE FLAG IS:", 0
 	.byte "ZOMBIESHELLCODE4DEADSYSTEMZ", 0
