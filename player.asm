@@ -151,6 +151,10 @@ setpalette:
 	beq dark
 	cmp #MAP_CAVE_INTERIOR
 	beq dark
+	cmp #MAP_CAVE_CHEST
+	beq dark
+	cmp #MAP_CAVE_BOSS
+	beq dark
 	cmp #MAP_STARTING_CAVE
 	beq dark
 	cmp #MAP_BLOCKY_PUZZLE
@@ -161,9 +165,23 @@ setpalette:
 	beq dark
 	cmp #MAP_LOST_CAVE
 	beq dark
+	cmp #MAP_LOST_CAVE_WALL
+	beq dark
+	cmp #MAP_LOST_CAVE_CHEST
+	beq dark
+	cmp #MAP_LOST_CAVE_END
+	beq dark
 	cmp #MAP_MINE_ENTRANCE
 	beq dark
 	cmp #MAP_MINE_DOWN
+	beq dark
+	cmp #MAP_MINE_UP
+	beq dark
+	cmp #MAP_MINE
+	beq dark
+	cmp #MAP_MINE_BOSS
+	beq dark
+	cmp #MAP_MINE_CHEST
 	beq dark
 
 	lda equipped_armor
