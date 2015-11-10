@@ -42,6 +42,10 @@ cleartemp:
 	inx
 	bne cleartemp
 
+	; If previous game was beaten, start new game at harder difficulty
+	lda boss_beaten
+	bne newgame
+
 	lda start_new_game
 	cmp #0
 	beq resume
@@ -110,7 +114,6 @@ notdead:
 	dec boss_transition_time
 	bne notbeaten
 
-	jsr save
 	jmp show_credits
 
 notbeaten:
@@ -196,6 +199,18 @@ PROC new_game
 	sta scratch
 	lda secret_code
 	sta scratch + 1
+	lda boss_beaten
+	sta scratch + 2
+	lda difficulty
+	sta scratch + 3
+
+	ldx #0
+namecopyloop:
+	lda name, x
+	sta scratch + 4, x
+	inx
+	cpx #15
+	bne namecopyloop
 
 	ldx #0
 	lda #0
@@ -215,6 +230,27 @@ clearloop:
 	lda scratch + 1
 	sta secret_code
 
+	; If starting new game at higher difficulty, don't ask for name
+	lda scratch + 2
+	beq newname
+
+	lda scratch + 3
+	sta new_game_difficulty
+	lda #0
+	sta secret_code
+
+	ldx #0
+namerestoreloop:
+	lda scratch + 4, x
+	sta name, x
+	inx
+	cpx #15
+	bne namerestoreloop
+
+	jsr zero_unused_stack_page
+	jmp namedone
+
+newname:
 	jsr zero_unused_stack_page
 
 	; Ask for name if we are saving
@@ -385,6 +421,9 @@ nocode:
 .segment "CHR1"
 
 PROC show_game_over
+	lda #0
+	sta boss_beaten
+
 	; Update number of deaths
 	ldx death_count + 2
 	inx

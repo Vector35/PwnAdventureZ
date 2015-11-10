@@ -39,6 +39,9 @@ PROC gen_park
 .segment "EXTRA"
 
 PROC do_gen_park
+	lda #MUSIC_TOWN
+	jsr play_music
+
 	; Load forest tiles
 	LOAD_ALL_TILES FOREST_TILES, forest_tiles
 	LOAD_ALL_TILES FENCE_TILES, fence_tiles

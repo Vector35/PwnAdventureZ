@@ -539,10 +539,7 @@ VAR music_loop_bank_ptr
 	.word 0
 
 
-.include "audio/neonstarlight.asm"
-.include "audio/neonstarlight_loop.asm"
-
-.segment "AUDIO1"
+.segment "AUDIO0"
 .include "audio/craft.asm"
 .include "audio/enemydie.asm"
 .include "audio/enemyhit.asm"
@@ -560,9 +557,23 @@ VAR music_loop_bank_ptr
 .include "audio/warp.asm"
 .include "audio/boom.asm"
 
-.segment "AUDIO1"
+.segment "AUDIO0"
 .include "audio/cave.asm"
 .include "audio/horde.asm"
+.include "audio/title.asm"
+
+.segment "AUDIO1"
+.include "audio/forest.asm"
+.include "audio/town.asm"
+
+.segment "AUDIO2"
+.include "audio/mine.asm"
+
+.segment "AUDIO3"
+.include "audio/boss.asm"
+
+.segment "AUDIO4"
+.include "audio/credits.asm"
 
 
 .data
@@ -572,17 +583,47 @@ VAR cave_music_desc
 	.word music_cave_ptr & $ffff, music_cave_bank & $ffff
 	.byte ^music_cave_ptr
 
-VAR forest_music_desc
-	.word neonstarlight_ptr & $ffff, neonstarlight_bank & $ffff
-	.word neonstarlight_loop_ptr & $ffff, neonstarlight_loop_bank & $ffff
-	.byte ^neonstarlight_ptr
-
 VAR horde_music_desc
 	.word music_horde_ptr & $ffff, music_horde_bank & $ffff
 	.word music_horde_ptr & $ffff, music_horde_bank & $ffff
 	.byte ^music_horde_ptr
 
+VAR title_music_desc
+	.word music_title_ptr & $ffff, music_title_bank & $ffff
+	.word music_title_ptr & $ffff, music_title_bank & $ffff
+	.byte ^music_title_ptr
+
+VAR forest_music_desc
+	.word music_forest_ptr & $ffff, music_forest_bank & $ffff
+	.word music_forest_ptr & $ffff, music_forest_bank & $ffff
+	.byte ^music_forest_ptr
+
+VAR town_music_desc
+	.word music_town_ptr & $ffff, music_town_bank & $ffff
+	.word music_town_ptr & $ffff, music_town_bank & $ffff
+	.byte ^music_town_ptr
+
+VAR mine_music_desc
+	.word music_mine_ptr & $ffff, music_mine_bank & $ffff
+	.word music_mine_ptr & $ffff, music_mine_bank & $ffff
+	.byte ^music_mine_ptr
+
+VAR boss_music_desc
+	.word music_boss_ptr & $ffff, music_boss_bank & $ffff
+	.word music_boss_ptr & $ffff, music_boss_bank & $ffff
+	.byte ^music_boss_ptr
+
+VAR credits_music_desc
+	.word music_credits_ptr & $ffff, music_credits_bank & $ffff
+	.word music_credits_ptr & $ffff, music_credits_bank & $ffff
+	.byte ^music_credits_ptr
+
 VAR music_descriptors
 	.word cave_music_desc
 	.word forest_music_desc
 	.word horde_music_desc
+	.word title_music_desc
+	.word town_music_desc
+	.word mine_music_desc
+	.word boss_music_desc
+	.word credits_music_desc

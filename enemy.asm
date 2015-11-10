@@ -534,7 +534,7 @@ dokey6done:
 	rts
 
 dobasehordedone:
-	lda #MUSIC_CAVE
+	lda #MUSIC_MINE
 	jsr play_music
 	rts
 

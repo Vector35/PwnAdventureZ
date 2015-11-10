@@ -32,6 +32,9 @@ PROC gen_cave_start
 
 
 PROC gen_starting_cave
+	lda #MUSIC_CAVE
+	jsr play_music
+
 	jsr gen_cave_common
 	rts
 .endproc
@@ -240,6 +243,9 @@ PROC lost_cave_note_interact
 .segment "EXTRA"
 
 PROC do_gen_cave_start
+	lda #MUSIC_CAVE
+	jsr play_music
+
 	jsr do_gen_cave_common & $ffff
 
 	; Place chest in the starting room to get the initial weapon
@@ -278,6 +284,9 @@ opened:
 
 
 PROC do_gen_cave_interior
+	lda #MUSIC_CAVE
+	jsr play_music
+
 	jsr do_gen_cave_common & $ffff
 	jsr gen_cave_enemies & $ffff
 	rts
@@ -285,6 +294,9 @@ PROC do_gen_cave_interior
 
 
 PROC do_gen_cave_chest
+	lda #MUSIC_CAVE
+	jsr play_music
+
 	jsr do_gen_cave_common & $ffff
 
 	LOAD_ALL_TILES $0f0, small_chest_tiles
@@ -317,6 +329,9 @@ chestdone:
 
 
 PROC do_gen_lost_cave
+	lda #MUSIC_CAVE
+	jsr play_music
+
 	jsr do_gen_cave_common & $ffff
 
 	jsr read_overworld_left
@@ -355,6 +370,9 @@ done:
 
 
 PROC do_gen_lost_cave_wall
+	lda #MUSIC_CAVE
+	jsr play_music
+
 	jsr do_gen_cave_common & $ffff
 
 	LOAD_ALL_TILES $0f0, small_chest_tiles
@@ -503,6 +521,9 @@ blown:
 
 
 PROC do_gen_lost_cave_end
+	lda #MUSIC_CAVE
+	jsr play_music
+
 	jsr do_gen_cave_common & $ffff
 
 	LOAD_ALL_TILES $0f0, chest_tiles
@@ -545,6 +566,9 @@ chestdone:
 
 
 PROC do_gen_lost_cave_chest
+	lda #MUSIC_CAVE
+	jsr play_music
+
 	jsr do_gen_cave_common & $ffff
 
 	LOAD_ALL_TILES $0f0, small_chest_tiles
@@ -631,6 +655,9 @@ restoredspawn:
 
 
 PROC do_gen_blocky_cave_interior
+	lda #MUSIC_CAVE
+	jsr play_music
+
 	jsr do_gen_cave_common & $ffff
 
 	; Create enemies
@@ -665,6 +692,9 @@ restoredspawn:
 
 
 PROC do_gen_cave_boss
+	lda #MUSIC_CAVE
+	jsr play_music
+
 	jsr do_gen_cave_common & $ffff
 
 	LOAD_ALL_TILES $0f0, chest_tiles
@@ -764,6 +794,9 @@ PROC gen_mine_ladder
 
 
 PROC do_gen_mine_down
+	lda #MUSIC_CAVE
+	jsr play_music
+
 	jsr do_gen_cave_common & $ffff
 
 	LOAD_PTR mine_down_palette
@@ -783,9 +816,6 @@ PROC do_gen_mine_down
 
 
 PROC do_gen_cave_common
-	lda #MUSIC_CAVE
-	jsr play_music
-
 	; Load cave tiles
 	LOAD_ALL_TILES $080, cave_border_tiles
 	jsr init_zombie_sprites

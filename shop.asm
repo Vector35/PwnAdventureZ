@@ -59,6 +59,9 @@ outside:
 .segment "CHR4"
 
 PROC do_gen_shop_outside
+	lda #MUSIC_TOWN
+	jsr play_music
+
 	; Load forest tiles
 	LOAD_ALL_TILES FOREST_TILES, forest_tiles
 	LOAD_ALL_TILES SHOP_WALL_TILES, shop_wall_tiles
@@ -284,6 +287,9 @@ nextblank:
 
 
 PROC do_gen_shop_inside
+	lda #MUSIC_TOWN
+	jsr play_music
+
 	; When entering a shop, set spawn point
 	lda cur_screen_x
 	sta spawn_screen_x

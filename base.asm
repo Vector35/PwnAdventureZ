@@ -75,6 +75,9 @@ PROC boss_main_tick
 .code
 
 PROC boss_die
+	lda #MUSIC_CREDITS
+	jsr play_music
+
 	ldx cur_enemy
 	lda enemy_x, x
 	sta arg0
@@ -86,7 +89,7 @@ PROC boss_die
 
 	lda #1
 	sta boss_beaten
-	lda #240
+	lda #150
 	sta boss_transition_time
 	rts
 .endproc
@@ -147,6 +150,9 @@ PROC boss_bot_right_tick
 .segment "EXTRA"
 
 PROC do_gen_base_interior
+	lda #MUSIC_MINE
+	jsr play_music
+
 	jsr gen_base_common & $ffff
 	jsr spawn_base_enemies & $ffff
 	rts
@@ -154,7 +160,7 @@ PROC do_gen_base_interior
 
 
 PROC do_gen_boss
-	lda #MUSIC_HORDE
+	lda #MUSIC_BOSS
 	jsr play_music
 
 	LOAD_ALL_TILES WALL_TILES, base_border_tiles
@@ -438,9 +444,6 @@ restoredspawn:
 
 
 PROC gen_base_common
-	lda #MUSIC_CAVE
-	jsr play_music
-
 	LOAD_ALL_TILES WALL_TILES, base_border_tiles
 	LOAD_ALL_TILES FLOOR_TILES, base_floor_tiles
 	jsr init_zombie_sprites

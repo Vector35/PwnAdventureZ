@@ -243,20 +243,27 @@ deletedone:
 	rts
 .endproc
 
-PROC swing_axe
-	PLAY_SOUND_EFFECT effect_pistol
 
+PROC create_melee_effect
 	lda player_x
 	sta arg0
 	lda player_y
 	sta arg1
-	lda #EFFECT_PLAYER_AXE
-	sta arg2
 	jsr get_player_direction_bits
 	sta arg3
+	jsr create_effect
+	rts
+.endproc
+
+
+PROC swing_axe
+	PLAY_SOUND_EFFECT effect_pistol
+
+	lda #EFFECT_PLAYER_AXE
+	sta arg2
 	lda #10
 	sta arg4
-	jsr create_effect
+	jsr create_melee_effect
 
 	cmp #$ff
 	beq failed
@@ -276,17 +283,11 @@ failed:
 PROC swing_sword
 	PLAY_SOUND_EFFECT effect_pistol
 
-	lda player_x
-	sta arg0
-	lda player_y
-	sta arg1
 	lda #EFFECT_PLAYER_SWORD
 	sta arg2
-	jsr get_player_direction_bits
-	sta arg3
 	lda #10
 	sta arg4
-	jsr create_effect
+	jsr create_melee_effect
 
 	cmp #$ff
 	beq failed
@@ -303,11 +304,7 @@ failed:
 .endproc
 
 
-PROC throw_grenade
-	jsr use_one_ammo
-
-	PLAY_SOUND_EFFECT effect_pistol
-
+PROC create_bullet_effect
 	lda player_x
 	clc
 	adc #7
@@ -316,11 +313,21 @@ PROC throw_grenade
 	clc
 	adc #7
 	sta arg1
-	lda #EFFECT_PLAYER_GRENADE
-	sta arg2
 	jsr get_player_direction_bits
 	sta arg3
 	jsr create_effect
+	rts
+.endproc
+
+
+PROC throw_grenade
+	jsr use_one_ammo
+
+	PLAY_SOUND_EFFECT effect_pistol
+
+	lda #EFFECT_PLAYER_GRENADE
+	sta arg2
+	jsr create_bullet_effect
 
 	cmp #$ff
 	beq failed
@@ -344,19 +351,9 @@ PROC fire_pistol
 
 	PLAY_SOUND_EFFECT effect_pistol
 
-	lda player_x
-	clc
-	adc #7
-	sta arg0
-	lda player_y
-	clc
-	adc #7
-	sta arg1
 	lda #EFFECT_PLAYER_BULLET
 	sta arg2
-	jsr get_player_direction_bits
-	sta arg3
-	jsr create_effect
+	jsr create_bullet_effect
 
 	cmp #$ff
 	beq failed
@@ -380,19 +377,9 @@ PROC fire_smg
 
 	PLAY_SOUND_EFFECT effect_pistol
 
-	lda player_x
-	clc
-	adc #7
-	sta arg0
-	lda player_y
-	clc
-	adc #7
-	sta arg1
 	lda #EFFECT_PLAYER_BULLET
 	sta arg2
-	jsr get_player_direction_bits
-	sta arg3
-	jsr create_effect
+	jsr create_bullet_effect
 
 	cmp #$ff
 	beq failed
@@ -414,19 +401,9 @@ PROC fire_lmg
 
 	PLAY_SOUND_EFFECT effect_pistol
 
-	lda player_x
-	clc
-	adc #7
-	sta arg0
-	lda player_y
-	clc
-	adc #7
-	sta arg1
 	lda #EFFECT_PLAYER_LMG_BULLET
 	sta arg2
-	jsr get_player_direction_bits
-	sta arg3
-	jsr create_effect
+	jsr create_bullet_effect
 
 	cmp #$ff
 	beq failed
@@ -448,19 +425,9 @@ PROC fire_ak
 
 	PLAY_SOUND_EFFECT effect_pistol
 
-	lda player_x
-	clc
-	adc #7
-	sta arg0
-	lda player_y
-	clc
-	adc #7
-	sta arg1
 	lda #EFFECT_PLAYER_AK_BULLET
 	sta arg2
-	jsr get_player_direction_bits
-	sta arg3
-	jsr create_effect
+	jsr create_bullet_effect
 
 	cmp #$ff
 	beq failed
@@ -482,19 +449,9 @@ PROC fire_sniper
 
 	PLAY_SOUND_EFFECT effect_pistol
 
-	lda player_x
-	clc
-	adc #7
-	sta arg0
-	lda player_y
-	clc
-	adc #7
-	sta arg1
 	lda #EFFECT_PLAYER_SNIPER_BULLET
 	sta arg2
-	jsr get_player_direction_bits
-	sta arg3
-	jsr create_effect
+	jsr create_bullet_effect
 
 	cmp #$ff
 	beq failed
@@ -516,47 +473,17 @@ PROC fire_shotgun
 
 	PLAY_SOUND_EFFECT effect_pistol
 
-	lda player_x
-	clc
-	adc #7
-	sta arg0
-	lda player_y
-	clc
-	adc #7
-	sta arg1
 	lda #EFFECT_PLAYER_SHOTGUN_BULLET
 	sta arg2
-	jsr get_player_direction_bits
-	sta arg3
-	jsr create_effect
+	jsr create_bullet_effect
 
-	lda player_x
-	clc
-	adc #7
-	sta arg0
-	lda player_y
-	clc
-	adc #7
-	sta arg1
 	lda #EFFECT_PLAYER_LEFT_BULLET
 	sta arg2
-	jsr get_player_direction_bits
-	sta arg3
-	jsr create_effect
+	jsr create_bullet_effect
 
-	lda player_x
-	clc
-	adc #7
-	sta arg0
-	lda player_y
-	clc
-	adc #7
-	sta arg1
 	lda #EFFECT_PLAYER_RIGHT_BULLET
 	sta arg2
-	jsr get_player_direction_bits
-	sta arg3
-	jsr create_effect
+	jsr create_bullet_effect
 
 	cmp #$ff
 	beq failed

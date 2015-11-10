@@ -78,6 +78,9 @@ PROC mine_chest_interact
 .segment "EXTRA"
 
 PROC do_gen_mine_common
+	lda #MUSIC_MINE
+	jsr play_music
+
 	jsr do_gen_cave_common & $ffff
 	LOAD_ALL_TILES $100 + SPRITE_TILE_THIN_ZOMBIE , thin_zombie_tiles
 	rts

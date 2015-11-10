@@ -576,6 +576,9 @@ done:
 	; A valid slot has been selected, proceed to start the game
 	PLAY_SOUND_EFFECT effect_select
 
+	lda #MUSIC_NONE
+	jsr play_music
+
 	jsr fade_out
 	jsr clear_screen
 

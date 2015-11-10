@@ -213,6 +213,9 @@ zloop:
 	LOAD_PTR title_palette
 	jsr fade_in
 
+	lda #MUSIC_TITLE
+	jsr play_music
+
 	lda #0
 	sta arg0
 	sta arg1

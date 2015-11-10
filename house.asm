@@ -88,6 +88,9 @@ outside:
 .segment "EXTRA"
 
 PROC do_gen_house_outside
+	lda #MUSIC_TOWN
+	jsr play_music
+
 	; Load forest tiles
 	LOAD_ALL_TILES FOREST_TILES, forest_tiles
 	LOAD_ALL_TILES FENCE_TILES, fence_tiles
@@ -865,6 +868,9 @@ restoredspawn:
 
 
 PROC gen_house_inside_common
+	lda #MUSIC_TOWN
+	jsr play_music
+
 	LOAD_ALL_TILES WALL_TILES, wood_wall_tiles
 
 	LOAD_PTR house_interior_palette

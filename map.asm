@@ -1679,6 +1679,8 @@ spawnableloop:
 	sta temp
 
 	lda temp
+	cmp #0
+	beq canspawn
 	cmp spawnable_range_min
 	bcc notspawnablerange
 	cmp spawnable_range_max

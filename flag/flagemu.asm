@@ -43,4 +43,4 @@ VAR lost_cave_flag_text
 
 VAR credit_flag
 	.byte "THE FLAG IS:               ", 0
-	.byte " XXXXXXXXXXXXXXXXXXXXXXXXX  ", 0
+	.byte "XXXXXXXXXXXXXXXXXXXXXXXXX  ", 0
