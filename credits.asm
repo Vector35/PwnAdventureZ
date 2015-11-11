@@ -727,7 +727,7 @@ VAR credit_string_5
 	.byte "INFINITENESLIVES.COM",0
 	.byte "ERIC LIANG",0
 	.byte "GERI DELPRIORE",0
-	.byte "NASSIR MEMON",0
+	.byte "NASIR MEMON",0
 
 VAR normal_win_string
 	.byte "YOU HAVE ENDED THE ZOMBIE", 0
