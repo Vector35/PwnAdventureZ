@@ -155,7 +155,7 @@ sell:
 	and #JOY_B
 	beq waitfordepresslong
 
-	ldx #8
+	ldx #2
 	jsr wait_for_frame_count
 	jmp selectloop
 

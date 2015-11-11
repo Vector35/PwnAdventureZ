@@ -518,6 +518,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define MUSIC_MINE         7
 .define MUSIC_BOSS         8
 .define MUSIC_CREDITS      9
+.define MUSIC_BLOCKY       10
 
 
 ; Quest complete bits
