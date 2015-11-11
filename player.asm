@@ -138,12 +138,18 @@ PROC do_init_player_sprites
 	lda equipped_armor
 	cmp #ITEM_GHILLIE_SUIT
 	beq ghillie
+	cmp #ITEM_WIZARD_HAT
+	beq wizard
 
 	LOAD_ALL_TILES $100 + SPRITE_TILE_PLAYER, unarmed_player_tiles
 	jmp setpalette & $ffff
 
 ghillie:
 	LOAD_ALL_TILES $100 + SPRITE_TILE_PLAYER, ghillie_player_tiles
+	jmp setpalette & $ffff
+
+wizard:
+	LOAD_ALL_TILES $100 + SPRITE_TILE_PLAYER, wizard_player_tiles
 
 setpalette:
 	jsr read_overworld_cur
@@ -1206,7 +1212,7 @@ notheld:
 	; Get equipped weapon type
 	lda equipped_weapon
 	cmp #ITEM_NONE
-	beq failed
+	beq noweapon
 	jsr get_item_type
 
 	; Melee weapons do not use ammo
@@ -1223,6 +1229,13 @@ notheld:
 ammook:
 	lda equipped_weapon
 	jsr use_item
+
+noweapon:
+	lda equipped_armor
+	cmp #ITEM_WIZARD_HAT
+	bne failed
+
+	jsr cast_fireball
 
 failed:
 	rts
@@ -2233,6 +2246,95 @@ PROC grenade_hit
 .endproc
 
 
+PROC player_fireball_animate
+	ldx cur_effect
+	inc effect_time, x
+	lda effect_time, x
+	cmp #60
+	beq done
+
+	and #8
+	beq secondframe
+
+	lda #SPRITE_TILE_FIREBALL
+	sta effect_tile, x
+	rts
+
+secondframe:
+	lda #SPRITE_TILE_FIREBALL + 4
+	sta effect_tile, x
+	rts
+
+done:
+	jsr remove_effect
+	rts
+.endproc
+
+
+PROC player_fireball_tick
+	jsr player_bullet_tick
+	jmp player_fireball_animate
+.endproc
+
+
+PROC player_fireball_hit_tick
+	ldx cur_effect
+	lda effect_direction, x
+	and #JOY_LEFT
+	beq notleft
+
+	dec effect_x, x
+
+notleft:
+	lda effect_direction, x
+	and #JOY_RIGHT
+	beq notright
+
+	inc effect_x, x
+
+notright:
+	lda effect_direction, x
+	and #JOY_UP
+	beq notup
+
+	dec effect_y, x
+
+notup:
+	lda effect_direction, x
+	and #JOY_DOWN
+	beq notdown
+
+	inc effect_y, x
+
+notdown:
+	jmp player_fireball_animate
+.endproc
+
+
+PROC fireball_hit_enemy
+	PLAY_SOUND_EFFECT effect_enemyhit
+
+	lda #10
+	jsr enemy_damage
+	jsr melee_attack_knockback
+
+	ldx cur_effect
+	lda #EFFECT_FIREBALL_HIT
+	sta effect_type, x
+	lda #45
+	sta effect_time, x
+	rts
+.endproc
+
+
+PROC fireball_hit_world
+	ldx cur_effect
+	lda #0
+	sta effect_direction, x
+	rts
+.endproc
+
+
 .zeropage
 VAR player_x
 	.byte 0
@@ -2472,6 +2574,24 @@ VAR player_rocket_down_descriptor
 	.byte 3
 	.byte 8, 16
 
+VAR player_fireball_descriptor
+	.word player_fireball_tick
+	.word nothing
+	.word fireball_hit_enemy
+	.word fireball_hit_world
+	.byte SPRITE_TILE_FIREBALL, 1
+	.byte 3
+	.byte 16, 16
+
+VAR fireball_hit_descriptor
+	.word player_fireball_hit_tick
+	.word nothing
+	.word nothing
+	.word fireball_hit_world
+	.byte SPRITE_TILE_FIREBALL, 1
+	.byte 3
+	.byte 16, 16
+
 VAR player_grenade_descriptor
 	.word grenade_tick
 	.word nothing
@@ -2582,4 +2702,5 @@ VAR explosion_stage_2_descriptor
 
 TILES unarmed_player_tiles, 4, "tiles/characters/player/unarmed.chr", 40
 TILES ghillie_player_tiles, 4, "tiles/characters/player/unarmed-ghillie.chr", 32
+TILES wizard_player_tiles, 4, "tiles/characters/player/unarmed-wizard.chr", 32
 TILES interact_tiles, 2, "tiles/interact.chr", 8

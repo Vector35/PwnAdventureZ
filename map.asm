@@ -45,9 +45,21 @@ veryhard:
 .endproc
 
 
-.code
-
 PROC init_map
+	lda current_bank
+	pha
+	lda #^do_init_map
+	jsr bankswitch
+	jsr do_init_map & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+.segment "UI"
+
+PROC do_init_map
 	; Initialize map generators
 	ldy #0
 genloop:
@@ -74,7 +86,7 @@ genloop:
 	lda #0
 	sta spawn_inside
 
-	jmp initvisited
+	jmp initvisited & $ffff
 
 hard:
 veryhard:
@@ -87,7 +99,7 @@ veryhard:
 	lda #0
 	sta spawn_inside
 
-	jmp initvisited
+	jmp initvisited & $ffff
 
 initvisited:
 	lda #<overworld_visited
@@ -110,6 +122,8 @@ nocode:
 	rts
 .endproc
 
+
+.code
 
 PROC prepare_map_gen
 	jsr clear_screen

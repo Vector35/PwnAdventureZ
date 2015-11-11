@@ -260,7 +260,23 @@ done:
 .endproc
 
 
+.segment "FIXED"
+
 PROC salvage_current_item
+	lda current_bank
+	pha
+	lda #^do_salvage_current_item
+	jsr bankswitch
+	jsr do_salvage_current_item & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
+.segment "UI"
+
+PROC do_salvage_current_item
 	; Get item to be salvaged
 	ldx selection
 	lda valid_crafting_list, x
@@ -308,7 +324,7 @@ deleteloop:
 	sta inventory + 1, x
 
 	inc arg3
-	jmp deleteloop
+	jmp deleteloop & $ffff
 
 deletedone:
 	dec inventory_count

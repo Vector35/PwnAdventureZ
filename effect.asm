@@ -630,6 +630,7 @@ VAR effect_descriptors
 	.word player_rocket_right_descriptor
 	.word player_rocket_up_descriptor
 	.word player_rocket_down_descriptor
+	.word player_fireball_descriptor
 	.word player_grenade_descriptor
 	.word player_bullet_descriptor
 	.word player_lmg_bullet_descriptor
@@ -648,6 +649,7 @@ VAR effect_descriptors
 	.word explosion_stage_1_descriptor
 	.word explosion_stage_2_descriptor
 	.word reflected_laser_descriptor
+	.word fireball_hit_descriptor
 	.word warp_descriptor
 
 

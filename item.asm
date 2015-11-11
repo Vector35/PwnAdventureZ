@@ -607,6 +607,34 @@ failed:
 .endproc
 
 
+PROC cast_fireball
+	PLAY_SOUND_EFFECT effect_light
+
+	lda #EFFECT_PLAYER_FIREBALL
+	sta arg2
+	lda player_x
+	sta arg0
+	lda player_y
+	sta arg1
+	jsr get_player_direction_bits
+	sta arg3
+	jsr create_effect
+
+	cmp #$ff
+	beq failed
+
+	sta cur_effect
+	jsr player_bullet_tick
+	jsr player_bullet_tick
+
+	lda #60
+	sta attack_cooldown
+
+failed:
+	rts
+.endproc
+
+
 .segment "FIXED"
 
 PROC find_item
