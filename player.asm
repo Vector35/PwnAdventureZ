@@ -134,6 +134,7 @@ PROC update_player_sprite
 PROC do_init_player_sprites
 	LOAD_ALL_TILES $100 + SPRITE_TILE_INTERACT, interact_tiles
 	LOAD_ALL_TILES $100 + SPRITE_TILE_CAMPFIRE, campfire_tiles
+	LOAD_ALL_TILES $100 + SPRITE_TILE_POWERUP, powerup_tiles
 
 	lda equipped_armor
 	cmp #ITEM_GHILLIE_SUIT
@@ -337,6 +338,48 @@ nocampfire:
 	sta sprites + SPRITE_OAM_CAMPFIRE + 4
 
 campfiredone:
+	lda wine_time
+	bne drunk
+	lda wine_time + 1
+	bne drunk
+
+	lda #$ff
+	sta sprites + SPRITE_OAM_POWERUP
+
+	jmp winedone & $ffff
+
+drunk:
+	lda #206
+	sta sprites + SPRITE_OAM_POWERUP
+	lda #SPRITE_TILE_POWERUP + 1
+	sta sprites + SPRITE_OAM_POWERUP + 1
+	lda #2
+	sta sprites + SPRITE_OAM_POWERUP + 2
+	lda #126
+	sta sprites + SPRITE_OAM_POWERUP + 3
+
+winedone:
+	lda coffee_time
+	bne oncoffee
+	lda coffee_time + 1
+	bne oncoffee
+
+	lda #$ff
+	sta sprites + SPRITE_OAM_POWERUP + 4
+
+	jmp coffeedone & $ffff
+
+oncoffee:
+	lda #216
+	sta sprites + SPRITE_OAM_POWERUP + 4
+	lda #SPRITE_TILE_POWERUP + 3
+	sta sprites + SPRITE_OAM_POWERUP + 5
+	lda #2
+	sta sprites + SPRITE_OAM_POWERUP + 6
+	lda #126
+	sta sprites + SPRITE_OAM_POWERUP + 7
+
+coffeedone:
 	lda interaction_type
 	cmp #INTERACT_NONE
 	beq nointeract
@@ -370,6 +413,23 @@ nointeract:
 
 
 .code
+
+PROC place_player_at_entrance
+	lda entrance_x
+	asl
+	asl
+	asl
+	asl
+	sta player_x
+	lda entrance_y
+	asl
+	asl
+	asl
+	asl
+	sta player_y
+	rts
+.endproc
+
 
 PROC perform_player_move
 	lda #0
@@ -870,18 +930,7 @@ transitionhouseinside:
 	; Entering house, place player at entrance
 	jsr prepare_map_gen
 	jsr gen_house
-	lda entrance_x
-	asl
-	asl
-	asl
-	asl
-	sta player_x
-	lda entrance_y
-	asl
-	asl
-	asl
-	asl
-	sta player_y
+	jsr place_player_at_entrance
 	lda #DIR_UP
 	sta player_direction
 	lda #1
@@ -895,18 +944,7 @@ transitionshopinside:
 	; Entering house, place player at entrance
 	jsr prepare_map_gen
 	jsr gen_shop
-	lda entrance_x
-	asl
-	asl
-	asl
-	asl
-	sta player_x
-	lda entrance_y
-	asl
-	asl
-	asl
-	asl
-	sta player_y
+	jsr place_player_at_entrance
 	lda #DIR_UP
 	sta player_direction
 	lda #1
@@ -955,18 +993,7 @@ transitionhouseoutside:
 	; Exiting house, place player at entrance
 	jsr prepare_map_gen
 	jsr gen_house
-	lda entrance_x
-	asl
-	asl
-	asl
-	asl
-	sta player_x
-	lda entrance_y
-	asl
-	asl
-	asl
-	asl
-	sta player_y
+	jsr place_player_at_entrance
 	lda #DIR_DOWN
 	sta player_direction
 	lda #1
@@ -980,18 +1007,7 @@ transitionshopoutside:
 	; Exiting shop, place player at entrance
 	jsr prepare_map_gen
 	jsr gen_shop
-	lda entrance_x
-	asl
-	asl
-	asl
-	asl
-	sta player_x
-	lda entrance_y
-	asl
-	asl
-	asl
-	asl
-	sta player_y
+	jsr place_player_at_entrance
 	lda #DIR_DOWN
 	sta player_direction
 	lda #1
@@ -1313,6 +1329,18 @@ ok:
 	sta temp
 
 noarmor:
+	lda wine_time
+	bne drunk
+	lda wine_time + 1
+	bne drunk
+	jmp sober
+
+drunk:
+	lda temp
+	lsr
+	sta temp
+
+sober:
 	lda player_health
 	sec
 	sbc temp
@@ -2704,3 +2732,4 @@ TILES unarmed_player_tiles, 4, "tiles/characters/player/unarmed.chr", 40
 TILES ghillie_player_tiles, 4, "tiles/characters/player/unarmed-ghillie.chr", 32
 TILES wizard_player_tiles, 4, "tiles/characters/player/unarmed-wizard.chr", 32
 TILES interact_tiles, 2, "tiles/interact.chr", 8
+TILES powerup_tiles, 2, "tiles/status/powerup.chr", 4

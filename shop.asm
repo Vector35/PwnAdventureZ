@@ -806,7 +806,7 @@ PROC do_setup_town_coffee_shop
 	sta purchase_items
 	lda #0
 	sta purchase_price_high
-	lda #1
+	lda #3
 	sta purchase_price_mid
 	lda #0
 	sta purchase_price_low
@@ -854,9 +854,9 @@ PROC do_setup_town_coffee_shop
 	sta sell_items + 3
 	lda #0
 	sta sell_price_high + 3
-	lda #0
+	lda #2
 	sta sell_price_mid + 3
-	lda #5
+	lda #0
 	sta sell_price_low + 3
 
 	lda #ITEM_WINE
@@ -997,7 +997,7 @@ PROC do_setup_outpost_coffee_shop
 	sta purchase_items
 	lda #0
 	sta purchase_price_high
-	lda #1
+	lda #3
 	sta purchase_price_mid
 	lda #0
 	sta purchase_price_low
@@ -1045,9 +1045,9 @@ PROC do_setup_outpost_coffee_shop
 	sta sell_items + 3
 	lda #0
 	sta sell_price_high + 3
-	lda #0
+	lda #2
 	sta sell_price_mid + 3
-	lda #5
+	lda #0
 	sta sell_price_low + 3
 
 	lda #ITEM_WINE

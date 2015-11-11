@@ -807,6 +807,26 @@ load:
 .endproc
 
 
+PROC use_wine
+	lda #0
+	sta wine_time
+	lda #60
+	sta wine_time + 1
+	lda #1
+	rts
+.endproc
+
+
+PROC use_coffee
+	lda #0
+	sta coffee_time
+	lda #90
+	sta coffee_time + 1
+	lda #1
+	rts
+.endproc
+
+
 .data
 
 VAR axe_item
@@ -999,14 +1019,14 @@ VAR ghillie_suit_item
 	.byte "MAKE LIKE A TREE AND SNIPE", 0
 
 VAR coffee_item
-	.word 0
+	.word use_coffee
 	.word coffee_tiles & $ffff
 	.byte ITEM_TYPE_CONSUMABLE
 	.byte "COFFEE         ", 0
 	.byte "GO INTO HYPER ACTIVE      ", 0
 
 VAR wine_item
-	.word 0
+	.word use_wine
 	.word wine_tiles & $ffff
 	.byte ITEM_TYPE_CONSUMABLE
 	.byte "WINE BOTTLE    ", 0

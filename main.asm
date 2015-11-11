@@ -186,11 +186,37 @@ normalmove:
 normalsecondmove:
 	lda equipped_armor
 	cmp #ITEM_SNEAKERS
-	bne movedone
+	bne sneakerdone
 
 	lda vblank_count
 	and #1
-	bne movedone
+	bne sneakerdone
+
+	lda #1
+	sta extra_player_move
+	jsr perform_player_move
+	beq sneakerdone
+	jmp prepare
+
+sneakerdone:
+	lda coffee_time
+	bne oncoffee
+	lda coffee_time + 1
+	beq movedone
+
+oncoffee:
+	dec coffee_time
+	lda coffee_time
+	cmp #$ff
+	bne docoffee
+	lda #59
+	sta coffee_time
+	dec coffee_time + 1
+
+docoffee:
+	lda vblank_count
+	and #1
+	beq movedone
 
 	lda #1
 	sta extra_player_move
@@ -199,6 +225,21 @@ normalsecondmove:
 	jmp prepare
 
 movedone:
+	lda wine_time
+	bne drunk
+	lda wine_time + 1
+	beq winedone
+
+drunk:
+	dec wine_time
+	lda wine_time
+	cmp #$ff
+	bne winedone
+	lda #59
+	sta wine_time
+	dec wine_time + 1
+
+winedone:
 	lda warp_to_new_screen
 	beq nowarp
 	jmp prepare
@@ -763,6 +804,11 @@ VAR campfire_x
 	.byte 0, 0, 0
 VAR campfire_y
 	.byte 0, 0, 0
+
+VAR coffee_time
+	.byte 0, 0
+VAR wine_time
+	.byte 0, 0
 
 
 .segment "TEMP"
