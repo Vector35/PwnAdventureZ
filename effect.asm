@@ -375,19 +375,6 @@ large:
 	and #$40
 	bne fliphoriz
 
-	lda effect_y, x
-	clc
-	adc #7
-	sta sprites, y
-	sta sprites + 4, y
-
-	lda effect_x, x
-	clc
-	adc #8
-	sta sprites + 3, y
-	adc #8
-	sta sprites + 7, y
-
 	lda effect_tile, x
 	clc
 	adc #1
@@ -395,13 +382,17 @@ large:
 	adc #2
 	sta sprites + 5, y
 
-	lda arg0
-	sta sprites + 2, y
-	sta sprites + 6, y
-
-	jmp next
+	jmp finish
 
 fliphoriz:
+	lda effect_tile, x
+	clc
+	adc #1
+	sta sprites + 5, y
+	adc #2
+	sta sprites + 1, y
+
+finish:
 	lda effect_y, x
 	clc
 	adc #7
@@ -414,13 +405,6 @@ fliphoriz:
 	sta sprites + 3, y
 	adc #8
 	sta sprites + 7, y
-
-	lda effect_tile, x
-	clc
-	adc #1
-	sta sprites + 5, y
-	adc #2
-	sta sprites + 1, y
 
 	lda arg0
 	sta sprites + 2, y

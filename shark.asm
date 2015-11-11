@@ -139,8 +139,11 @@ done:
 	rts
 .endproc
 
-PROC shark_collide
-	;Player should never collide with shark
+PROC shark_die
+	LOAD_PTR shark_drop_table
+	jsr enemy_die_with_drop_table
+
+	jsr remove_enemy
 	rts
 .endproc
 
@@ -789,13 +792,26 @@ VAR shark_laser_damage_descriptor
 
 VAR shark_descriptor
 	.word swiming_ai_tick
-	.word remove_enemy
-	.word shark_collide
+	.word shark_die
+	.word nothing
 	.word swiming_sprites_for_state
 	.byte SPRITE_TILE_SHARK
 	.byte 2 ;gun palette
 	.byte 3, 1
 	.byte 20
+
+VAR shark_drop_table
+	.byte 8
+	.word shark_drop_type
+	.word shark_drop_base_count
+	.word shark_drop_rand_count
+VAR shark_drop_type
+	.byte ITEM_GEM, ITEM_GEM, ITEM_NONE, ITEM_NONE
+	.byte ITEM_NONE, ITEM_NONE, ITEM_NONE, ITEM_NONE
+VAR shark_drop_base_count
+	.byte 1, 1, 0, 0, 0, 0, 0, 0
+VAR shark_drop_rand_count
+	.byte 1, 1, 1, 1, 1, 1, 1, 1
 
 
 VAR shooting_sprites_for_state

@@ -1971,6 +1971,23 @@ PROC enemy_die_with_drop
 	stx arg5
 
 	ldx cur_enemy
+	lda enemy_type, x
+	cmp #ENEMY_SHARK
+	bne notshark
+
+	lda arg4
+	cmp #ITEM_NONE
+	beq notshark
+
+	ldx arg5
+	jsr give_item_with_count
+	lda #ITEM_NONE
+	sta arg4
+	ldx #0
+	stx arg5
+	ldx cur_enemy
+
+notshark:
 	lda enemy_x, x
 	sta arg0
 	lda enemy_y, x
