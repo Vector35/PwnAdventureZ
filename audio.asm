@@ -590,6 +590,9 @@ VAR music_loop_bank_ptr
 .segment "AUDIO4"
 .include "audio/credits.asm"
 
+.segment "AUDIO5"
+.include "audio/forestfull.asm"
+
 
 .data
 
@@ -612,6 +615,11 @@ VAR forest_music_desc
 	.word music_forest_ptr & $ffff, music_forest_bank & $ffff
 	.word music_forest_ptr & $ffff, music_forest_bank & $ffff
 	.byte ^music_forest_ptr
+
+VAR forest_full_music_desc
+	.word music_forestfull_ptr & $ffff, music_forestfull_bank & $ffff
+	.word music_forestfull_ptr & $ffff, music_forestfull_bank & $ffff
+	.byte ^music_forestfull_ptr
 
 VAR town_music_desc
 	.word music_town_ptr & $ffff, music_town_bank & $ffff
@@ -636,6 +644,7 @@ VAR credits_music_desc
 VAR music_descriptors
 	.word cave_music_desc
 	.word forest_music_desc
+	.word forest_full_music_desc
 	.word horde_music_desc
 	.word title_music_desc
 	.word town_music_desc

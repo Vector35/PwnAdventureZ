@@ -627,7 +627,7 @@ PROC cast_fireball
 	jsr player_bullet_tick
 	jsr player_bullet_tick
 
-	lda #60
+	lda #45
 	sta attack_cooldown
 
 failed:

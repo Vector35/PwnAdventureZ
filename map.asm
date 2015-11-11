@@ -2772,7 +2772,7 @@ VAR initial_map_generators
 	.word gen_mine_down
 	.word gen_dead_wood
 	.word gen_unbearable
-	.word gen_forest
+	.word gen_start_forest
 	.word gen_start_forest_chest
 	.word gen_forest_boss
 	.word gen_boarded_house

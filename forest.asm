@@ -68,6 +68,18 @@ forest:
 .endproc
 
 
+PROC gen_start_forest
+	lda current_bank
+	pha
+	lda #^do_gen_start_forest
+	jsr bankswitch
+	jsr do_gen_start_forest & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
 PROC gen_forest
 	lda current_bank
 	pha
@@ -367,8 +379,23 @@ PROC do_gen_forest
 .endproc
 
 
+PROC do_gen_start_forest
+	lda #MUSIC_FOREST_INTRO
+	jsr play_music
+
+	LOAD_PTR forest_palette
+	jsr load_background_game_palette
+
+	jsr gen_forest_common & $ffff
+	jsr finish_forest & $ffff
+
+	jsr spawn_forest_enemies & $ffff
+	rts
+.endproc
+
+
 PROC do_gen_start_forest_chest
-	lda #MUSIC_FOREST
+	lda #MUSIC_FOREST_INTRO
 	jsr play_music
 
 	LOAD_PTR forest_palette
