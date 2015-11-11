@@ -431,6 +431,25 @@ PROC place_player_at_entrance
 .endproc
 
 
+PROC check_for_entrance
+	lda entrance_x
+	asl
+	asl
+	asl
+	asl
+	cmp player_x
+	bne done
+	lda entrance_y
+	asl
+	asl
+	asl
+	asl
+	cmp player_y
+done:
+	rts
+.endproc
+
+
 PROC perform_player_move
 	lda #0
 	sta arg4
@@ -455,6 +474,13 @@ normalmove:
 	lda controller
 	sta temp_controller
 
+	lda melee_active
+	beq nomelee
+
+	lda #0
+	sta temp_controller
+
+nomelee:
 	lda temp_controller
 	and #JOY_A
 	beq noactivate
@@ -502,19 +528,7 @@ up:
 	; Check for cave/house entrance
 	lda entrance_down
 	bne notentranceup
-	lda entrance_x
-	asl
-	asl
-	asl
-	asl
-	cmp player_x
-	bne notentranceup
-	lda entrance_y
-	asl
-	asl
-	asl
-	asl
-	cmp player_y
+	jsr check_for_entrance
 	bne notentranceup
 	jmp transitionenterup
 notentranceup:
@@ -597,19 +611,7 @@ down:
 	; Check for cave/house entrance
 	lda entrance_down
 	beq notentrancedown
-	lda entrance_x
-	asl
-	asl
-	asl
-	asl
-	cmp player_x
-	bne notentrancedown
-	lda entrance_y
-	asl
-	asl
-	asl
-	asl
-	cmp player_y
+	jsr check_for_entrance
 	bne notentrancedown
 	jmp transitionenterdown
 notentrancedown:
@@ -1609,6 +1611,8 @@ notup:
 done:
 	rts
 remove:
+	lda #0
+	sta melee_active
 	jsr remove_effect & $ffff
 	rts
 .endproc

@@ -327,6 +327,8 @@ PROC swing_axe
 	sta attack_cooldown
 	lda #1
 	sta attack_held
+	lda #1
+	sta melee_active
 	jsr player_melee_tick
 failed:
 	rts
@@ -351,6 +353,8 @@ PROC swing_sword
 	sta attack_cooldown
 	lda #1
 	sta attack_held
+	lda #1
+	sta melee_active
 	jsr player_melee_tick
 failed:
 	rts

@@ -93,6 +93,9 @@ prepare:
 
 	jsr save_enemies
 
+	lda #0
+	sta melee_active
+
 	lda inside
 	bne nocampfire
 
@@ -809,6 +812,9 @@ VAR coffee_time
 	.byte 0, 0
 VAR wine_time
 	.byte 0, 0
+
+VAR melee_active
+	.byte 0
 
 
 .segment "TEMP"
