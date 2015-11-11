@@ -1562,7 +1562,7 @@ PROC do_player_melee_tick
 	sta effect_x, x
 	lda player_y
 	clc
-	adc #0
+	adc #4
 	sta effect_y, x
 	jmp done & $ffff
 
