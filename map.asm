@@ -34,12 +34,20 @@ PROC activate_overworld_map
 	rts
 
 hard:
-veryhard:
 	lda #^hard_overworld_map
 	sta map_bank
 	lda #<hard_overworld_map
 	sta map_ptr
 	lda #>hard_overworld_map
+	sta map_ptr + 1
+	rts
+
+veryhard:
+	lda #^very_hard_overworld_map
+	sta map_bank
+	lda #<very_hard_overworld_map
+	sta map_ptr
+	lda #>very_hard_overworld_map
 	sta map_ptr + 1
 	rts
 .endproc
@@ -83,25 +91,31 @@ genloop:
 	lda #17
 	sta cur_screen_y
 	sta spawn_screen_y
-	lda #0
-	sta spawn_inside
 
 	jmp initvisited & $ffff
 
 hard:
-veryhard:
 	lda #7
 	sta cur_screen_x
 	sta spawn_screen_x
 	lda #11
 	sta cur_screen_y
 	sta spawn_screen_y
-	lda #0
-	sta spawn_inside
 
 	jmp initvisited & $ffff
 
+veryhard:
+	lda #7
+	sta cur_screen_x
+	sta spawn_screen_x
+	lda #10
+	sta cur_screen_y
+	sta spawn_screen_y
+
 initvisited:
+	lda #0
+	sta spawn_inside
+
 	lda #<overworld_visited
 	sta map_visited_ptr
 	lda #>overworld_visited

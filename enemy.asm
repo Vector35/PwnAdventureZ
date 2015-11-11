@@ -252,6 +252,7 @@ hard:
 veryhard:
 	ldy #ENEMY_DESC_HEALTH
 	lda (ptr), y
+	sta temp
 	asl
 	clc
 	adc temp

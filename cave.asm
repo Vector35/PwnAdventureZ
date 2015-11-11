@@ -1298,12 +1298,20 @@ PROC do_mine_entrance_interact
 	jmp done & $ffff
 
 hard:
-veryhard:
 	lda #^hard_mine_map
 	sta map_bank
 	lda #<hard_mine_map
 	sta map_ptr
 	lda #>hard_mine_map
+	sta map_ptr + 1
+	jmp done & $ffff
+
+veryhard:
+	lda #^very_hard_mine_map
+	sta map_bank
+	lda #<very_hard_mine_map
+	sta map_ptr
+	lda #>very_hard_mine_map
 	sta map_ptr + 1
 
 done:
