@@ -1539,12 +1539,30 @@ botnotlake:
 PROC do_sewer_entrance_interact
 	jsr fade_out
 
+	lda difficulty
+	cmp #1
+	beq hard
+	cmp #2
+	beq veryhard
+
 	lda #^normal_sewer_map
 	sta map_bank
 	lda #<normal_sewer_map
 	sta map_ptr
 	lda #>normal_sewer_map
 	sta map_ptr + 1
+	jmp done & $ffff
+
+hard:
+veryhard:
+	lda #^hard_sewer_map
+	sta map_bank
+	lda #<hard_sewer_map
+	sta map_ptr
+	lda #>hard_sewer_map
+	sta map_ptr + 1
+
+done:
 	lda #<sewer_visited
 	sta map_visited_ptr
 	lda #>sewer_visited
