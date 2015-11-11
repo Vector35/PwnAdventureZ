@@ -81,6 +81,12 @@ PROC do_gen_mine_common
 	lda #MUSIC_MINE
 	jsr play_music
 
+	inc gen_cur_index
+	inc gen_left_index
+	inc gen_right_index
+	inc gen_up_index
+	inc gen_down_index
+
 	jsr do_gen_cave_common & $ffff
 	LOAD_ALL_TILES $100 + SPRITE_TILE_THIN_ZOMBIE , thin_zombie_tiles
 	rts
