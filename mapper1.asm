@@ -17,6 +17,48 @@
 
 .segment "FIXED"
 
+PROC write_mapper_8000
+	sta $8000
+	lsr
+	sta $8000
+	lsr
+	sta $8000
+	lsr
+	sta $8000
+	lsr
+	sta $8000
+	rts
+.endproc
+
+
+PROC write_mapper_a000
+	sta $a000
+	lsr
+	sta $a000
+	lsr
+	sta $a000
+	lsr
+	sta $a000
+	lsr
+	sta $a000
+	rts
+.endproc
+
+
+PROC write_mapper_e000
+	sta $e000
+	lsr
+	sta $e000
+	lsr
+	sta $e000
+	lsr
+	sta $e000
+	lsr
+	sta $e000
+	rts
+.endproc
+
+
 PROC reset_mapper
 	; Reset the mapper write state
 	lda #$80
@@ -24,39 +66,15 @@ PROC reset_mapper
 
 	; Init settings (8k CHR, 16k PRG, $8000 swap, vertical)
 	lda #$0e
-	sta $8000
-	lsr
-	sta $8000
-	lsr
-	sta $8000
-	lsr
-	sta $8000
-	lsr
-	sta $8000
+	jsr write_mapper_8000
 
 	; Set CHR select to 0, disable save RAM for some SNROM boards
 	lda #$10
-	sta $a000
-	lsr
-	sta $a000
-	lsr
-	sta $a000
-	lsr
-	sta $a000
-	lsr
-	sta $a000
+	jsr write_mapper_a000
 
 	; Map first bank into $8000, disable save RAM until accessing
 	lda #$10
-	sta $e000
-	lsr
-	sta $e000
-	lsr
-	sta $e000
-	lsr
-	sta $e000
-	lsr
-	sta $e000
+	jsr write_mapper_e000
 
 	rts
 .endproc
@@ -82,15 +100,7 @@ nmi:
 	pla
 	pha
 	ora #$10
-	sta $e000
-	lsr
-	sta $e000
-	lsr
-	sta $e000
-	lsr
-	sta $e000
-	lsr
-	sta $e000
+	jsr write_mapper_e000
 
 	lda in_nmi
 	bne done
@@ -117,15 +127,7 @@ ramnmi:
 
 	pla
 	pha
-	sta $e000
-	lsr
-	sta $e000
-	lsr
-	sta $e000
-	lsr
-	sta $e000
-	lsr
-	sta $e000
+	jsr write_mapper_e000
 
 	lda in_nmi
 	bne ramdone
@@ -164,26 +166,10 @@ nmi:
 	sta $8000
 
 	lda current_bank
-	sta $e000
-	lsr
-	sta $e000
-	lsr
-	sta $e000
-	lsr
-	sta $e000
-	lsr
-	sta $e000
+	jsr write_mapper_e000
 
 	lda #$00
-	sta $a000
-	lsr
-	sta $a000
-	lsr
-	sta $a000
-	lsr
-	sta $a000
-	lsr
-	sta $a000
+	jsr write_mapper_a000
 
 	lda in_nmi
 	bne done
@@ -215,26 +201,10 @@ nmi:
 
 	lda current_bank
 	ora #$10
-	sta $e000
-	lsr
-	sta $e000
-	lsr
-	sta $e000
-	lsr
-	sta $e000
-	lsr
-	sta $e000
+	jsr write_mapper_e000
 
 	lda #$10
-	sta $a000
-	lsr
-	sta $a000
-	lsr
-	sta $a000
-	lsr
-	sta $a000
-	lsr
-	sta $a000
+	jsr write_mapper_a000
 
 	lda in_nmi
 	bne done

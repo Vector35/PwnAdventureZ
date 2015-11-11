@@ -268,8 +268,10 @@ PROC salvage_current_item
 	lda #^do_salvage_current_item
 	jsr bankswitch
 	jsr do_salvage_current_item & $ffff
+	sta arg0
 	pla
 	jsr bankswitch
+	lda arg0
 	rts
 .endproc
 
@@ -747,7 +749,7 @@ getcountstr:
 	cmp #ITEM_TYPE_GUN
 	beq ammo
 	cmp #ITEM_TYPE_GRENADE
-	beq weapon
+	beq ammo
 	cmp #ITEM_TYPE_CRAFTING
 	beq crafting
 	cmp #ITEM_TYPE_OUTFIT
@@ -762,9 +764,6 @@ ammo:
 	jmp drawtype & $ffff
 crafting:
 	LOAD_PTR inventory_crafting_tiles
-	jmp drawtype & $ffff
-weapon:
-	LOAD_PTR inventory_weapon_tiles
 	jmp drawtype & $ffff
 wearable:
 	LOAD_PTR inventory_wearable_tiles
