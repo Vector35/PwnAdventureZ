@@ -299,7 +299,7 @@ restoredspawn:
 
 
 PROC gen_sewer_common
-	lda #MUSIC_CAVE
+	lda #MUSIC_SEWER
 	jsr play_music
 
 	LOAD_ALL_TILES WALL_TILES, sewer_border_tiles

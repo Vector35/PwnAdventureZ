@@ -486,7 +486,7 @@ key2done:
 	jsr load_single_palette
 	jsr prepare_for_rendering
 
-	lda #MUSIC_CAVE
+	lda #MUSIC_SEWER
 	jsr play_music
 	rts
 
@@ -497,7 +497,7 @@ key3done:
 	jsr load_single_palette
 	jsr prepare_for_rendering
 
-	lda #MUSIC_CAVE
+	lda #MUSIC_MINE
 	jsr play_music
 	rts
 
