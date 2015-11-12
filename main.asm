@@ -255,8 +255,8 @@ nowarp:
 vblank:
 	jsr wait_for_vblank
 	jsr update_player_surroundings
-	jsr update_player_sprite
 	jsr update_status_bar
+	jsr update_player_sprite
 	jsr prepare_for_rendering
 
 	jsr update_enemy_sprites
