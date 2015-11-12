@@ -4,7 +4,7 @@ READ CAREFULLY, PLEASE!
 
 For CSAW 2015, a special retro-edition of Pwn Adventure was created combining some modern gaming concepts on an antique platform. After all, it's the 30th anniversary of Mario -- what better way than to celebrate with an NES style PwnAdventure game!
 
-For this challenge, you will find the enclosed files helpful. The .nl files are debug symbol files that can be used by the FCEUX Emulator and Binary Ninja (http://vector35.com/csaw). Note that only the Windows version of FCEUX supports debugging unfortunately. The .map file is created by the assembler/compiler and was used to create the .nl files.
+For this challenge, you will find the enclosed files helpful. The .nl files are debug symbol files that can be used by the FCEUX Emulator and Binary Ninja (https://vector35.com/csaw). Note that only the Windows version of FCEUX supports debugging unfortunately. The .map file is created by the assembler/compiler and was used to create the .nl files.
 
 As to the game itself, there are seven challenges in it. The first can be solved using only the files included here, the next six are all only solvable if you play the game on one of the physical NES systems set up in the CTF room. The flags are clearly identified in the game by their format, usually something like "THE FLAG IS FLAGGOESHERE".
 
