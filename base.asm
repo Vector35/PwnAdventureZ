@@ -72,6 +72,18 @@ PROC boss_main_tick
 .endproc
 
 
+PROC fire_laser_bankswitch
+	lda current_bank
+	pha
+	lda #^fire_laser
+	jsr bankswitch
+	jsr fire_laser & $ffff
+	pla
+	jsr bankswitch
+	rts
+.endproc
+
+
 .code
 
 PROC boss_die
@@ -664,13 +676,13 @@ shootlasers:
 	sta arg4
 	lda #5
 	sta arg5
-	jsr fire_laser & $ffff
+	jsr fire_laser_bankswitch
 
 	lda #20
 	sta arg4
 	lda #5
 	sta arg5
-	jsr fire_laser & $ffff
+	jsr fire_laser_bankswitch
 
 	rts
 

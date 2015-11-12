@@ -353,7 +353,7 @@ startcredits:
 	ldx #15
 	ldy #13
 	jsr write_string
-	ldx #17
+	ldx #18
 	ldy #15
 	jsr write_string
 

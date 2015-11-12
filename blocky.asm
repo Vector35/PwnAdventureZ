@@ -476,9 +476,7 @@ write_urn:
 
 .segment "FIXED"
 
-;x = urns x value
-;y = urns y value
-PROC toggle_urn
+PROC get_urn_position
 	;trickery to get bit index of blocky_state from
 	; urn x and y position
 	txa
@@ -504,6 +502,15 @@ PROC toggle_urn
 	and #7
 	tay
 
+	rts
+.endproc
+
+
+;x = urns x value
+;y = urns y value
+PROC toggle_urn
+	jsr get_urn_position
+
 	;now we have the bit position y
 	;and the byte position in x
 	lda blocky_state, x
@@ -516,29 +523,7 @@ PROC toggle_urn
 ;y = urns y value
 ; return 0 or non-zero in a
 PROC is_urn_on
-	; same trickery as above
-	txa
-	sec
-	sbc #2
-	lsr
-	asl
-	asl
-	sta temp
-
-	tya
-	sec
-	sbc #2
-	lsr
-	ora temp
-	sta temp
-	lsr
-	lsr
-	lsr
-	tax
-
-	lda temp
-	and #7
-	tay
+	jsr get_urn_position
 
 	;now we have the bit position y
 	;and the byte position in x
@@ -550,6 +535,13 @@ PROC is_urn_on
 
 .code
 
+PROC spawn_fat_zombie
+	lda #ENEMY_FAT_ZOMBIE
+	jsr spawn_starting_enemy
+	rts
+.endproc
+
+
 PROC bigdoor_interact
 	jsr check_blocky_state
 	cmp #0
@@ -557,22 +549,14 @@ PROC bigdoor_interact
 
 	lda #1
 	sta horde_active
-	lda #ENEMY_FAT_ZOMBIE
-	jsr spawn_starting_enemy
-	lda #ENEMY_FAT_ZOMBIE
-	jsr spawn_starting_enemy
-	lda #ENEMY_FAT_ZOMBIE
-	jsr spawn_starting_enemy
-	lda #ENEMY_FAT_ZOMBIE
-	jsr spawn_starting_enemy
-	lda #ENEMY_FAT_ZOMBIE
-	jsr spawn_starting_enemy
-	lda #ENEMY_FAT_ZOMBIE
-	jsr spawn_starting_enemy
-	lda #ENEMY_FAT_ZOMBIE
-	jsr spawn_starting_enemy
-	lda #ENEMY_FAT_ZOMBIE
-	jsr spawn_starting_enemy
+	jsr spawn_fat_zombie
+	jsr spawn_fat_zombie
+	jsr spawn_fat_zombie
+	jsr spawn_fat_zombie
+	jsr spawn_fat_zombie
+	jsr spawn_fat_zombie
+	jsr spawn_fat_zombie
+	jsr spawn_fat_zombie
 	lda #0
 	sta horde_active
 

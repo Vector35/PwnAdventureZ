@@ -310,6 +310,26 @@ done:
 .endproc
 
 
+PROC refresh_purchase_indexes
+	lda #0
+	sta arg0
+refreshloop:
+	ldx arg0
+	lda valid_shop_list, x
+	tax
+	lda purchase_items, x
+	jsr find_item
+	ldx arg0
+	sta valid_shop_index, x
+	ldx arg0
+	inx
+	stx arg0
+	cpx valid_shop_count
+	bne refreshloop
+	rts
+.endproc
+
+
 PROC buy_gun
 	ldx #12
 	jsr give_weapon
@@ -327,21 +347,7 @@ moveloop:
 	dec valid_shop_count
 
 	; Refresh item indexes as they may have changed
-	lda #0
-	sta arg0
-refreshloop:
-	ldx arg0
-	lda valid_shop_list, x
-	tax
-	lda purchase_items, x
-	jsr find_item
-	ldx arg0
-	sta valid_shop_index, x
-	ldx arg0
-	inx
-	stx arg0
-	cpx valid_shop_count
-	bne refreshloop
+	jsr refresh_purchase_indexes
 
 	jsr render_buy_items
 	jsr clear_last_buy_item
@@ -354,21 +360,7 @@ PROC buy_item
 	jsr give_item
 
 	; Refresh item indexes as they may have changed
-	lda #0
-	sta arg0
-refreshloop:
-	ldx arg0
-	lda valid_shop_list, x
-	tax
-	lda purchase_items, x
-	jsr find_item
-	ldx arg0
-	sta valid_shop_index, x
-	ldx arg0
-	inx
-	stx arg0
-	cpx valid_shop_count
-	bne refreshloop
+	jsr refresh_purchase_indexes
 
 	; Get string with item count
 	lda selection

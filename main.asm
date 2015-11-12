@@ -278,9 +278,17 @@ PROC new_game
 	sta scratch + 3
 
 	ldx #0
+timecopyloop:
+	lda time_played, x
+	sta scratch + 4, x
+	inx
+	cpx #6
+	bne timecopyloop
+
+	ldx #0
 namecopyloop:
 	lda name, x
-	sta scratch + 4, x
+	sta scratch + 10, x
 	inx
 	cpx #15
 	bne namecopyloop
@@ -313,8 +321,16 @@ clearloop:
 	sta secret_code
 
 	ldx #0
-namerestoreloop:
+timerestoreloop:
 	lda scratch + 4, x
+	sta time_played, x
+	inx
+	cpx #6
+	bne timerestoreloop
+
+	ldx #0
+namerestoreloop:
+	lda scratch + 10, x
 	sta name, x
 	inx
 	cpx #15
