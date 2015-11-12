@@ -310,7 +310,7 @@ PROC create_melee_effect
 
 
 PROC swing_axe
-	PLAY_SOUND_EFFECT effect_pistol
+	PLAY_SOUND_EFFECT effect_melee
 
 	lda #EFFECT_PLAYER_AXE
 	sta arg2
@@ -336,7 +336,7 @@ failed:
 
 
 PROC swing_sword
-	PLAY_SOUND_EFFECT effect_pistol
+	PLAY_SOUND_EFFECT effect_melee
 
 	lda #EFFECT_PLAYER_SWORD
 	sta arg2
@@ -380,11 +380,17 @@ PROC create_bullet_effect
 PROC throw_grenade
 	jsr use_one_ammo
 
-	PLAY_SOUND_EFFECT effect_pistol
+	PLAY_SOUND_EFFECT effect_melee
 
 	lda #EFFECT_PLAYER_GRENADE
 	sta arg2
-	jsr create_bullet_effect
+	lda player_x
+	sta arg0
+	lda player_y
+	sta arg1
+	jsr get_player_direction_bits
+	sta arg3
+	jsr create_effect
 
 	cmp #$ff
 	beq failed
@@ -432,7 +438,7 @@ failed:
 PROC fire_hand_cannon
 	jsr use_one_ammo
 
-	PLAY_SOUND_EFFECT effect_pistol
+	PLAY_SOUND_EFFECT effect_handcannon
 
 	lda #EFFECT_PLAYER_HAND_CANNON_BULLET
 	sta arg2
@@ -458,7 +464,7 @@ failed:
 PROC fire_smg
 	jsr use_one_ammo
 
-	PLAY_SOUND_EFFECT effect_pistol
+	PLAY_SOUND_EFFECT effect_smg
 
 	lda #EFFECT_PLAYER_BULLET
 	sta arg2
@@ -482,7 +488,7 @@ failed:
 PROC fire_lmg
 	jsr use_one_ammo
 
-	PLAY_SOUND_EFFECT effect_pistol
+	PLAY_SOUND_EFFECT effect_lmg
 
 	lda #EFFECT_PLAYER_LMG_BULLET
 	sta arg2
@@ -506,7 +512,7 @@ failed:
 PROC fire_ak
 	jsr use_one_ammo
 
-	PLAY_SOUND_EFFECT effect_pistol
+	PLAY_SOUND_EFFECT effect_ak
 
 	lda #EFFECT_PLAYER_AK_BULLET
 	sta arg2
@@ -530,7 +536,7 @@ failed:
 PROC fire_sniper
 	jsr use_one_ammo
 
-	PLAY_SOUND_EFFECT effect_pistol
+	PLAY_SOUND_EFFECT effect_sniper
 
 	lda #EFFECT_PLAYER_SNIPER_BULLET
 	sta arg2
@@ -554,7 +560,7 @@ failed:
 PROC fire_shotgun
 	jsr use_one_ammo
 
-	PLAY_SOUND_EFFECT effect_pistol
+	PLAY_SOUND_EFFECT effect_shotgun
 
 	lda #EFFECT_PLAYER_SHOTGUN_BULLET
 	sta arg2
@@ -582,7 +588,7 @@ failed:
 PROC fire_rocket
 	jsr use_one_ammo
 
-	PLAY_SOUND_EFFECT effect_pistol
+	PLAY_SOUND_EFFECT effect_rocket
 
 	lda player_x
 	clc

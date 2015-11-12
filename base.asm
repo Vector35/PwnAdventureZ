@@ -90,14 +90,14 @@ PROC boss_die
 	lda #MUSIC_CREDITS
 	jsr play_music
 
+	jsr remove_enemy
+
 	ldx cur_enemy
 	lda enemy_x, x
 	sta arg0
 	lda enemy_y, x
 	sta arg1
 	jsr explode
-
-	jsr remove_enemy
 
 	lda #1
 	sta boss_beaten
@@ -299,14 +299,14 @@ nextblank:
 hard:
 	lda #0
 	sta enemy_health
-	lda #6
+	lda #10
 	sta enemy_health + 1
 	rts
 
 veryhard:
 	lda #0
 	sta enemy_health
-	lda #8
+	lda #15
 	sta enemy_health + 1
 	rts
 .endproc

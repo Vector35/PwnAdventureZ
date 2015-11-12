@@ -571,6 +571,14 @@ VAR music_loop_bank_ptr
 .include "audio/laser.asm"
 .include "audio/warp.asm"
 .include "audio/boom.asm"
+.include "audio/ak.asm"
+.include "audio/handcannon.asm"
+.include "audio/lmg.asm"
+.include "audio/melee.asm"
+.include "audio/rocket.asm"
+.include "audio/shotgun.asm"
+.include "audio/smg.asm"
+.include "audio/sniper.asm"
 
 .segment "AUDIO0"
 .include "audio/cave.asm"
@@ -595,6 +603,9 @@ VAR music_loop_bank_ptr
 
 .segment "AUDIO6"
 .include "audio/blocky.asm"
+
+.segment "AUDIO7"
+.include "audio/sewer.asm"
 
 
 .data
@@ -649,6 +660,11 @@ VAR blocky_music_desc
 	.word music_blocky_ptr & $ffff, music_blocky_bank & $ffff
 	.byte ^music_blocky_ptr
 
+VAR sewer_music_desc
+	.word music_sewer_ptr & $ffff, music_sewer_bank & $ffff
+	.word music_sewer_ptr & $ffff, music_sewer_bank & $ffff
+	.byte ^music_sewer_ptr
+
 VAR music_descriptors
 	.word cave_music_desc
 	.word forest_music_desc
@@ -660,3 +676,4 @@ VAR music_descriptors
 	.word boss_music_desc
 	.word credits_music_desc
 	.word blocky_music_desc
+	.word sewer_music_desc

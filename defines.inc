@@ -513,7 +513,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 ; Music defines
 .define MUSIC_NONE         0
 .define MUSIC_CAVE         1
-.define MUSIC_FOREST_INTRO 2
+.define MUSIC_FOREST_INTRO 3
 .define MUSIC_FOREST       3
 .define MUSIC_HORDE        4
 .define MUSIC_TITLE        5
@@ -522,6 +522,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .define MUSIC_BOSS         8
 .define MUSIC_CREDITS      9
 .define MUSIC_BLOCKY       10
+.define MUSIC_SEWER        11
 
 
 ; Quest complete bits
