@@ -623,6 +623,7 @@ VAR effect_descriptors
 	.word player_shotgun_bullet_descriptor
 	.word player_left_bullet_descriptor
 	.word player_right_bullet_descriptor
+	.word player_hand_cannon_bullet_descriptor
 	.word drop_descriptor
 	.word enemy_death_descriptor
 	.word player_bullet_damage_descriptor

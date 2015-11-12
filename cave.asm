@@ -1460,8 +1460,8 @@ key5done:
 	sta highlighted_quest_steps
 notallkeys:
 
-	lda #ITEM_LMG
-	ldx #60
+	lda #ITEM_HAND_CANNON
+	ldx #30
 	jsr give_weapon
 	lda #ITEM_GEM
 	ldx #5

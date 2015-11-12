@@ -243,20 +243,7 @@ emptyinventory:
 	jmp inventory
 
 done:
-	PLAY_SOUND_EFFECT effect_select
-
-	jsr fade_out
-
-	lda saved_ppu_settings
-	sta ppu_settings
-
-	jsr update_equipped_item_slots
-	jsr back_to_game_from_alternate_screen
-
-	LOAD_PTR saved_palette
-	jsr fade_in
-
-	rts
+	jmp end_inventory_screen
 .endproc
 
 

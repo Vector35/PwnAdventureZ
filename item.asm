@@ -393,7 +393,7 @@ PROC throw_grenade
 	jsr player_bullet_tick
 	jsr player_bullet_tick
 
-	lda #60
+	lda #80
 	sta attack_cooldown
 	lda #1
 	sta attack_held
@@ -420,6 +420,32 @@ PROC fire_pistol
 	jsr player_bullet_tick
 
 	lda #15
+	sta attack_cooldown
+	lda #1
+	sta attack_held
+
+failed:
+	rts
+.endproc
+
+
+PROC fire_hand_cannon
+	jsr use_one_ammo
+
+	PLAY_SOUND_EFFECT effect_pistol
+
+	lda #EFFECT_PLAYER_HAND_CANNON_BULLET
+	sta arg2
+	jsr create_bullet_effect
+
+	cmp #$ff
+	beq failed
+
+	sta cur_effect
+	jsr player_bullet_tick
+	jsr player_bullet_tick
+
+	lda #30
 	sta attack_cooldown
 	lda #1
 	sta attack_held
@@ -493,7 +519,7 @@ PROC fire_ak
 	jsr player_bullet_tick
 	jsr player_bullet_tick
 
-	lda #8
+	lda #10
 	sta attack_cooldown
 
 failed:
@@ -890,11 +916,11 @@ VAR sniper_item
 	.byte "TAKE THEM OUT FROM AFAR   ", 0
 
 VAR hand_cannon_item
-	.word 0
+	.word fire_hand_cannon
 	.word hand_cannon_tiles & $ffff
 	.byte ITEM_TYPE_GUN
 	.byte "HAND CANNON    ", 0
-	.byte "THE ENVY OF ALL PIRATES   ", 0
+	.byte "A VERY LARGE REVOLVER     ", 0
 
 VAR rocket_launcher_item
 	.word fire_rocket
