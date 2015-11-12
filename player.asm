@@ -1392,6 +1392,18 @@ PROC bullet_hit_enemy
 .endproc
 
 
+PROC hand_cannon_bullet_hit_enemy
+	PLAY_SOUND_EFFECT effect_enemyhit
+
+	lda #40
+	jsr enemy_damage
+
+	jsr player_bullet_tick
+	jsr show_bullet_damage_effect
+	rts
+.endproc
+
+
 PROC lmg_bullet_hit_enemy
 	PLAY_SOUND_EFFECT effect_enemyhit
 
@@ -1421,7 +1433,7 @@ PROC lmg_bullet_hit_enemy
 PROC ak_bullet_hit_enemy
 	PLAY_SOUND_EFFECT effect_enemyhit
 
-	lda #12
+	lda #15
 	jsr enemy_damage
 
 	jsr player_bullet_tick
@@ -1433,7 +1445,7 @@ PROC ak_bullet_hit_enemy
 PROC sniper_bullet_hit_enemy
 	PLAY_SOUND_EFFECT effect_enemyhit
 
-	lda #60
+	lda #80
 	jsr enemy_damage
 
 	jsr player_bullet_tick
@@ -2168,7 +2180,7 @@ enemyhit:
 	pha
 
 	stx cur_enemy
-	lda #40
+	lda #60
 	jsr enemy_damage
 
 	pla
@@ -2346,7 +2358,7 @@ notdown:
 PROC fireball_hit_enemy
 	PLAY_SOUND_EFFECT effect_enemyhit
 
-	lda #10
+	lda #25
 	jsr enemy_damage
 	jsr melee_attack_knockback
 
@@ -2682,6 +2694,15 @@ VAR player_left_bullet_descriptor
 	.word player_left_bullet_tick
 	.word nothing
 	.word shotgun_bullet_hit_enemy
+	.word bullet_hit_world
+	.byte SPRITE_TILE_BULLET, 0
+	.byte 2
+	.byte 3, 3
+
+VAR player_hand_cannon_bullet_descriptor
+	.word player_bullet_tick
+	.word nothing
+	.word hand_cannon_bullet_hit_enemy
 	.word bullet_hit_world
 	.byte SPRITE_TILE_BULLET, 0
 	.byte 2

@@ -448,6 +448,11 @@ emptycrafting:
 	jmp craft
 
 done:
+	jmp end_inventory_screen
+.endproc
+
+
+PROC end_inventory_screen
 	PLAY_SOUND_EFFECT effect_select
 
 	jsr fade_out
