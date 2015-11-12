@@ -2,6 +2,19 @@
 <html>
 <head>
 <style>
+	/*
+	Handy Keyboard shortcuts: 
+		A: "A",
+		B: "S",
+		START: "ENTER",
+		SELECT: "SHIFT" 
+		<SPEED UP>: "SPACE"
+
+		Note that this is NOT needed to solve any challenges, we just put it in
+		for fun because we had a JavaScript NES emulator sitting around.
+		Doesn't everyone? 
+
+	*/
 	body {
 		background-color: black;
 
@@ -32,15 +45,16 @@
 	#canvas {
 		margin-left: 95px;
 		margin-top: 80px;
-		margin-bottom: 120px;
+		margin-bottom: 60px;
 		mix-blend-mode: lighten;
 		-webkit-blend-mode: lighten;
 	}
 </style>
 
-<title>GITS Fanatic Challenge</title>
+<title>Pwn Adventure Z JavaScript Fun</title>
 <script language="javascript">
 // CPU flags
+var FRAMERATE = 1000 / 60;
 var C_FLAG = 1 << 0;
 var Z_FLAG = 1 << 1;
 var I_FLAG = 1 << 2;
@@ -954,11 +968,22 @@ function Disassemble(addr)
 
 function KeyDown(event)
 {
+	if (event.keyCode == 97)
+		joy1[0] = 1;
+	if (event.keyCode == 65)
+		joy1[0] = 1;
 	if (event.keyCode == 88) 
 		joy1[0] = 1;
 	if (event.keyCode == 90)
 		joy1[1] = 1;
+	if (event.keyCode == 115) 
+		joy1[1] = 1;
+	if (event.keyCode == 83) 
+		joy1[1] = 1;
 	if (event.keyCode == 32)
+		FRAMERATE=250/60;
+		//joy1[2] = 1;
+	if (event.keyCode == 16)
 		joy1[2] = 1;
 	if (event.keyCode == 13)
 		joy1[3] = 1;
@@ -974,11 +999,22 @@ function KeyDown(event)
 
 function KeyUp(event)
 {
+	if (event.keyCode == 97)
+		joy1[0] = 0;
+	if (event.keyCode == 65)
+		joy1[0] = 0;
 	if (event.keyCode == 88)
 		joy1[0] = 0;
 	if (event.keyCode == 90)
 		joy1[1] = 0;
+	if (event.keyCode == 115) 
+		joy1[1] = 0;
+	if (event.keyCode == 83) 
+		joy1[1] = 0;
 	if (event.keyCode == 32)
+		FRAMERATE=1000/60;
+		//joy1[2] = 0;
+	if (event.keyCode == 16)
 		joy1[2] = 0;
 	if (event.keyCode == 13)
 		joy1[3] = 0;
@@ -1050,7 +1086,7 @@ function SingleStep()
 
 function ExecuteFrame()
 {
-	setTimeout(ExecuteFrame, 1000 / 60);
+	setTimeout(ExecuteFrame, FRAMERATE);
 
 	while (!frameReady)
 		SingleStep();
