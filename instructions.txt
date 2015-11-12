@@ -1,14 +1,14 @@
-Welcome to Pwn Adventure Z! The latest iteration of the Pwn Adventure Series.
+Welcome to Pwn Adventure Z! The latest iteration of the Pwn Adventure Series (http://pwnadventure.com/).
 
 READ CAREFULLY, PLEASE!
 
-For CSAW 2015, a special retro-edition of Pwn Adventure was created combining some modern gaming concepts with traditional game programming. After all, it's the 30th anniversary of Mario -- what better way than to celebrate with an NES style PwnAdventure game!
+For CSAW 2015, a special retro-edition of Pwn Adventure was created combining some modern gaming concepts on an antique platform. After all, it's the 30th anniversary of Mario -- what better way than to celebrate with an NES style PwnAdventure game!
 
-For this challenge, you will find the enclosed files handy. The .nl files are debug symbol files for the FCEUX Emulator. Note that only the Windows version supports debugging unfortunately. The .map file is created by the assembler/compiler and was used to create the .nl files.
+For this challenge, you will find the enclosed files helpful. The .nl files are debug symbol files that can be used by the FCEUX Emulator and Binary Ninja (http://vector35.com/csaw). Note that only the Windows version of FCEUX supports debugging unfortunately. The .map file is created by the assembler/compiler and was used to create the .nl files.
 
-As to the game itself, there are seven challenges built in. The first can be solved using only the files included here, the next six are all only solvable if you play the game on one of the physical NES systems set up in the CTF room. The flags are clearly identified in the game by their format, usually something like "THE FLAG IS FLAGGOESHERE".
+As to the game itself, there are seven challenges in it. The first can be solved using only the files included here, the next six are all only solvable if you play the game on one of the physical NES systems set up in the CTF room. The flags are clearly identified in the game by their format, usually something like "THE FLAG IS FLAGGOESHERE".
 
-DO NOT LOOK FOR FLAGS IN THE HARD OR APOCALYPSE MODES! Those game modes are purely for your enjoyment in playing the game later. While it's possible we have a flaw only available from there that gets flags, it's unlikely and we encourage you to focus on the easy mode that has all the intended solutions.
+DO NOT LOOK FOR FLAGS IN THE HARD OR APOCALYPSE MODES! Those game modes are purely for your enjoyment in playing the game later. While it's possible we have a flaw only available from there that enables getting flags, it's unlikely and we encourage you to focus on the easy mode that contains all the intended solutions.
 
 Points - Category - Name (Description)
 25 - Forensics - GreetingsEarthling (Only challenge included in the ROM file)
@@ -21,4 +21,4 @@ Points - Category - Name (Description)
 
 Good luck.
 
-Vector 35 and the CSAW organizers
+Vector 35 and the CSAW CTF organizers
