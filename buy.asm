@@ -630,7 +630,18 @@ count:
 	jsr wait_for_vblank_if_rendering
 
 	lda arg0
-	jsr get_string_with_item_count
+	tax
+	lda valid_shop_index, x
+	cmp #$ff
+	bne nonzerocount
+	lda #0
+	jmp getcountstr & $ffff
+nonzerocount:
+	asl
+	tax
+	lda inventory, x
+getcountstr:
+	jsr byte_to_padded_str
 
 	; Get the item type
 	lda arg0
