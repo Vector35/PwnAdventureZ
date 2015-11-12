@@ -851,8 +851,17 @@ PROC do_gen_cave_common
 	jsr read_overworld_cur
 	and #$3f
 	cmp #MAP_CAVE_START
-	bne notstartcave
+	beq startcave
+	cmp #MAP_MINE_UP
+	beq noclutter
+	cmp #MAP_MINE_DOWN
+	beq noclutter
+	jmp notstartcave & $ffff
 
+noclutter:
+	jmp clutterend & $ffff
+
+startcave:
 	lda #6
 	sta arg0
 	lda #3
