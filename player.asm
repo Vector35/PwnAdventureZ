@@ -1247,6 +1247,7 @@ notheld:
 ammook:
 	lda equipped_weapon
 	jsr use_item
+	rts
 
 noweapon:
 	lda equipped_armor
