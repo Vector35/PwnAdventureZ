@@ -1,10 +1,21 @@
 # Pwn Adventure Z
 
+![Title Screen](https://github.com/Vector35/PwnAdventureZ/raw/master/images/title-screen.png)
+
 Pwn Adventure Z (PwnZ) continues the long tradition in the [Pwn Adventure series](http://pwnadventure.com/) of being a fully hackable game.
 
 PwnZ is an NES game (yes, the original NES) based on [Mapper 1](http://wiki.nesdev.com/w/index.php/Mapper) hardware--similar to the hardware that powered The Legend of Zelda. 
 
 The game was originally released at the [CSAW CTF 2015](https://ctf.isis.poly.edu/) competition, an in-person CTF where each team was given a physical cartridge to solve the built-in challenges for. 
+
+## Screenshots
+
+![Blocky Challenge](https://github.com/Vector35/PwnAdventureZ/raw/master/images/blocky.png)
+![It's a trap!!](https://github.com/Vector35/PwnAdventureZ/raw/master/images/trap.png)
+![Horde](https://github.com/Vector35/PwnAdventureZ/raw/master/images/horde.png)
+![NPCs](https://github.com/Vector35/PwnAdventureZ/raw/master/images/npcs.png)
+![Shop](https://github.com/Vector35/PwnAdventureZ/raw/master/images/shop.png)
+![Laser sharks](https://github.com/Vector35/PwnAdventureZ/raw/master/images/laser-sharks.png)
 
 ## ROM
 The ROM released at the CSAW CTF exactly as the students played it is available in the [PwnAdventureZ-csaw-student.zip](https://github.com/Vector35/PwnAdventureZ/blob/master/PwnAdventureZ-csaw-student.zip) file. If you just want to play the game, download the zip and the only file you need to extract is the `PwnAdventureZ.NES` 
@@ -27,3 +38,4 @@ Alternatively, fully assembled and programmed boards with art will be available 
 ## License
 
 See [LICENSE.md](https://github.com/Vector35/PwnAdventureZ/blob/master/LICENSE.md) for licensing information.
+
