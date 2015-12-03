@@ -1,24 +1,36 @@
+= Pwn Adventure Z =
+
 Welcome to Pwn Adventure Z! The latest iteration of the Pwn Adventure Series (http://pwnadventure.com/).
 
-READ CAREFULLY, PLEASE!
+This original Nintendo game was originally written for the CSAW security capture-the-flag contest in November, 2015. (https://ctf.isis.poly.edu/).
 
-For CSAW 2015, a special retro-edition of Pwn Adventure was created combining some modern gaming concepts on an antique platform. After all, it's the 30th anniversary of Mario -- what better way than to celebrate with an NES style PwnAdventure game!
+For Awesome Games Done Quick 2016, it's been customized as a competition between manual speed runners and TASers!
 
-For this challenge, you will find the enclosed files helpful. The .nl files are debug symbol files that can be used by the FCEUX Emulator and Binary Ninja (https://vector35.com/csaw). Note that only the Windows version of FCEUX supports debugging unfortunately. The .map file is created by the assembler/compiler and was used to create the .nl files.
+Included in this zip file are:
 
-As to the game itself, there are seven challenges in it. The first can be solved using only the files included here, the next six are all only solvable if you play the game on one of the physical NES systems set up in the CTF room. The flags are clearly identified in the game by their format, usually something like "THE FLAG IS FLAGGOESHERE".
+	instructions.txt - You're reading me!
+	PwnAdventureZ.nes - The ROM itself
+	PwnAdventureZ.nes.*.nl - FCEUX symbol files (also readable by Binary Ninja: http://binary.ninja)
+	PwnAdventureZ.map - An symbol map file created by the compiler (same information as the FCEUX symbol files)
+	PwnAdventureZ.html - Just for funsies, a JavaScript emulator we wrote too. 
 
-DO NOT LOOK FOR FLAGS IN THE HARD OR APOCALYPSE MODES! Those game modes are purely for your enjoyment in playing the game later. While it's possible we have a flaw only available from there that enables getting flags, it's unlikely and we encourage you to focus on the easy mode that contains all the intended solutions.
+= Differences = 
+The differences between the AGDQ version and the previously released version are as follows:
+	1) The "secret code" was removed (it was enabled for the purpose of the CTF)
+	2) The random code was /too/ random. Requiring frame perfect control for all drops is a bit hard on humans. Now the random seed is controlled based on your path through the map (though entering a room at a different spot in an opening can offset it slightly by causing zombies to move their spawn location.
+	3) AGDQ Logo!
 
-Points - Category - Name (Description)
-25 - Forensics - GreetingsEarthling (Only challenge included in the ROM file)
-25 - GamePlay - CreditForCredits (Get to the credits)
-150 - RE - HiddenCave (Finding it is the challenge!)
-250 - RE/GameHacking - QuarantineBreaker (Enter the boarded up house)
-250 - RE - BLOX (Cave in the NW Corner of the Map)
-400 - Exploitation - get_flag (What it says in the name)
-500 - Exploitation - memory_disclosure_flag (Harder than get_flag)
+You can verify these changes yourself if you like in the source code as mentioned below.
 
-Good luck.
+= Tutorials = 
 
-Vector 35 and the CSAW CTF organizers
+If you're creating a speed run, you'll probably want to check out these writeups describing some of the (intentional) flaws that can be used to glitch the game to great effect:
+
+	- http://andrewdutcher.com/view/21/pwn-adventure-z---writeup
+	- http://vector35.com/blog/
+
+= Source Code =
+
+Also, you can check out the source for the challenge (both the CSAW version and this AGDQ version) here:
+
+https://github.com/vector35/PwnAdventureZ
