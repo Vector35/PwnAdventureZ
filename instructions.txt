@@ -2,35 +2,36 @@
 
 Welcome to Pwn Adventure Z! The latest iteration of the Pwn Adventure Series (http://pwnadventure.com/).
 
-This original Nintendo game was originally written for the CSAW security capture-the-flag contest in November, 2015. (https://ctf.isis.poly.edu/).
+This original Nintendo game was originally written for the Computer Security Awareness Week (CSAW) capture-the-flag contest in November, 2015. (https://ctf.isis.poly.edu/).
 
-For Awesome Games Done Quick 2016, it's been customized as a competition between manual speed runners and TASers!
-
+For Awesome Games Done Quick 2016, it's been customized as a competition between human speedrunners and TASers!
 Included in this zip file are:
 
 	instructions.txt - You're reading me!
 	PwnAdventureZ.nes - The ROM itself
 	PwnAdventureZ.nes.*.nl - FCEUX symbol files (also readable by Binary Ninja: http://binary.ninja)
-	PwnAdventureZ.map - An symbol map file created by the compiler (same information as the FCEUX symbol files)
+	PwnAdventureZ.map - A symbol map file created by the compiler (same information as the FCEUX symbol files)
 	PwnAdventureZ.html - Just for funsies, a JavaScript emulator we wrote too. 
 
 = Differences = 
-The differences between the AGDQ version and the previously released version are as follows:
-	1) The "secret code" was removed (it was enabled for the purpose of the CTF)
-	2) The random code was /too/ random. Requiring frame perfect control for all drops is a bit hard on humans. Now the random seed is controlled based on your path through the map (though entering a room at a different spot in an opening can offset it slightly by causing zombies to move their spawn location.
-	3) AGDQ Logo!
+Several changes have been made for this AGDQ 2016 version compared to the original CSAW 2015 CTF contest version:
+	1) The "secret code" has been removed
+	2) The random code was changed to favor human players by being seeded based on the position each screen is entered at.  (The original code was /too/ random. Requiring frame perfect control for all drops is a bit hard on humans. Now the random seed is controlled based on your path through the map (though entering a room at a different spot in an opening can offset it slightly by causing zombies to move their spawn location).
+	3) Some aspects of the game mechanics have been rebalanced based on feedback from beta testers
+	4) The soundtrack from fuzyll has been updated (available for download at )
+	5) The logo has been changed to the GDQ logo
 
 You can verify these changes yourself if you like in the source code as mentioned below.
 
 = Tutorials = 
 
-If you're creating a speed run, you'll probably want to check out these writeups describing some of the (intentional) flaws that can be used to glitch the game to great effect:
+If you're creating a speedrun, you'll probably want to check out these writeups describing some of the (intentional) flaws that can be used to glitch the game to great effect. You're welcome to look for more, but in the interests of time, it's probably best to use these.
 
 	- http://andrewdutcher.com/view/21/pwn-adventure-z---writeup
 	- http://vector35.com/blog/
 
 = Source Code =
-
-Also, you can check out the source for the challenge (both the CSAW version and this AGDQ version) here:
+You can check out the source for the challenge (both the CSAW version and this AGDQ version) here:
 
 https://github.com/vector35/PwnAdventureZ
+
