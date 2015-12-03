@@ -76,47 +76,47 @@ vectordone:
 	jsr clear_screen
 	jsr clear_tiles
 
-	LOAD_ALL_TILES $01, csaw_logo_tiles
+	LOAD_ALL_TILES $01, agdq_logo_tiles
 
-	LOAD_PTR csaw_logo
+	LOAD_PTR agdq_logo
 	ldx #8
 	ldy #11
-	lda #13
+	lda #14
 	jsr write_tiles
 	ldx #8
 	ldy #12
-	lda #13
+	lda #14
 	jsr write_tiles
 	ldx #8
 	ldy #13
-	lda #13
+	lda #14
 	jsr write_tiles
 	ldx #8
 	ldy #14
-	lda #13
+	lda #14
 	jsr write_tiles
 	ldx #8
 	ldy #15
-	lda #13
+	lda #14
 	jsr write_tiles
 	ldx #8
 	ldy #16
-	lda #13
+	lda #14
 	jsr write_tiles
 
-	LOAD_PTR csaw_logo_palette
+	LOAD_PTR agdq_logo_palette
 	jsr fade_in
 
 	; Show CSAW logo for 3 seconds then fade out
 	ldy #180
-csawwait:
+agdqwait:
 	jsr wait_for_vblank
 	jsr update_controller
 	and #JOY_START
-	bne csawdone
+	bne agdqdone
 	dey
-	bne csawwait
-csawdone:
+	bne agdqwait
+agdqdone:
 
 	jsr fade_out
 
@@ -421,26 +421,28 @@ alt_str_palettes:
 	.byte $0f, $0f, $0f, $0f
 
 
-VAR csaw_logo
-	.byte $01, $03, $05, $07, $09, $0b, $0d, $0f, $11, $13, $15, $17, $19
-	.byte $02, $04, $06, $08, $0a, $0c, $0e, $10, $12, $14, $16, $18, $1a
-	.byte $1b, $1d, $1f, $21, $23, $25, $27, $29, $2b, $2d, $2f, $31, $33
-	.byte $1c, $1e, $20, $22, $24, $26, $28, $2a, $2c, $2e, $30, $32, $34
-	.byte $35, $37, $39, $3b, $3d, $3f, $41, $43, $45, $47, $49, $4b, $4d
-	.byte $36, $38, $3a, $3c, $3e, $40, $42, $44, $46, $48, $4a, $4c, $4e
+VAR agdq_logo
+	.byte $01, $03, $05, $07, $09, $0b, $0d, $0f, $11, $13, $15, $17, $19, $1b
+	.byte $02, $04, $06, $08, $0a, $0c, $0e, $10, $12, $14, $16, $18, $1a, $1c
+	.byte $1d, $1f, $21, $23, $25, $27, $29, $2b, $2d, $2f, $31, $33, $35, $37
+	.byte $1e, $20, $22, $24, $26, $28, $2a, $2c, $2e, $30, $32, $34, $36, $38
+	.byte $39, $3b, $3d, $3f, $41, $43, $45, $47, $49, $4b, $4d, $4f, $51, $53
+	.byte $3a, $3c, $3e, $40, $42, $44, $46, $48, $4a, $4c, $4e, $50, $52, $54
+	.byte $55, $57, $59, $5b, $5d, $5f, $61, $63, $65, $67, $69, $6b, $6d, $6f
+	.byte $56, $58, $5a, $5c, $5e, $60, $62, $64, $66, $68, $6a, $6c, $6e, $70
 
-VAR csaw_logo_palette
-	.byte $0f, $03, $1c, $27
-	.byte $0f, $03, $1c, $27
-	.byte $0f, $03, $1c, $27
-	.byte $0f, $03, $1c, $27
-	.byte $0f, $03, $1c, $27
-	.byte $0f, $03, $1c, $27
-	.byte $0f, $03, $1c, $27
-	.byte $0f, $03, $1c, $27
+VAR agdq_logo_palette
+	.byte $0f, $2d, $21, $30
+	.byte $0f, $2d, $21, $30
+	.byte $0f, $2d, $21, $30
+	.byte $0f, $2d, $21, $30
+	.byte $0f, $2d, $21, $30
+	.byte $0f, $2d, $21, $30
+	.byte $0f, $2d, $21, $30
+	.byte $0f, $2d, $21, $30
 
 
 TILES title_tiles, 1, "tiles/title/title.chr", 92
 TILES vector35_tiles, 1, "tiles/title/vector35.chr", 14
 TILES z_tiles, 1, "tiles/title/z.chr", 20
-TILES csaw_logo_tiles, 1, "tiles/title/csaw.chr", 78
+TILES agdq_logo_tiles, 1, "tiles/title/agdq.chr", 84
