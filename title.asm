@@ -268,7 +268,7 @@ buttonmoveloop:
 	cmp #JOY_A
 	bne waitfordepress
 
-	lda #1
+	lda #0 				; Change back to #1 to enable for later release if desired.
 	sta secret_code
 
 waitfordepress:
