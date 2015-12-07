@@ -756,8 +756,6 @@ loop:
 
 	sta controller
 
-	jsr update_entropy
-
 	pla
 	tay
 	lda controller

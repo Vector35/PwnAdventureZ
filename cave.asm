@@ -613,7 +613,7 @@ PROC gen_cave_enemies
 	beq veryhard
 
 	lda #4
-	jsr rand_range
+	jsr genrange_enemy
 	clc
 	adc #1
 	tax
@@ -621,7 +621,7 @@ PROC gen_cave_enemies
 
 hard:
 	lda #5
-	jsr rand_range
+	jsr genrange_enemy
 	clc
 	adc #2
 	tax
@@ -629,7 +629,7 @@ hard:
 
 veryhard:
 	lda #3
-	jsr rand_range
+	jsr genrange_enemy
 	clc
 	adc #5
 	tax
@@ -639,7 +639,7 @@ spawnloop:
 	pha
 
 	lda #5
-	jsr rand_range
+	jsr genrange_enemy
 	tax
 	lda cave_enemy_types, x
 	jsr spawn_starting_enemy
@@ -666,7 +666,7 @@ PROC do_gen_blocky_cave_interior
 	bne restoredspawn
 
 	lda #2
-	jsr rand_range
+	jsr genrange_enemy
 	clc
 	adc #1
 	tax
@@ -676,7 +676,7 @@ spawnloop:
 	pha
 
 	lda #3
-	jsr rand_range
+	jsr genrange_enemy
 	tax
 	lda cave_enemy_types, x
 	jsr spawn_starting_enemy

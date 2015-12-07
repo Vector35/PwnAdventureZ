@@ -17,42 +17,6 @@
 
 .segment "FIXED"
 
-PROC update_entropy
-	lda rand_seed
-	rol
-	pha
-	lda rand_seed + 1
-	rol
-	sta rand_seed + 1
-	pla
-	adc controller
-	tay
-	lda noise, y
-	sta rand_seed
-	lda rand_seed + 1
-	tay
-	lda noise, y
-	sta rand_seed + 1
-	rts
-.endproc
-
-
-PROC rand
-	jsr update_entropy
-	lda rand_seed
-	eor rand_seed + 1
-	rts
-.endproc
-
-
-PROC rand_range
-	tax
-	jsr rand
-	jsr mod8
-	rts
-.endproc
-
-
 PROC mod8
 	sta temp
 	lda #0

@@ -795,7 +795,7 @@ notrestoredspawn:
 	beq veryhard
 
 	lda #3
-	jsr rand_range
+	jsr genrange_enemy
 	clc
 	adc #1
 	tax
@@ -803,7 +803,7 @@ notrestoredspawn:
 
 hard:
 	lda #4
-	jsr rand_range
+	jsr genrange_enemy
 	clc
 	adc #2
 	tax
@@ -811,7 +811,7 @@ hard:
 
 veryhard:
 	lda #4
-	jsr rand_range
+	jsr genrange_enemy
 	clc
 	adc #4
 	tax
@@ -823,7 +823,7 @@ spawnloop:
 	jsr forest_has_water & $ffff ;returns 1 or 0
 	clc
 	adc #2
-	jsr rand_range
+	jsr genrange_enemy
 	tax
 	lda forest_enemy_types, x
 	jsr spawn_starting_enemy
@@ -850,7 +850,7 @@ PROC spawn_dead_wood_enemies
 	beq veryhard
 
 	lda #3
-	jsr rand_range
+	jsr genrange_enemy
 	clc
 	adc #2
 	tax
@@ -858,7 +858,7 @@ PROC spawn_dead_wood_enemies
 
 hard:
 	lda #4
-	jsr rand_range
+	jsr genrange_enemy
 	clc
 	adc #3
 	tax
@@ -866,7 +866,7 @@ hard:
 
 veryhard:
 	lda #3
-	jsr rand_range
+	jsr genrange_enemy
 	clc
 	adc #5
 	tax
@@ -876,7 +876,7 @@ spawnloop:
 	pha
 
 	lda #6
-	jsr rand_range
+	jsr genrange_enemy
 	tax
 	lda forest_enemy_types, x
 	jsr spawn_starting_enemy
@@ -905,7 +905,7 @@ notrestoredspawn:
 	beq veryhard
 
 	lda #3
-	jsr rand_range
+	jsr genrange_enemy
 	clc
 	adc #1
 	tax
@@ -913,7 +913,7 @@ notrestoredspawn:
 
 hard:
 	lda #4
-	jsr rand_range
+	jsr genrange_enemy
 	clc
 	adc #2
 	tax
@@ -921,7 +921,7 @@ hard:
 
 veryhard:
 	lda #4
-	jsr rand_range
+	jsr genrange_enemy
 	clc
 	adc #4
 	tax
@@ -931,7 +931,7 @@ spawnloop:
 	pha
 
 	lda #3
-	jsr rand_range
+	jsr genrange_enemy
 	tax
 	lda unbearable_enemy_types, x
 	jsr spawn_starting_enemy
@@ -2002,7 +2002,7 @@ PROC do_start_forest_chest_interact
 
 PROC do_forest_chest_interact
 	lda #5
-	jsr rand_range
+	jsr genrange_enemy
 	clc
 	adc #2
 	tax
@@ -2010,7 +2010,7 @@ PROC do_forest_chest_interact
 	jsr give_item_with_count
 
 	lda #3
-	jsr rand_range
+	jsr genrange_enemy
 	clc
 	adc #1
 	tax

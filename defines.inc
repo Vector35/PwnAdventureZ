@@ -577,3 +577,5 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .global completed_quest_steps, highlighted_quest_steps
 .global horde_active, horde_complete, horde_timer, horde_enemy_types
 .global horde_spawn_timer, horde_spawn_delay
+
+.global enemy_kill_index

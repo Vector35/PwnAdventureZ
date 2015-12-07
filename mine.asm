@@ -112,7 +112,7 @@ PROC gen_mine_enemies
 	beq veryhard
 
 	lda #4
-	jsr rand_range
+	jsr genrange_enemy
 	clc
 	adc #1
 	tax
@@ -120,7 +120,7 @@ PROC gen_mine_enemies
 
 hard:
 	lda #5
-	jsr rand_range
+	jsr genrange_enemy
 	clc
 	adc #2
 	tax
@@ -128,7 +128,7 @@ hard:
 
 veryhard:
 	lda #3
-	jsr rand_range
+	jsr genrange_enemy
 	clc
 	adc #5
 	tax
@@ -138,7 +138,7 @@ spawnloop:
 	pha
 
 	lda #2
-	jsr rand_range
+	jsr genrange_enemy
 	tax
 	lda mine_enemy_types, x
 	jsr spawn_starting_enemy

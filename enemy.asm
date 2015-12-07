@@ -83,13 +83,13 @@ spawnloop:
 	jmp dospawn & $ffff
 not_shark:
 	lda #9
-	jsr rand_range
+	jsr genrange_pos
 	clc
 	adc #3
 	sta arg0
 
 	lda #6
-	jsr rand_range
+	jsr genrange_pos
 	clc
 	adc #3
 	sta arg1
@@ -193,12 +193,12 @@ slotfound:
 	sta enemy_y, x
 
 	lda #4
-	jsr rand_range
+	jsr genrange_pos
 	ldx arg4
 	sta enemy_direction, x
 
 	lda #60
-	jsr rand_range
+	jsr genrange_pos
 	clc
 	adc #30
 	ldx arg4
@@ -288,13 +288,13 @@ try_again:
 	beq done_failed
 	dec arg0
 	lda #4
-	jsr rand_range
+	jsr genrange_pos
 	cmp #0
 	bne not_up
 	;try to spawn at top of screen
 	;use random X inculsive range 0->MAP_WIDTH-2
 	lda #MAP_WIDTH-1
-	jsr rand_range
+	jsr genrange_pos
 	tax
 	;use 0 for y
 	ldy #0
@@ -308,7 +308,7 @@ not_up:
 	;try to spawn at bottom of screen
 	;use random x inclusive range 1->MAP_WIDTH
 	lda #MAP_WIDTH-1
-	jsr rand_range
+	jsr genrange_pos
 	adc #1
 	clc
 	tax
@@ -324,7 +324,7 @@ not_down:
 	;try to spawn on right side of screen
 	;use random y inclusive range 0->MAP_HEIGHT-2
 	lda #MAP_HEIGHT-1
-	jsr rand_range
+	jsr genrange_pos
 	tay
 	; use left side of screen
 	ldx #MAP_WIDTH-1
@@ -336,7 +336,7 @@ not_right:
 	;try to spawn on left side of screen
 	;use random y range 1->MAP_HEIGHT
 	lda #MAP_HEIGHT-1
-	jsr rand_range
+	jsr genrange_pos
 	adc #1
 	clc
 	tay
@@ -549,7 +549,7 @@ checkspawn:
 	sta horde_spawn_timer
 
 	lda #4
-	jsr rand_range
+	jsr genrange_enemy
 	tay
 	lda horde_enemy_types, y
 	jsr spawn_starting_enemy
@@ -1016,13 +1016,13 @@ idledone:
 	sta enemy_moved, x
 
 	lda #2
-	jsr rand_range
+	jsr genrange_pos
 	cmp #0
 	beq horizontal
 
 	; Walk on Y axis
 	lda #(MAP_HEIGHT - 2) * 16
-	jsr rand_range
+	jsr genrange_pos
 	clc
 	adc #8
 	ldx cur_enemy
@@ -1042,7 +1042,7 @@ up:
 horizontal:
 	; Walk on X axis
 	lda #(MAP_WIDTH - 2) * 16
-	jsr rand_range
+	jsr genrange_pos
 	clc
 	adc #8
 	ldx cur_enemy
@@ -1120,7 +1120,7 @@ toidle:
 moved:
 	; Enemy completed a move, idle for a random period
 	lda #60
-	jsr rand_range
+	jsr genrange_pos
 	clc
 	adc #1
 	ldx cur_enemy
@@ -2003,11 +2003,33 @@ notshark:
 .endproc
 
 
+PROC genrange_kill
+	pha
+
+	lda #8
+	clc
+	adc enemy_kill_index
+	sta enemy_kill_index
+	adc cur_enemy
+	ldx cur_screen_x
+	ldy cur_screen_y
+	jsr gen8
+	tay
+
+	pla
+	tax
+	tya
+	jsr mod8
+
+	rts
+.endproc
+
+
 PROC enemy_die_with_drop_table
 	; Pick drop entry from table
 	ldy #0
 	lda (ptr), y
-	jsr rand_range
+	jsr genrange_kill
 	sta arg0
 
 	; Read drop type pointer
@@ -2033,7 +2055,7 @@ PROC enemy_die_with_drop_table
 
 	ldy arg0
 	lda (temp), y
-	jsr rand_range
+	jsr genrange_kill
 	sta arg2
 
 	; Add in the minimum count
@@ -2168,6 +2190,9 @@ VAR saved_enemy_screen_y
 	.byte 0, 0, 0, 0, 0, 0, 0, 0
 VAR saved_enemy_inside
 	.byte 0, 0, 0, 0, 0, 0, 0, 0
+
+VAR enemy_kill_index
+	.byte 0
 
 
 .bss

@@ -59,7 +59,7 @@ PROC laser_hit_player
 	bne noblock
 
 	lda #4
-	jsr rand_range
+	jsr genrange_pos
 	cmp #0
 	beq noblock
 
@@ -475,7 +475,7 @@ try_new_direction:
 	inc arg0
 
 	lda #4
-	jsr rand_range & $ffff
+	jsr genrange_pos & $ffff
 
 	cmp #DIR_UP
 	bne not_up
@@ -613,7 +613,7 @@ toidle:
 	lda #$20
 	clc
 	adc #$10
-	jsr rand_range & $ffff
+	jsr genrange_pos & $ffff
 	ldx cur_enemy
 	sta enemy_idle_time, x
 	rts

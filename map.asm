@@ -161,6 +161,11 @@ clearloop:
 	sta gen_up_index
 	sta gen_down_index
 
+	lda #$40
+	sta gen_enemy_index
+	lda #$c0
+	sta gen_pos_index
+
 	lda #$ff
 	sta entrance_x
 	sta entrance_y
@@ -1041,12 +1046,7 @@ end:
 .endproc
 
 
-PROC genrange_cur
-	pha
-	ldy gen_cur_index
-	iny
-	sty gen_cur_index
-
+PROC genrange_cur_common
 	tya
 	ldx cur_screen_x
 	ldy cur_screen_y
@@ -1058,6 +1058,33 @@ PROC genrange_cur
 	tya
 	jsr mod8
 	rts
+.endproc
+
+
+PROC genrange_cur
+	pha
+	ldy gen_cur_index
+	iny
+	sty gen_cur_index
+	jmp genrange_cur_common
+.endproc
+
+
+PROC genrange_enemy
+	pha
+	ldy gen_enemy_index
+	iny
+	sty gen_enemy_index
+	jmp genrange_cur_common
+.endproc
+
+
+PROC genrange_pos
+	pha
+	ldy gen_pos_index
+	iny
+	sty gen_pos_index
+	jmp genrange_cur_common
 .endproc
 
 
@@ -1066,18 +1093,7 @@ PROC genrange_up
 	ldy gen_up_index
 	iny
 	sty gen_up_index
-
-	tya
-	ldx cur_screen_x
-	ldy cur_screen_y
-	jsr gen8
-	tay
-
-	pla
-	tax
-	tya
-	jsr mod8
-	rts
+	jmp genrange_cur_common
 .endproc
 
 
@@ -1086,18 +1102,7 @@ PROC genrange_left
 	ldy gen_left_index
 	iny
 	sty gen_left_index
-
-	tya
-	ldx cur_screen_x
-	ldy cur_screen_y
-	jsr gen8
-	tay
-
-	pla
-	tax
-	tya
-	jsr mod8
-	rts
+	jmp genrange_cur_common
 .endproc
 
 
@@ -2642,6 +2647,10 @@ VAR gen_right_index
 VAR gen_up_index
 	.byte 0
 VAR gen_down_index
+	.byte 0
+VAR gen_enemy_index
+	.byte 0
+VAR gen_pos_index
 	.byte 0
 
 VAR top_opening_pos

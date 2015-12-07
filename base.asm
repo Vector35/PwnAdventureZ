@@ -414,7 +414,7 @@ PROC spawn_base_enemies
 	beq veryhard
 
 	lda #4
-	jsr rand_range
+	jsr genrange_enemy
 	clc
 	adc #1
 	tax
@@ -422,7 +422,7 @@ PROC spawn_base_enemies
 
 hard:
 	lda #5
-	jsr rand_range
+	jsr genrange_enemy
 	clc
 	adc #2
 	tax
@@ -430,7 +430,7 @@ hard:
 
 veryhard:
 	lda #3
-	jsr rand_range
+	jsr genrange_enemy
 	clc
 	adc #5
 	tax
@@ -440,7 +440,7 @@ spawnloop:
 	pha
 
 	lda #4
-	jsr rand_range
+	jsr genrange_enemy
 	tax
 	lda base_enemy_types, x
 	jsr spawn_starting_enemy
@@ -573,7 +573,7 @@ spawnstate:
 
 spawn:
 	lda #2
-	jsr rand_range
+	jsr genrange_enemy
 	cmp #0
 	beq spawnzombie
 
@@ -590,7 +590,7 @@ gotowalkstate:
 	lda #1
 	sta enemy_ai_state, x
 	lda #$60
-	jsr rand_range
+	jsr genrange_pos
 	clc
 	adc #$30
 	ldx cur_enemy

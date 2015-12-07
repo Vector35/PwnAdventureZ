@@ -518,7 +518,7 @@ nextblank:
 	beq veryhard
 
 	lda #2
-	jsr rand_range
+	jsr genrange_enemy
 	clc
 	adc #1
 	tax
@@ -526,7 +526,7 @@ nextblank:
 
 hard:
 	lda #3
-	jsr rand_range
+	jsr genrange_enemy
 	clc
 	adc #2
 	tax
@@ -534,7 +534,7 @@ hard:
 
 veryhard:
 	lda #3
-	jsr rand_range
+	jsr genrange_enemy
 	clc
 	adc #3
 	tax
@@ -544,7 +544,7 @@ spawnloop:
 	pha
 
 	lda #2
-	jsr rand_range
+	jsr genrange_enemy
 	tax
 	lda house_exterior_enemy_types & $ffff, x
 	jsr spawn_starting_enemy
@@ -826,7 +826,7 @@ notboarded:
 	beq veryhard
 
 	lda #2
-	jsr rand_range
+	jsr genrange_enemy
 	clc
 	adc #1
 	tax
@@ -834,7 +834,7 @@ notboarded:
 
 hard:
 	lda #3
-	jsr rand_range
+	jsr genrange_enemy
 	clc
 	adc #2
 	tax
@@ -842,7 +842,7 @@ hard:
 
 veryhard:
 	lda #3
-	jsr rand_range
+	jsr genrange_enemy
 	clc
 	adc #3
 	tax
@@ -852,7 +852,7 @@ spawnloop:
 	pha
 
 	lda #3
-	jsr rand_range
+	jsr genrange_enemy
 	tax
 	lda house_interior_enemy_types & $ffff, x
 	jsr spawn_starting_enemy
