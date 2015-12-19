@@ -16,22 +16,36 @@ Included in this zip file are:
 = Differences = 
 Several changes have been made for this AGDQ 2016 version compared to the original CSAW 2015 CTF contest version:
 	1) The "secret code" has been removed
-	2) The random code was changed to favor human players by being seeded based on the position each screen is entered at.  (The original code was /too/ random. Requiring frame perfect control for all drops is a bit hard on humans. Now the random seed is controlled based on your path through the map (though entering a room at a different spot in an opening can offset it slightly by causing zombies to move their spawn location).
+	2) The RNG was changed to determine drops solely based on the order rooms are entered, not the far more random system used in the CSAW build as it would have required constant frame-perfect control.
 	3) Some aspects of the game mechanics have been rebalanced based on feedback from beta testers
 	4) The soundtrack from fuzyll has been updated (available for download at )
-	5) The logo has been changed to the GDQ logo
+	5) Startup screens customized for GDQ 
 
 You can verify these changes yourself if you like in the source code as mentioned below.
 
 = Tutorials = 
 
-If you're creating a speedrun, you'll probably want to check out these writeups describing some of the (intentional) flaws that can be used to glitch the game to great effect. You're welcome to look for more, but in the interests of time, it's probably best to use these.
+If you're creating a speedrun, please check out these writeups describing some of the flaws (intentional and otherwise) that can be used to beat the game quickly. You're welcome to look for more, but in the interests of time, it's probably best to use these. The two main approaches are a total control / code execution bug that can be used to jump straight to the credits, and a warp/spawn glitch that lets you jump straight to the final boss.
 
 	- http://andrewdutcher.com/view/21/pwn-adventure-z---writeup
-	- http://vector35.com/blog/
+	- http://vector35.com/2015/12/18/pwnadventurez.html
+
+= Map Data =
+
+To help you in your run, you may find it useful to view map data. First, get the source code as described in the next section.
+
+Next, open levels.inc in your favorite text editor, and copy the ".byte" lines under the section you are interested in ("normal_overworld_map", or "normal_sewer_map", or "normal_mine_map", for example).
+
+Finally, open mapcreator.html in a browser (tested with Chrome but should work with others as well), and paste in the data from levels.inc. When you click "load", you should see what the stored map data corresponds to. 
 
 = Source Code =
 You can check out the source for the challenge (both the CSAW version and this AGDQ version) here:
 
 https://github.com/vector35/PwnAdventureZ
+https://github.com/vector35/pwnadventurez/tree/agdq
+
+If you are unfamiliar with git or github, you can download the source code of the version used for AGDQ here:
+
+https://github.com/Vector35/PwnAdventureZ/archive/agdq.zip
+
 
