@@ -1822,8 +1822,8 @@ key6done:
 	sta highlighted_quest_steps
 notallkeys:
 
-	lda #ITEM_AK
-	ldx #100
+	lda #ITEM_SNIPER
+	ldx #30
 	jsr give_weapon
 	lda #ITEM_GEM
 	ldx #8
@@ -1945,8 +1945,8 @@ done:
 	sta highlighted_quest_steps
 notallkeys:
 
-	lda #ITEM_SNIPER
-	ldx #30
+	lda #ITEM_AK
+	ldx #100
 	jsr give_weapon
 	lda #ITEM_GEM
 	ldx #10
