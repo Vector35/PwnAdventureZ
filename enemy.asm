@@ -424,19 +424,8 @@ hashorde:
 	rts
 
 notboss:
-	ldx horde_timer + 1
-	beq framezero
-	dex
-	stx horde_timer + 1
-	jmp checkspawn & $ffff
-
-framezero:
-	lda #59
-	sta horde_timer + 1
-	ldx horde_timer
+	ldx horde_counter
 	beq done
-	dex
-	stx horde_timer
 	jmp checkspawn & $ffff
 
 done:
@@ -1971,6 +1960,13 @@ PROC enemy_die_with_drop
 	sta arg4
 	stx arg5
 
+	lda horde_active
+	beq nothorde
+	ldx horde_counter
+	dex
+	stx horde_counter
+
+nothorde:
 	ldx cur_enemy
 	lda enemy_type, x
 	cmp #ENEMY_SHARK
