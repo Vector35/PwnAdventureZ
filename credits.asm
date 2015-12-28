@@ -34,6 +34,11 @@ PROC show_credits
 
 PROC do_show_credits
 	; Game beaten, prepare for next quest and display credits
+
+	; Trigger for AGDQ judge script
+	lda #1
+	sta game_beaten
+
 	lda #0
 	sta key_count
 
@@ -759,3 +764,8 @@ VAR very_hard_win_string
 	.byte "HUMANITY", $40, "S HERO.", 0
 	.byte "YOU DIED 000 TIMES DURING", 0
 	.byte "YOUR QUEST.", 0
+
+.bss
+
+VAR game_beaten
+	.byte 0
