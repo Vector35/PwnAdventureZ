@@ -910,8 +910,8 @@ VAR horde_active
 	.byte 0
 VAR horde_complete
 	.byte 0
-VAR horde_timer
-	.byte 0, 0
+VAR horde_counter
+	.byte 0
 VAR horde_enemy_types
 	.byte 0, 0, 0, 0
 VAR horde_spawn_timer
