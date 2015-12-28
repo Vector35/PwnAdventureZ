@@ -439,33 +439,27 @@ notcompleted:
 	cmp #2
 	beq veryhard
 
-	lda #45
-	sta horde_timer
-	lda #0
-	sta horde_timer + 1
+	lda #11
+	sta horde_counter
 	lda #120
 	sta horde_spawn_timer
 	sta horde_spawn_delay
 	jmp hordesetup & $ffff
 
 hard:
-	lda #60
-	sta horde_timer
-	lda #0
-	sta horde_timer + 1
+	lda #16
+	sta horde_counter
 	lda #90
 	sta horde_spawn_timer
 	sta horde_spawn_delay
 	jmp hordesetup & $ffff
 
 veryhard:
-	lda #75
-	sta horde_timer
-	lda #0
+	lda #22
+	sta horde_counter
 	lda #60
 	sta horde_spawn_timer
 	sta horde_spawn_delay
-	sta horde_timer + 1
 
 hordesetup:
 	jsr wait_for_vblank

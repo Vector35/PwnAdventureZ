@@ -1616,33 +1616,27 @@ notcompleted:
 	cmp #2
 	beq veryhard
 
-	lda #20
-	sta horde_timer
-	lda #0
-	sta horde_timer + 1
+	lda #8
+	sta horde_counter
 	lda #120
 	sta horde_spawn_timer
 	sta horde_spawn_delay
 	jmp hordesetup & $ffff
 
 hard:
-	lda #30
-	sta horde_timer
-	lda #0
-	sta horde_timer + 1
+	lda #12
+	sta horde_counter
 	lda #90
 	sta horde_spawn_timer
 	sta horde_spawn_delay
 	jmp hordesetup & $ffff
 
 veryhard:
-	lda #45
-	sta horde_timer
-	lda #0
+	lda #20
+	sta horde_counter
 	lda #60
 	sta horde_spawn_timer
 	sta horde_spawn_delay
-	sta horde_timer + 1
 
 hordesetup:
 	jsr wait_for_vblank
@@ -1746,30 +1740,24 @@ notcompleted:
 	cmp #2
 	beq veryhard
 
-	lda #120
-	sta horde_timer
-	lda #0
-	sta horde_timer + 1
+	lda #20
+	sta horde_counter
 	lda #180
 	sta horde_spawn_timer
 	sta horde_spawn_delay
 	jmp hordesetup & $ffff
 
 hard:
-	lda #150
-	sta horde_timer
-	lda #0
-	sta horde_timer + 1
+	lda #30
+	sta horde_counter
 	lda #150
 	sta horde_spawn_timer
 	sta horde_spawn_delay
 	jmp hordesetup & $ffff
 
 veryhard:
-	lda #180
-	sta horde_timer
-	lda #0
-	sta horde_timer + 1
+	lda #40
+	sta horde_counter
 	lda #120
 	sta horde_spawn_timer
 	sta horde_spawn_delay
@@ -1877,30 +1865,24 @@ notcompleted:
 	cmp #2
 	beq veryhard
 
-	lda #150
-	sta horde_timer
-	lda #0
-	sta horde_timer + 1
+	lda #23
+	sta horde_counter
 	lda #100
 	sta horde_spawn_timer
 	sta horde_spawn_delay
 	jmp hordesetup & $ffff
 
 hard:
-	lda #180
-	sta horde_timer
-	lda #0
-	sta horde_timer + 1
+	lda #34
+	sta horde_counter
 	lda #80
 	sta horde_spawn_timer
 	sta horde_spawn_delay
 	jmp hordesetup & $ffff
 
 veryhard:
-	lda #240
-	sta horde_timer
-	lda #0
-	sta horde_timer + 1
+	lda #46
+	sta horde_counter
 	lda #60
 	sta horde_spawn_timer
 	sta horde_spawn_delay

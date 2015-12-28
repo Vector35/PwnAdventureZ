@@ -368,33 +368,27 @@ PROC do_gen_base_horde
 	cmp #2
 	beq veryhard
 
-	lda #150
-	sta horde_timer
-	lda #0
-	sta horde_timer + 1
+	lda #20
+	sta horde_counter
 	lda #90
 	sta horde_spawn_timer
 	sta horde_spawn_delay
 	jmp hordesetup & $ffff
 
 hard:
-	lda #180
-	sta horde_timer
-	lda #0
-	sta horde_timer + 1
+	lda #30
+	sta horde_counter
 	lda #75
 	sta horde_spawn_timer
 	sta horde_spawn_delay
 	jmp hordesetup & $ffff
 
 veryhard:
-	lda #240
-	sta horde_timer
-	lda #0
+	lda #40
+	sta horde_counter
 	lda #60
 	sta horde_spawn_timer
 	sta horde_spawn_delay
-	sta horde_timer + 1
 
 hordesetup:
 	rts

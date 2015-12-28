@@ -575,7 +575,7 @@ LOAD_TILES addr, var, .ident(.concat(.string(var), "_count"))
 .global music_page_list_ptr, music_page_bank_ptr, music_page_ptr, audio_reg_ptr
 
 .global completed_quest_steps, highlighted_quest_steps
-.global horde_active, horde_complete, horde_timer, horde_enemy_types
+.global horde_active, horde_complete, horde_counter, horde_enemy_types
 .global horde_spawn_timer, horde_spawn_delay
 
 .global enemy_kill_index

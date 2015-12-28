@@ -1393,30 +1393,24 @@ notcompleted:
 	cmp #2
 	beq veryhard
 
-	lda #120
-	sta horde_timer
-	lda #0
-	sta horde_timer + 1
+	lda #17
+	sta horde_counter
 	lda #90
 	sta horde_spawn_timer
 	sta horde_spawn_delay
 	jmp hordesetup & $ffff
 
 hard:
-	lda #150
-	sta horde_timer
-	lda #0
-	sta horde_timer + 1
+	lda #25
+	sta horde_counter
 	lda #60
 	sta horde_spawn_timer
 	sta horde_spawn_delay
 	jmp hordesetup & $ffff
 
 veryhard:
-	lda #180
-	sta horde_timer
-	lda #0
-	sta horde_timer + 1
+	lda #34
+	sta horde_counter
 	lda #50
 	sta horde_spawn_timer
 	sta horde_spawn_delay
