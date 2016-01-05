@@ -140,12 +140,16 @@ loop:
 	jmp prepare
 
 notdead:
+	lda game_beaten ;Only for AGDQ
+	bne jmpcred 	;Only for AGDQ
+
 	lda boss_beaten
 	beq notbeaten
 
 	dec boss_transition_time
 	bne notbeaten
 
+jmpcred:			;Only for AGDQ
 	jmp show_credits
 
 notbeaten:

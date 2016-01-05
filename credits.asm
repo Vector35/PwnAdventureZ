@@ -35,9 +35,8 @@ PROC show_credits
 PROC do_show_credits
 	; Game beaten, prepare for next quest and display credits
 
-	; Trigger for AGDQ judge script
-	lda #1
-	sta game_beaten
+	lda #1			;Only for AGDQ
+	sta game_beaten	;Only for AGDQ
 
 	lda #0
 	sta key_count
