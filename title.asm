@@ -107,7 +107,7 @@ vectordone:
 	LOAD_PTR agdq_logo_palette
 	jsr fade_in
 
-	; Show CSAW logo for 3 seconds then fade out
+	; Show AGDQ logo for 3 seconds then fade out
 	ldy #180
 agdqwait:
 	jsr wait_for_vblank

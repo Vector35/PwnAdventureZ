@@ -65,7 +65,7 @@ apuinit:
 	lda apu_init_regs, y
 	sta $4000, y
 	iny
-	cpy #$18
+	cpy #$16
 	bne apuinit
 
 	; Wait for PPU to be fully ready
