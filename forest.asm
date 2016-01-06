@@ -1742,7 +1742,7 @@ notcompleted:
 
 	lda #20
 	sta horde_counter
-	lda #180
+	lda #120
 	sta horde_spawn_timer
 	sta horde_spawn_delay
 	jmp hordesetup & $ffff
@@ -1750,7 +1750,7 @@ notcompleted:
 hard:
 	lda #30
 	sta horde_counter
-	lda #150
+	lda #110
 	sta horde_spawn_timer
 	sta horde_spawn_delay
 	jmp hordesetup & $ffff
@@ -1758,7 +1758,7 @@ hard:
 veryhard:
 	lda #40
 	sta horde_counter
-	lda #120
+	lda #100
 	sta horde_spawn_timer
 	sta horde_spawn_delay
 
