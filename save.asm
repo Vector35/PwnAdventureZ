@@ -441,7 +441,7 @@ savedone:
 selectloop:
 	jsr wait_for_vblank
 
-	jsr update_controller
+	lda controller
 	and #JOY_START
 	bne activate
 	lda controller
@@ -488,7 +488,7 @@ movedone:
 
 waitfordepress:
 	jsr wait_for_vblank
-	jsr update_controller
+	lda controller
 	and #JOY_UP | JOY_DOWN | JOY_START | JOY_A
 	bne waitfordepress
 	jmp selectloop & $ffff
@@ -738,7 +738,7 @@ PROC enter_name_worker
 
 selectloop:
 	jsr wait_for_vblank
-	jsr update_controller
+	lda controller
 	and #JOY_START
 	bne startpressed
 	lda controller
@@ -981,7 +981,7 @@ movedone:
 
 waitfordepress:
 	jsr wait_for_vblank
-	jsr update_controller
+	lda controller
 	bne waitfordepress
 	jmp selectloop & $ffff
 

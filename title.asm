@@ -64,7 +64,7 @@ vectorloop:
 	ldy #180
 vectorwait:
 	jsr wait_for_vblank
-	jsr update_controller
+	lda controller
 	and #JOY_START
 	bne vectordone
 	dey
@@ -111,7 +111,7 @@ vectordone:
 	ldy #180
 agdqwait:
 	jsr wait_for_vblank
-	jsr update_controller
+	lda controller
 	and #JOY_START
 	bne agdqdone
 	dey
@@ -220,7 +220,7 @@ zloop:
 	sta arg0
 	sta arg1
 menuloop:
-	jsr update_controller
+	lda controller
 	and #JOY_START
 	bne start
 
@@ -274,7 +274,6 @@ buttonmoveloop:
 waitfordepress:
 	jsr wait_for_vblank
 	jsr title_palette_anim & $ffff
-	jsr update_controller
 	lda controller
 	bne waitfordepress
 

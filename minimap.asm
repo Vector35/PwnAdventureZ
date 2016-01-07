@@ -352,7 +352,6 @@ waitfordepress:
 	jsr wait_for_vblank
 	jsr update_minimap_palette & $ffff
 
-	jsr update_controller
 	lda controller
 	bne waitfordepress
 
@@ -360,7 +359,6 @@ selectloop:
 	jsr wait_for_vblank
 	jsr update_minimap_palette & $ffff
 
-	jsr update_controller
 	lda controller
 	and #JOY_START | JOY_A
 	beq notstart
@@ -456,7 +454,6 @@ done:
 	jsr wait_for_vblank
 	jsr update_minimap_palette & $ffff
 
-	jsr update_controller
 	lda controller
 	bne done
 

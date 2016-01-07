@@ -160,6 +160,8 @@ PROC wait_for_vblank
 	beq noaudioupdate
 	jsr update_audio
 
+	jsr update_controller
+
 noaudioupdate:
 	; Update frames played
 	ldx time_played + 5

@@ -36,6 +36,7 @@ PROC disable_rendering
 PROC enable_rendering
 	; Set the rendering flag and wait for a vblank, this will upload the sprites
 	; and ensure it is safe to turn on the rendering
+	jsr wait_for_vblank
 	lda #1
 	sta rendering_enabled
 	jsr wait_for_vblank

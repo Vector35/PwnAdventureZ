@@ -54,7 +54,6 @@ PROC show_inventory_tab
 	bne selectloop
 	jmp emptyloop
 selectloop:
-	jsr update_controller
 	jsr wait_for_vblank
 	lda controller
 	and #JOY_DOWN
@@ -418,7 +417,6 @@ waitfordepress:
 waitfordepressloop:
 	dec arg0
 	beq waitfordepresstimeout
-	jsr update_controller
 	jsr wait_for_vblank
 	lda controller
 	bne waitfordepressloop
@@ -429,7 +427,6 @@ waitfordepresstimeout:
 	jmp selectloop
 
 emptyloop:
-	jsr update_controller
 	jsr wait_for_vblank
 	lda controller
 	and #JOY_LEFT

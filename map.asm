@@ -192,7 +192,7 @@ spritepalloop:
 
 loop:
 	jsr wait_for_vblank
-	jsr update_controller
+	lda controller
 	and #JOY_A
 	bne change_base
 	lda controller

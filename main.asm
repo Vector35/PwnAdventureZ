@@ -54,7 +54,6 @@ newgame:
 	jsr new_game
 
 resume:
-	jsr update_controller
 	lda controller
 	cmp #JOY_UP | JOY_B
 	bne nomapviewer
@@ -154,8 +153,6 @@ jmpcred:			;Only for AGDQ
 
 notbeaten:
 	; Get latest controller state and look for movement
-	jsr update_controller
-
 	lda controller
 	and #JOY_START
 	beq nopause
@@ -667,7 +664,6 @@ game_over_fade:
 
 loop:
 	jsr wait_for_vblank
-	jsr update_controller
 	lda controller
 	and #JOY_START | JOY_A
 	bne done
@@ -703,7 +699,6 @@ change:
 
 waitfordepress:
 	jsr wait_for_vblank
-	jsr update_controller
 	lda controller
 	bne waitfordepress
 
@@ -736,9 +731,6 @@ PROC game_over
 
 
 PROC update_controller
-	tya
-	pha
-
 	; Start controller read
 	lda #1
 	sta JOY1
@@ -759,10 +751,6 @@ loop:
 	bne loop
 
 	sta controller
-
-	pla
-	tay
-	lda controller
 	rts
 .endproc
 

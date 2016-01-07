@@ -300,14 +300,12 @@ palloop:
 	; Wait for A to be pressed
 waitfordepress:
 	jsr wait_for_vblank
-	jsr update_controller
 	lda controller
 	cmp #0
 	bne waitfordepress
 
 waitloop:
 	jsr wait_for_vblank
-	jsr update_controller
 	lda controller
 	and #JOY_A
 	beq waitloop
