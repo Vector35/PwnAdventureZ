@@ -356,7 +356,7 @@ notallkeys:
 	ldx #3
 	jsr give_item_with_count
 
-	jsr save
+;	jsr save
 
 	jsr wait_for_vblank
 	ldx #7
@@ -389,7 +389,7 @@ PROC do_mine_chest_interact
 	ora #MINOR_CHEST_MINE
 	sta minor_chests_opened
 
-	jsr save
+;	jsr save
 
 	jsr wait_for_vblank
 	ldx #7

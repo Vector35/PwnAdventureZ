@@ -1695,7 +1695,7 @@ notallkeys:
 	ldx #2
 	jsr give_item_with_count
 
-	jsr save
+;	jsr save
 
 	jsr wait_for_vblank
 	ldx #7
@@ -1820,7 +1820,7 @@ notallkeys:
 	ldx #3
 	jsr give_item_with_count
 
-	jsr save
+;	jsr save
 
 	jsr wait_for_vblank
 	ldx #7
@@ -1937,7 +1937,7 @@ notallkeys:
 	ldx #3
 	jsr give_item_with_count
 
-	jsr save
+;	jsr save
 
 	jsr wait_for_vblank
 	ldx #7
@@ -1968,7 +1968,7 @@ PROC do_start_forest_chest_interact
 	ora #MINOR_CHEST_START_FOREST
 	sta minor_chests_opened
 
-	jsr save
+;	jsr save
 
 	jsr wait_for_vblank
 	ldx #7
@@ -2006,7 +2006,7 @@ PROC do_forest_chest_interact
 	sta opened_forest_chest_y, x
 	inc opened_forest_chest_count
 
-	jsr save
+;	jsr save
 
 	jsr wait_for_vblank
 	ldx #7
@@ -2032,7 +2032,7 @@ PROC do_dead_wood_chest_interact
 	ora #MINOR_CHEST_DEAD_WOOD
 	sta minor_chests_opened
 
-	jsr save
+;	jsr save
 
 	jsr wait_for_vblank
 	ldx #7
@@ -2060,7 +2060,7 @@ PROC do_unbearable_chest_interact
 	ora #MINOR_CHEST_UNBEARABLE
 	sta minor_chests_opened
 
-	jsr save
+;	jsr save
 
 	jsr wait_for_vblank
 	ldx #7
