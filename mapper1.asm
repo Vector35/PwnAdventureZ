@@ -143,7 +143,7 @@ ramdone:
 
 
 PROC has_save_ram
-	lda #1
+	lda #0
 	rts
 .endproc
 

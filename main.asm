@@ -756,8 +756,8 @@ loop:
 
 
 PROC save
-	lda active_save_slot
-	jsr save_ram_to_slot
+;	lda active_save_slot
+;	jsr save_ram_to_slot
 	rts
 .endproc
 
