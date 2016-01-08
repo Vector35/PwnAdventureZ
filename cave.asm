@@ -1282,7 +1282,7 @@ PROC do_starting_chest_interact
 	lda #1
 	sta starting_chest_opened
 
-	jsr save
+;	jsr save
 
 	PLAY_SOUND_EFFECT effect_open
 	rts
@@ -1473,7 +1473,7 @@ notallkeys:
 	ldx #3
 	jsr give_item_with_count
 
-	jsr save
+;	jsr save
 
 	jsr wait_for_vblank
 	ldx #7
@@ -1506,7 +1506,7 @@ PROC do_cave_chest_interact
 	ora #MINOR_CHEST_CAVE
 	sta minor_chests_opened
 
-	jsr save
+;	jsr save
 
 	jsr wait_for_vblank
 	ldx #7
@@ -1535,7 +1535,7 @@ PROC do_lost_cave_chest_interact
 	ora #MINOR_CHEST_LOST_CAVE
 	sta minor_chests_opened
 
-	jsr save
+;	jsr save
 
 	jsr wait_for_vblank
 	ldx #7
@@ -1572,7 +1572,7 @@ PROC do_lost_cave_end_interact
 	lda #1
 	sta lost_cave_large_chest_opened
 
-	jsr save
+;	jsr save
 
 	PLAY_SOUND_EFFECT effect_open
 done:

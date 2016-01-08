@@ -124,7 +124,7 @@ nextcampfire:
 	bne checkcampfireloop
 
 nocampfire:
-	jsr save
+;	jsr save
 
 	LOAD_PTR game_palette
 	jsr fade_in
@@ -574,7 +574,7 @@ deathupdatedone:
 	sta player_damage_flash_time
 	lda #0
 	sta knockback_time
-	jsr save
+;	jsr save
 
 	jsr fade_out
 	jsr clear_screen
@@ -708,6 +708,7 @@ done:
 	lda selection
 	beq continue
 
+	jsr save
 	jmp start
 
 continue:
@@ -756,8 +757,8 @@ loop:
 
 
 PROC save
-;	lda active_save_slot
-;	jsr save_ram_to_slot
+	lda active_save_slot
+	jsr save_ram_to_slot
 	rts
 .endproc
 

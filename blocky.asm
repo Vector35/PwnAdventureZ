@@ -658,7 +658,7 @@ PROC blocky_chest_interact
 	jsr give_item_with_count
 	lda #ITEM_ARMOR
 	jsr give_item
-	jsr save
+;	jsr save
 
 	PLAY_SOUND_EFFECT effect_open
 
