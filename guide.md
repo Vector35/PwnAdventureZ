@@ -12,6 +12,14 @@ Along the way you'll battle a variety of enemies. Most will drop items that you'
 
 You can see a map of area you've explored with the `START` button.
 
+## Keys
+
+	A - Select, or fire
+	B - Currently unused in the normal view--in buying, crafting, salvaging, etc it acts as a faster version of A
+	START - Map
+	SELECT - Inventory
+	U,D,L,R - Up, Down, Left, Right should behave as you'd expect
+
 ## Crafting / Salvaging
 
 A variety of items can only be made via crafting -- using the `LEFT` and `RIGHT` arrow keys inside the inventory screen will allow these other menus. The crafting menu allows you to make new items from ingredients you've found or purchased, and the salvage menu allows you to break down some items back into their ingredients.
@@ -30,10 +38,3 @@ There are three shops in the game. Inside each shop are shopkeepers who sell and
 
 The game starts on normal difficulty. If you want to jump straight to Hard, use the name "QUEST 2.0" as your username, or you can use "UNBEARABLE" and go straight to Apocalypse mode. Both of those difficulties are totally different maps and all the enemies are much more difficult. For casual players or those just trying to get a feel for the game quickly, normal is the recommended difficulty.
 
-## Keys
-
-	A - Select, or fire
-	B - Currently unused in the normal view--in buying, crafting, salvaging, etc it acts as a faster version of A
-	START - Map
-	SELECT - Inventory
-	U,D,L,R - Up, Down, Left, Right should behave as you'd expect
