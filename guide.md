@@ -6,7 +6,7 @@ Welcome to the Pwn Adventure Z player's guide. Pwn Adventure Z was written to be
 
 Pwn Adventure Z is a modern take on an old platform. Designed as a zombie survival game with crafting and RPG elements, it's built for the original NES.
 
-At the start of the game, you'll begin in a cave with a simple teasure chest (`A` to open it), and inside you'll find a trusty axe. You'll need to equip the axe (`SELECT`, then `A`) and then read the note next to it (`A`). It tells you to hurry to town where you'll find more out about what has befallen your home town.
+At the start of the game, you'll begin in a cave with a simple teasure chest (`A` to open it), and inside you'll find a trusty axe. Opening chests automatically adds items within it to your inentory. You'll need to equip the axe (`SELECT`, then `A`) and then read the note next to it (`A`). It tells you to hurry to town where you'll find more out about what has befallen your home town.
 
 Along the way you'll battle a variety of enemies. Most will drop items that you'll have to retrieve before you get them, though any enemies in water (like sharks) will simply deposit the items directly into your inventory when killed.
 
