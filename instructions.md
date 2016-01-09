@@ -55,7 +55,6 @@ To determine what enemies drop what types of items, see the `normal_enemyname_dr
 ## Useful Tips 
 - Different shops sell and buy different items and for different amounts. 
 - There are three shops in the game, shop.asm in the source code lists the items they each buy and sell. 
-- The final boss takes 15 sniper shots to kill.
 
 ## Source Code
 You can check out the source for the challenge (both the [CSAW version](https://github.com/vector35/PwnAdventureZ) and this [AGDQ version](https://github.com/vector35/pwnadventurez/tree/agdq)) on github.
