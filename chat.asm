@@ -18,6 +18,7 @@
 .segment "FIXED"
 
 PROC show_chat_text
+	rts
 	sta chat_bank
 	lda ptr
 	sta chat_ptr
