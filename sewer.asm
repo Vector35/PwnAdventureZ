@@ -519,7 +519,7 @@ notallkeys:
 	ldx #3
 	jsr give_item_with_count
 
-;	jsr save
+	jsr save
 
 	jsr wait_for_vblank
 	ldx #10
@@ -552,7 +552,7 @@ PROC do_sewer_chest_interact
 	ora #MINOR_CHEST_SEWER
 	sta minor_chests_opened
 
-;	jsr save
+	jsr save
 
 	jsr wait_for_vblank
 	ldx #7

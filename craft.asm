@@ -820,7 +820,7 @@ PROC do_select_crafting_item
 	adc #16 + 3
 	sta temp
 
-	lda #3
+	lda #6
 	sta arg0
 	lda temp
 	sta arg1
@@ -847,7 +847,7 @@ even:
 	adc #16 + 1
 	sta temp
 
-	lda #3
+	lda #6
 	sta arg0
 	lda temp
 	sta arg1
@@ -872,7 +872,7 @@ even:
 	adc #16 + 2
 	sta temp
 
-	lda #3
+	lda #6
 	sta arg0
 	lda temp
 	sta arg1
@@ -1021,6 +1021,9 @@ hassecondcomponent:
 	jsr write_string
 
 drawsecondname:
+	jsr prepare_for_rendering
+	jsr wait_for_vblank
+
 	ldx arg0
 	lda craftable_component_2, x
 	jsr get_item_name

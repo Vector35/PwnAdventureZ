@@ -111,6 +111,8 @@ PROC nmi
 	inx
 	stx vblank_count
 
+	jsr update_controller
+
 	; Don't do anything with sprites when rendering is off
 	lda rendering_enabled
 	beq no_rendering
@@ -159,8 +161,6 @@ PROC wait_for_vblank
 	lda rendering_enabled
 	beq noaudioupdate
 	jsr update_audio
-
-	jsr update_controller
 
 noaudioupdate:
 	; Update frames played

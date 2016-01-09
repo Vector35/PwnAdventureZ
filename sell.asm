@@ -850,7 +850,7 @@ PROC do_select_sell_item
 	adc #16 + 3
 	sta temp
 
-	lda #3
+	lda #6
 	sta arg0
 	lda temp
 	sta arg1
@@ -875,7 +875,7 @@ even:
 	adc #16 + 1
 	sta temp
 
-	lda #3
+	lda #6
 	sta arg0
 	lda temp
 	sta arg1
@@ -898,7 +898,7 @@ even:
 	adc #16 + 2
 	sta temp
 
-	lda #3
+	lda #6
 	sta arg0
 	lda temp
 	sta arg1
