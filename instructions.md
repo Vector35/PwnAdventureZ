@@ -17,6 +17,9 @@ Included in this zip file are:
 ## The Goal
 The goal of this speedrun challenge is to be the first to reach the end credits of the game. Specifically, the `do_show_credits` function (beating the game normally will automatically trigger this). The exact memory location of this function can be found in `PwnAdventureZ.nes.1.nl`. You may use hard or apocalypse difficulty if you desire, but it is expected that the fastest solutions will use the normal difficulty as described in the tutorials section below.
 
+## The Emulator
+To ensure maximal compatibility with TASBot, please use the QuickNES core of BizHawk 1.11.4. 
+
 ## Differences
 Several changes have been made for this AGDQ 2016 version compared to the original CSAW 2015 CTF contest version:
 
