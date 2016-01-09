@@ -129,6 +129,39 @@ PROC update_player_sprite
 .endproc
 
 
+PROC update_player_palette
+	lda rendering_enabled
+	beq palettedone
+
+	lda player_damage_flash_time
+	beq normalpalette
+
+	and #4
+	bne flashoff
+
+	LOAD_PTR player_damage_palette
+	lda #4
+	jsr load_single_palette
+
+	dec player_damage_flash_time
+	jmp palettedone & $ffff
+
+flashoff:
+	dec player_damage_flash_time
+
+normalpalette:
+	lda player_palette
+	sta ptr
+	lda player_palette + 1
+	sta ptr + 1
+	lda #4
+	jsr load_single_palette
+
+palettedone:
+	rts
+.endproc
+
+
 .segment "EXTRA"
 
 PROC do_init_player_sprites
@@ -229,35 +262,8 @@ loadpal:
 .endproc
 
 
+
 PROC do_update_player_sprite
-	lda rendering_enabled
-	beq palettedone
-
-	lda player_damage_flash_time
-	beq normalpalette
-
-	and #4
-	bne flashoff
-
-	LOAD_PTR player_damage_palette
-	lda #4
-	jsr load_single_palette
-
-	dec player_damage_flash_time
-	jmp palettedone & $ffff
-
-flashoff:
-	dec player_damage_flash_time
-
-normalpalette:
-	lda player_palette
-	sta ptr
-	lda player_palette + 1
-	sta ptr + 1
-	lda #4
-	jsr load_single_palette
-
-palettedone:
 	lda player_anim_frame
 	lsr
 	lsr
