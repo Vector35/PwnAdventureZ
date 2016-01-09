@@ -24,8 +24,6 @@ Several changes have been made for this AGDQ 2016 version compared to the origin
 2. The RNG was changed to determine drops solely based on the order rooms are entered, not the far more random system used in the CSAW build as it would have required constant frame-perfect control.
 3. Hordes are now kill-count based as opposed to time-based
 4. Startup screen customized for GDQ 
-5. The save system causes TASBot replay desync and has been disabled
-6. The controller input routines have been changed (though this should not effect any user visible behavior)
 
 You can verify these changes yourself if you like in the source code as mentioned below.
 
