@@ -60,8 +60,8 @@ To determine what enemies drop what types of items, see the `normal_enemyname_dr
 - There are three shops in the game, shop.asm in the source code lists the items they each buy and sell. 
 
 ## Source Code
-You can check out the source for the challenge (both the [CSAW version](https://github.com/vector35/PwnAdventureZ) and this [AGDQ version](https://github.com/vector35/agdq)) on github.
+You can check out the source for the challenge (both the [CSAW version](https://github.com/vector35/PwnAdventureZ) and this [AGDQ version](https://github.com/vector35/pwnadventurez/tree/agdq)) on github.
 
-If you are unfamiliar with git or github, you can also just download the source code of the version used for AGDQ as a [zip file](https://github.com/vector35/agdq/archive/master.zip).
+If you are unfamiliar with git or github, you can also just download the source code of the version used for AGDQ as a [zip file](https://github.com/vector35/pwnadventurez/archive/agdq.zip).
 
 
