@@ -4,7 +4,7 @@
 
 Pwn Adventure Z (PwnZ) continues the long tradition in the [Pwn Adventure series](http://pwnadventure.com/) of being a fully hackable game.
 
-PwnZ is an NES game (yes, the original NES) based on [Mapper 1](http://wiki.nesdev.com/w/index.php/Mapper) hardware--similar to the hardware that powered The Legend of Zelda. 
+PwnZ is an NES game (yes, the original NES) based on [Mapper 1](http://wiki.nesdev.com/w/index.php/MMC1) hardware--similar to the hardware that powered The Legend of Zelda. 
 
 The game was originally released at the [CSAW CTF 2015](https://ctf.isis.poly.edu/) competition, an in-person CTF where each team was given a physical cartridge to solve the built-in challenges for. 
 
