@@ -29,6 +29,10 @@ PwnZ is not just for people looking to solve CTF challenges. It's also a fun gam
 ## Symbols
 If you are working on the reverse engineering / vulnerability research challenges in the game, you'll be interested in the symbols included in the above `zip` file that allow debuggers like [FCEUX](http://www.fceux.com/web/home.html) and [Binary Ninja](https://binary.ninja/) (note that the open source verison does not support NES roms) to include names while analyzing the program. Simply unzip the original zip in the same place, and the symbols should automatically load. 
 
+## Playing Online
+
+You won't be able to solve most of the challenges and sound isn't working but you can at least check out the game [online](./PwnAdventureZ.html)
+k
 ## Playing on Real Hardware
 
 If you'd like to try the game on real hardware, we used components from [infiniteneslives.com](http://www.infiniteneslives.com/nessupplies.php). Specifically, you'll need to purchase an [INL Retro](http://www.infiniteneslives.com/kazzo.php) programmer, as well as a [Mapper 1 256kb with Save Battery](http://www.infiniteneslives.com/nessupplies.php#MMC1) rom.  
