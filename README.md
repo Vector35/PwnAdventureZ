@@ -31,8 +31,8 @@ If you are working on the reverse engineering / vulnerability research challenge
 
 ## Playing Online
 
-You won't be able to solve most of the challenges and sound isn't working but you can at least check out the game [online](./PwnAdventureZ.html)
-k
+You won't be able to solve most of the challenges and sound isn't working but you can at least check out the game [online](https://vector35.github.io/PwnAdventureZ/PwnAdventureZ.html).
+
 ## Playing on Real Hardware
 
 If you'd like to try the game on real hardware, we used components from [infiniteneslives.com](http://www.infiniteneslives.com/nessupplies.php). Specifically, you'll need to purchase an [INL Retro](http://www.infiniteneslives.com/kazzo.php) programmer, as well as a [Mapper 1 256kb with Save Battery](http://www.infiniteneslives.com/nessupplies.php#MMC1) rom.  
