@@ -12,5 +12,4 @@ PwnAdventureZ_physical.nes
 audio/*.nes
 audio/*.txt
 *.sublime-workspace
-PwnAdventureZ.html
 saves/
